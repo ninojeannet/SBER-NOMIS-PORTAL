@@ -1,0 +1,43 @@
+// ####################################
+// Global content wrapper
+// ####################################
+
+.content-wrapper {
+    margin: 0 1rem;
+    padding: 0;
+    
+    @include tablet {
+        margin: 0 1.5rem;
+    }
+
+    @include laptop {
+        margin: 0 2rem;
+    }
+
+    @include desktop {
+        max-width: 1648px;
+        margin: 0 auto;
+    }
+}
+
+// ####################################
+// Adding margin to content before the main footer
+// ####################################
+
+.before-footer {
+    padding-bottom: 9em;
+}
+
+// ####################################
+// Justify all the descriptions
+// ####################################
+
+.description {
+    text-align: justify;
+}
+
+.description-group {
+    h5 {
+        font-weight: bold;
+    }
+}

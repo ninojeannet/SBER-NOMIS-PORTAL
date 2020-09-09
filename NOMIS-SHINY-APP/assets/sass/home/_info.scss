@@ -1,0 +1,19 @@
+// ####################################
+// Homepage info subtitle style
+// ####################################
+
+.info {
+    text-align: center;
+
+    h2 {
+        margin: 0 auto 2em;
+        padding: 0 0 .5em;
+        max-width: 1300px;
+        border-bottom: 1px solid $primary-color;
+
+        @include laptop {
+            width: 95%;
+            font-size: 2.6em;
+        }
+    }
+}

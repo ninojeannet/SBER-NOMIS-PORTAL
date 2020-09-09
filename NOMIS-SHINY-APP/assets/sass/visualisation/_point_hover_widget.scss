@@ -1,0 +1,59 @@
+// ####################################
+// PointHoverWidget style and layout
+// ####################################
+
+.point-hover-widget-plot {
+    .shiny-plot-output {
+        position: relative;
+    }
+}
+
+.point-hover-widget {
+    font-size: .9em;
+    position: absolute;
+    z-index: 1;
+}
+
+.point-info {
+    display: flex;
+    margin: 0 0 .5em;
+
+    &:last-child {
+        margin: 0;
+    }
+
+    .name {
+        font-weight: bold;
+        margin: 0 5px;
+    }
+
+    .value {
+        margin: 0 0 0 auto;
+        font-style: oblique;
+        white-space: nowrap;
+        color: $primary-color;
+    }
+}
+
+.bubble {
+    position: relative;
+    background-color: $white;
+    padding: 10px;
+    border-radius: 1em;
+    box-shadow:	0 1px 7px 0 $grey5;
+
+    &::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 0;
+        top: 100%;
+        left: 15px; 
+        border: 10px solid transparent;
+        border-bottom: none;
+        border-top-color: $white;
+        filter: drop-shadow(0 2.88px 0.72px lighten($grey5, 20));
+    }
+}
+
+

@@ -1,0 +1,21 @@
+// ####################################
+// Shiny sidebar style overriding
+// ####################################
+
+.well {
+    background: lighten($grey5, 25);
+    border: 1px solid $primary-color;
+}
+
+// ####################################
+// Sidebar inputs layout
+// ####################################
+
+.time-serie-input {
+    margin: 0 0 1.5em;
+    min-height: 400px;
+
+    &:last-child {
+        margin: 0;
+    }
+}

@@ -1,0 +1,46 @@
+// ####################################
+// Download tab layout
+// ####################################
+
+.download-main {
+    margin: 1.5em 0 0 0;
+
+    @include laptop {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 10px;
+    }
+}
+
+.download__inputs {
+    @include tablet{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include laptop {
+        display: block;
+    }
+}
+
+.download__data-preview {
+    margin: 0 0 2em;
+
+    .shiny-bound-output.shiny-spinner-hidden {
+        position: absolute;
+    }
+}
+
+.download__date-range {
+    margin: 0 0 1.5em;
+
+    .shiny-date-range-input {
+        margin: 0 0 .5em;
+    }
+}
+
+.shinybusy-modal {
+    .sk-cube-grid {
+        margin: 0;
+    }
+}

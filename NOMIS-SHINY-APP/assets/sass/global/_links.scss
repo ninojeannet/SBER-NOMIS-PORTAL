@@ -1,0 +1,13 @@
+// ####################################
+// Custom links
+// ####################################
+
+.custom-links {
+    color: $secondary-color;
+
+    &:hover,
+    &:active,
+    &:focus {
+        color: $primary-color;
+    }
+}

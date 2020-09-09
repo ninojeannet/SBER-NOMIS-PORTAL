@@ -1,0 +1,40 @@
+// ####################################
+// Global styles import
+// ####################################
+
+@import 'global/variables';
+@import 'global/mixins';
+@import 'global/base';
+@import 'global/helpers';
+@import 'global/logo';
+@import 'global/navbar';
+@import 'global/secondary_nav';
+@import 'global/inputs';
+@import 'global/links';
+@import 'global/modal';
+@import 'global/footer';
+
+// ####################################
+// Homepage styles import
+// ####################################
+
+@import 'home/banner';
+@import 'home/info';
+@import 'home/features';
+
+// ####################################
+// Visualisation page styles import
+// ####################################
+
+@import 'visualisation/main_inputs';
+@import 'visualisation/sidebar';
+@import 'visualisation/main_content';
+@import 'visualisation/stats_summary';
+@import 'visualisation/point_hover_widget';
+@import 'visualisation/help_table';
+
+// ####################################
+// Visualisation page styles import
+// ####################################
+
+@import 'download/download';

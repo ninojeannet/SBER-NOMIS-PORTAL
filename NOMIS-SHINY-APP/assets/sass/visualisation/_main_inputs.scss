@@ -1,0 +1,43 @@
+// ####################################
+// Global inputs layout
+// ####################################
+
+.main-inputs {
+    display: flex;
+    flex-wrap: wrap;;
+    align-items: center;
+    margin: 0 0 1.5em;
+
+    .form-group {
+        margin-right: 3px;
+    }
+
+    .icon-btn {
+        font-size: 1.5em;
+    }
+
+    @include tablet {
+        .main-actions {
+            margin: 0 0 0 auto;
+        }
+
+        .btn-group {
+            margin: 0;
+        }
+    
+        .form-group {
+            margin: 0 3px 0 0;
+            display: flex;
+            align-items: center;
+            width: auto;
+    
+            & > label{
+                margin: 0 1.5em 0 0;
+            }
+            
+            & > div {
+               width: auto;
+            }
+        }
+    }
+}

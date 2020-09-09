@@ -8,41 +8,102 @@
 #
 
 library(shiny)
+library(shinyjs)
+library(shinyWidgets)
+library(shinybusy)
+library(shinycssloaders)
+library(sass)
+library(mailR)
+library(jsonlite)
+library(readr)
+library(stringr)
+library(ggplot2)
+library(Cairo)
+library(data.table)
+library(lubridate)
+library(forcats)
+library(tidyr)
+library(magrittr)
+library(dplyr)
+
+## Compile CSS from Sass ##########################################################
+sass(
+    sass_file('assets/sass/main.scss'), 
+    output = 'www/main.css',
+    options = sass_options(output_style = 'compressed')
+)
+
+## Load helper functions ##########################################################
+source('./utils/helper_functions.R')
+
+## Compile and minify JavaScript ##################################################
+js_parser()
+
+## Load data ######################################################################
+
+####################3
+
+
+## Load Shiny extensions functions ################################################
+source('./utils/shiny_extensions.R')
+
+
+## Load tabs modules ##############################################################
+#source('./modules/visualisation_tab/visualisation_tab.R')
+#source('./modules/download_tab/download_tab.R')
+## Load tabs modules ##############################################################
+source('./modules/management_tab/management_tab.R')
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
-
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
+ui <- tagList(
+    # Load shinyjs
+    useShinyjs(),
+    # Add stylesheet link and script tags to head
+    tags$head(
+        # Add link to main.css stylesheet
+        tags$link(href = 'main.css', rel = 'stylesheet', type = 'text/css'),
+        # Add link for js script
+        tags$script(src = 'nomisportal.js')
+    ),
+    # Add a class to the body element to keep the footer at the bottom of the page
+    tags$body(class = 'footer-to-bottom-container'),
+    # Create the navbarPage using custom function to add a content-wrapper (defined in './utils/shiny_extensions.R')
+    navbarPageWithWrapper(
+        # Pass in the output of shiny navbarPage()
+        navbarPage(
+            # Load the custom logo for the navbar title
+            htmlTemplate('./html_components/logo.html'),
+            
+            # Set a window browser window title
+            windowTitle = 'NOMIS DATA PORTAL',
+            # Create the home tab
+            tabPanel(
+                # Create a tab title with an icon
+                tags$span(icon('home'),tags$span('Home', class = 'navbar-menu-name'))
+            ),
+            # Create the visualisation tab
+            tabPanel(
+                # Create a tab title with an icon
+                tags$span(icon('chart-bar'),tags$span('Visualisation', class = 'navbar-menu-name')),
+                # Load the visualisationTab module UI elements
+                #visualisationTabUI('1', grabSampleDf, hfDf, sites, grabSampleParameters, hfParameters)
+            ),
+            # Create the data management tab
+            tabPanel(
+                # Create a tab title with an icon
+                tags$span(icon('database'),tags$span('Data Management', class = 'navbar-menu-name')),
+                managementTabUI('1')
+            )
         ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
+        # Add footer to navbarPageWithWrapper
+        footer = htmlTemplate('html_components/footer.html')
     )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    })
+    #callModule(managementTab,"1")
 }
 
 # Run the application 

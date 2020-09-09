@@ -1,0 +1,71 @@
+// ####################################
+// Homepage features layout
+// ####################################
+
+.features {
+    margin: 0 auto;
+
+    &__row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+    }
+}
+
+// ####################################
+// Homepage feature style
+// ####################################
+
+.feature {
+    box-shadow: 1px 2px 6px 2px $grey5;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 0 0 2em;
+    flex: 0 1 360px;
+    text-align: left;
+
+    @include laptop {
+        flex: 0 1 400px;
+    }
+
+    &__title {
+        background: lighten($grey5, 20);
+        padding: 1em .5em;
+        margin: 0 0 1.5em;
+        
+        h3 {
+            margin: 0;
+        }
+
+        .icon {
+            margin: 0 1em 0 0;
+            color: $primary-color;
+        }
+
+        @include laptop {
+            h3 {
+                font-size: 2em;
+            }
+        }
+    }
+
+    &__content {
+        font-size: 1.4em;
+
+        ul {
+            list-style: none;
+        }
+
+        li::before {
+            content: "\2022"; 
+            color: $primary-color;
+            display: inline-block; 
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        @include laptop {
+            font-size: 1.6em;
+        }
+    }
+}

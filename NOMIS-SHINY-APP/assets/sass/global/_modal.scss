@@ -1,0 +1,28 @@
+// ####################################
+// Shiny modal style overriding
+// ####################################
+
+.modal-dialog {
+    width: auto;
+    max-width: 750px;
+
+    .modal-header {
+        border-bottom: 1px solid $primary-color;
+
+        h4 {
+            font-weight: bold;
+        }
+    }
+
+    .modal-footer {
+        border-top: 1px solid $primary-color;
+    }
+
+    @include laptop {
+        max-width: 900px;
+    }
+
+    @include desktop {
+        max-width: 1200px;
+    }
+}

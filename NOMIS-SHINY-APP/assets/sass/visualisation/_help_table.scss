@@ -1,0 +1,32 @@
+// ####################################
+// Summary stats tables layout
+// ####################################
+
+.help-table {
+    th {
+        vertical-align: top;
+        white-space: nowrap;
+    }
+
+    td {
+        text-align: justify;
+    }
+
+    th, td {
+        padding: 1.5em 1em;
+    }
+
+    tr {
+        border-bottom: 1px solid $primary-color;
+
+        &:first-child {
+            th, td {
+                padding-top: 0;
+            }
+        }
+
+        &:last-child {
+            border: none;
+        }
+    }
+}

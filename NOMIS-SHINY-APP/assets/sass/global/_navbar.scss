@@ -1,0 +1,25 @@
+// ####################################
+// Shiny navbar style overriding
+// ####################################
+
+.navbar {
+    background-color: $grey5;
+    margin: 0;
+    border: none;
+
+    .navbar-nav > .active > a,
+    .navbar-nav > .active > a:focus,
+    .navbar-nav > .active > a:hover {
+        background-color: $grey3;
+        color: $primary-color;
+    }
+    
+    .navbar-nav > li > a {
+        color: $grey1;
+
+        &:hover, &:focus {
+            background-color: $grey4;
+            color: $grey2;    
+        }
+    }
+}

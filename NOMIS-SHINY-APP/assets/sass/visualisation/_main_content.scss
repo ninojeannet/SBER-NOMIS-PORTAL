@@ -1,0 +1,23 @@
+// ####################################
+// Time serie plot layout
+// ####################################
+
+.time-serie-plot {
+    margin: 0 0 1.5em;
+
+    &:first-child {
+        padding: 19px 0 0;
+    }
+
+    &:last-child {
+        margin: 0;
+    }
+    
+    &.two-plots{
+        @include tablet {
+            display: grid;
+            grid-template-columns: repeat(2, 1 / 2 * 100%);
+            
+        }
+    }
+}

@@ -1,0 +1,26 @@
+// ####################################
+// Summary stats tables layout
+// ####################################
+
+.stats-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+
+    .stats-summary-table {
+        th {
+            border-bottom: 2px solid $grey5;
+            color: $primary-color;
+        }
+
+        td {
+            border-bottom: 1px solid $grey5;
+            color: $primary-color;
+
+            &:first-child {
+                color: $grey1;
+            }
+        }
+    }
+}
