@@ -13,11 +13,12 @@ uploadTabUI <- function(id) {
   #  - id: String, the module id
   ns <- NS(id)
   
-  types <- c("test"="gl","ts"=2,"gsf"=3)
+  types <- c("Glacier metrics"="gl","Location metrics"="loc","Patch metrics"="patch")
+  
   wellPanel(
     selectInput(ns('templateType'),"Select a file template",choices = types),
     fileInput(ns("file"),"Select your file (.csv)",accept=".csv"),
-    actionButton(ns("btnUpload"),"Insert data in database",icon = icon("upload")),
+    disabled(actionButton(ns("btnUpload"),"Insert data in database",icon = icon("upload"))),
     textOutput(ns("status")),
     tableOutput(ns("table"))
   )
@@ -28,6 +29,27 @@ uploadTabUI <- function(id) {
 
 uploadTab <- function(input, output, session,pool){
 
+  #
+
+  observeEvent(input$file,{
+    file <- input$file
+    ext <- tools::file_ext(file$datapath)
+    
+    req(file)
+    if(ext != "csv"){
+      statusText <- "Please upload a csv file"
+      disable("btnUpload")
+    } 
+    else
+    {
+      statusText <- ""
+      enable("btnUpload")
+    }
+    output$status <- renderText({
+      statusText
+    })
+  })
+  
   observeEvent(input$btnUpload, {
     file <- input$file
     content <- read.csv(file$datapath)
@@ -38,7 +60,7 @@ uploadTab <- function(input, output, session,pool){
     if (isFileValid(output,content,type))
       statusText <- "File format is valid"
     else
-      statusText <- "File format is not valid"
+      statusText <- "File format is not valid for the selected template"
     
     
     output$status <- renderText({
