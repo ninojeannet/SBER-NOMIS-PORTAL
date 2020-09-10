@@ -25,6 +25,10 @@ library(forcats)
 library(tidyr)
 library(magrittr)
 library(dplyr)
+library(DBI)
+library(pool)
+
+#devtools::install_github("rstudio/pool@dplyr-pre-0.7.0-compat")
 
 ## Compile CSS from Sass ##########################################################
 sass(
@@ -53,6 +57,14 @@ source('./utils/shiny_extensions.R')
 #source('./modules/download_tab/download_tab.R')
 ## Load tabs modules ##############################################################
 source('./modules/management_tab/management_tab.R')
+source('./modules/upload_tab/upload_tab.R')
+
+pool <- dbPool(
+    drv = RMySQL::MySQL(),
+    dbname = "test",
+    host = "127.0.0.1",
+    username = "root",
+    password = "admin")
 
 # Define UI for application that draws a histogram
 ui <- tagList(
@@ -92,7 +104,20 @@ ui <- tagList(
             tabPanel(
                 # Create a tab title with an icon
                 tags$span(icon('database'),tags$span('Data Management', class = 'navbar-menu-name')),
+                # Load the managementTab module UI elements
                 managementTabUI('1')
+            ),
+            tabPanel(
+                # Create a tab title with an icon
+                tags$span(icon('upload'),tags$span('Upload', class = 'navbar-menu-name')),
+                # Load the uploadTab module UI elements
+                uploadTabUI('1')
+            ),
+            tabPanel(
+                # Create a tab title with an icon
+                tags$span(icon('download'),tags$span('Download', class = 'navbar-menu-name')),
+                # Load the visualisationTab module UI elements
+                #visualisationTabUI('1', grabSampleDf, hfDf, sites, grabSampleParameters, hfParameters)
             )
         ),
         # Add footer to navbarPageWithWrapper
@@ -101,9 +126,9 @@ ui <- tagList(
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output, session) {
 
-    #callModule(managementTab,"1")
+    callModule(uploadTab,"1",pool)
 }
 
 # Run the application 
