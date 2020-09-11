@@ -21,6 +21,7 @@ uploadTabUI <- function(id) {
     disabled(actionButton(ns("btnUpload"),"Insert data in database",icon = icon("upload"))),
     textOutput(ns("status")),
     tableOutput(ns("table"))
+    
   )
   
   # Create namespace
@@ -54,11 +55,15 @@ uploadTab <- function(input, output, session,pool){
     file <- input$file
     content <- read.csv(file$datapath)
     type <- input$templateType
+
     output$status <- renderText({
       c(" test ",type)
     })
     if (isFileValid(output,content,type))
+    {
       statusText <- "File format is valid"
+      saveData(content,"glacier",output,pool,session)
+    }
     else
       statusText <- "File format is not valid for the selected template"
     
@@ -83,8 +88,54 @@ isFileValid <- function(output,content, type){
   return(FALSE)
 }
 
-saveFile <- function(){
+saveData <- function(data,tableName,output,pool,session){
+  # output$table <- renderTable({
+  #   dbGetQuery(pool,"SELECT * FROM glacier")
+  # })
   
+  #dbAppendTable(pool,"glacier",data)
+  responses_df <- data.frame(row_id = character(),
+                             name = character(),
+                             sex = character(),
+                             age = character(), 
+                             comment = character(),
+                             date = as.Date(character()),
+                             stringsAsFactors = FALSE)
+  # dbWriteTable(pool, "responses_df", responses_df, overwrite = FALSE, append = TRUE)
+
+  
+  request <- paste0(c('INSERT INTO ',tableName,' ('))
+  headers <-colnames(data)
+  for(x in headers){request <- paste0(c(request,"`",x,"`, "))}
+  
+  request <- paste(request,collapse = '')
+
+  # for (variable in colnames(data)) {
+  #   request <- paste0(request,sprintf("'",variable,"',"))
+  # }
+  request <- substr(request,1,nchar(request)-2)
+  request <- paste0(request,") VALUES ")
+  # 
+  # 
+  for(row in 1:nrow(data)){
+    request <- paste0(request,"(")
+    for(value in data[row,])
+    {
+        request <- paste0(request,"'",value,"',")
+    }
+    request <- substr(request,1,nchar(request)-1)
+    request <- paste0(request,"),")
+  }
+  request <- substr(request,1,nchar(request)-1)
+  request <- paste0(request,";")
+  session$sendCustomMessage(type = 'testmessage',{request} )
+  
+  conn <- poolCheckout(pool)
+  dbWithTransaction(conn,{
+    dbGetQuery(conn,request)
+  })
+  
+  poolReturn(conn)
 }
 
 

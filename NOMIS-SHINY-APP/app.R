@@ -59,6 +59,13 @@ source('./utils/shiny_extensions.R')
 source('./modules/management_tab/management_tab.R')
 source('./modules/upload_tab/upload_tab.R')
 
+# all_cons <- dbListConnections(RMySQL::MySQL())
+# 
+# print(all_cons)
+# 
+# for(con in all_cons)
+#     +  dbDisconnect(con)
+
 pool <- dbPool(
     drv = RMySQL::MySQL(),
     dbname = "test",
@@ -129,6 +136,7 @@ ui <- tagList(
 server <- function(input, output, session) {
 
     callModule(uploadTab,"1",pool)
+    onStop(function() poolClose(pool))
 }
 
 # Run the application 
