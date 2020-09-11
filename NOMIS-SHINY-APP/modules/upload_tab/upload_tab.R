@@ -1,8 +1,5 @@
 ## This module contains the UI and server code for the Download tab
 
-## Source needed files ############################################################
-#source('./modules/download_tab/download_data.R')
-#source('./modules/download_tab/request_data.R')
 source('./utils/template_config.R')
 
 ## Create module UI ###############################################################
@@ -23,9 +20,6 @@ uploadTabUI <- function(id) {
     tableOutput(ns("table"))
     
   )
-  
-  # Create namespace
-  
 }
 
 uploadTab <- function(input, output, session,pool){
@@ -103,11 +97,24 @@ saveData <- function(data,tableName,output,pool,session){
   # session$sendCustomMessage(type = 'testmessage',{request} )
   
   #Send query to the database using pool
-  conn <- poolCheckout(pool)
-  dbWithTransaction(conn,{
-    dbGetQuery(conn,request)
+  check <- tryCatch({
+    conn <- poolCheckout(pool)
+    queryStatus <- dbWithTransaction(conn,{
+      dbGetQuery(conn,request)
+    })
+    poolReturn(conn)
+    print("Data successfully inserted into database")
+  },
+  warning = function(war){
+    print(war)
+  },
+  error = function(err){
+    print(err)
+  },
+  finally = function(f){
+    print(e) 
   })
-  poolReturn(conn)
+  
 }
 
 
