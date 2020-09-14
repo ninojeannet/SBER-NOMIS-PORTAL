@@ -1,9 +1,7 @@
-## This module contains the UI and server code for the Download tab
+## This module contains the UI and server code for the Management tab
 
-## Source needed files ############################################################
-#source('./modules/download_tab/download_data.R')
-#source('./modules/download_tab/request_data.R')
-
+source('./modules/management_tab/management_sidebar.R')
+source('./modules/management_tab/management_main.R')
 
 ## Create module UI ###############################################################
 
@@ -11,13 +9,31 @@ managementTabUI <- function(id) {
 # Create the UI for the downloadTab module
 # Parameters:
 #  - id: String, the module id
-  textInput("test","1")
+  ns <- NS(id)
   
   # Create namespace
+  
+  # Create the sidebarLayout
+  sidebarLayout(
+    # Create a sidebar with the innerModule first unit input UI elements inside
+    sidebarPanel(
+      id = ns('sidebar-management'),
+      managementSidebarUI(ns("sidebar")),
+      width = 4
+    ),
+    # Create the main panel with the innerModule first unit plot UI elements inside
+    mainPanel(
+      id = ns('main-management'),
+      managementMainUI("1"),
+      width = 8
+    )
+  )
 
 }
 
-managementTab <- function(id){
-  id <- 3
+managementTab <- function(input, output, session,pool){
+  callModule(managementSidebar,"sidebar")
+  callModule(managementMain,"1")
+  
 }
 

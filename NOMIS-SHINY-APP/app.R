@@ -136,6 +136,8 @@ ui <- tagList(
 server <- function(input, output, session) {
 
     callModule(uploadTab,"1",pool)
+    callModule(managementTab,"1",pool)
+    
     onStop(function() poolClose(pool))
 }
 
