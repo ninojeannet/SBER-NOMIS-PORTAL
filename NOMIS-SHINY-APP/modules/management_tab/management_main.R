@@ -6,7 +6,6 @@ managementMainUI <- function(id) {
   #  - id: String, the module id
   ns <- NS(id)
   div(
-    selectInput(ns("tmp"),label="TT",choices = "choic"),
     dataTableOutput(ns("outputTable")),
     actionButton(ns("search"),label = "search")
     
@@ -18,7 +17,7 @@ managementMainUI <- function(id) {
 
 managementMain <- function(input, output, session,vars,pool){
   
-  
+
   observeEvent(input$search,{
     output$outputTable <- DT::renderDataTable({
       data <- getData(pool)

@@ -51,7 +51,7 @@ observeEvent(input$btnUpload, {
     if (isFileValid(output,content,type))
     {
       statusText <- ""
-      saveData(content,tableNameIndex[[type]],output,pool,session)
+      saveData(content,type,output,pool,session)
     }
     else
       statusText <- "File format is not valid for the selected template"

@@ -11,7 +11,7 @@ managementSidebarUI <- function(id) {
     hidden(textInput(ns("glacier"),"Glacier",value = "")),
     hidden(textInput(ns("location"),"Location")),
     hidden(textInput(ns("patch"),"Patch")),
-    hidden(actionButton(ns("search"),"Search")),
+    actionButton(ns("searchh"),"Search"),
   )
 
 }
@@ -44,6 +44,7 @@ managementSidebar <- function(input, output, session){
   })
   
   return(list(
-    id = reactive({input$glacier})
+    id = reactive({input$glacier}),
+    btnClick = input$searchh
   ))
 }
