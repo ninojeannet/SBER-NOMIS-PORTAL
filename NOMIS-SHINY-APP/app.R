@@ -27,9 +27,9 @@ library(magrittr)
 library(dplyr)
 library(DBI)
 library(pool)
+library(DT)
 
 #devtools::install_github("rstudio/pool@dplyr-pre-0.7.0-compat")
-
 ## Compile CSS from Sass ##########################################################
 sass(
     sass_file('assets/sass/main.scss'), 

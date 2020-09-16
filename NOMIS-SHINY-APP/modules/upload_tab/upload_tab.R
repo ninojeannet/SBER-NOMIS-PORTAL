@@ -10,10 +10,9 @@ uploadTabUI <- function(id) {
   #  - id: String, the module id
   ns <- NS(id)
   
-  types <- c("Glacier metrics"="gl","Location metrics"="loc","Patch metrics"="patch")
   
   wellPanel(
-    selectInput(ns('templateType'),"Select a file template",choices = types),
+    selectInput(ns('templateType'),"Select a file template",choices = templateTypes),
     fileInput(ns("file"),"Select your file (.csv)",accept=".csv"),
     disabled(actionButton(ns("btnUpload"),"Insert data in database",icon = icon("upload"))),
     textOutput(ns("status")),
@@ -23,8 +22,6 @@ uploadTabUI <- function(id) {
 }
 
 uploadTab <- function(input, output, session,pool){
-
-  #
 
   observeEvent(input$file,{
     file <- input$file
@@ -45,22 +42,19 @@ uploadTab <- function(input, output, session,pool){
     })
   })
   
-  observeEvent(input$btnUpload, {
+observeEvent(input$btnUpload, {
     file <- input$file
     content <- read.csv(file$datapath)
+    print(content)
     type <- input$templateType
 
-    output$status <- renderText({
-      c(" test ",type)
-    })
     if (isFileValid(output,content,type))
     {
-      statusText <- "File format is valid"
-      saveData(content,"glacier",output,pool,session)
+      statusText <- ""
+      saveData(content,tableNameIndex[[type]],output,pool,session)
     }
     else
       statusText <- "File format is not valid for the selected template"
-    
     
     output$status <- renderText({
       statusText
@@ -73,10 +67,13 @@ uploadTab <- function(input, output, session,pool){
 
 # Check if the content of the uploaded file fit the selected template.
 isFileValid <- function(output,content, type){
+  # tmp <- sapply(colnames(content), removeBrackets)
+  # showNotification(str_replace(colnames(content)[2],"\\[.*\\]",""))
   
-  if(match(type,names(templateConfig)))
+  
+  if(match(type,names(templateFieldNames)))
   {
-    if(identical(colnames(content),templateConfig[[type]]))
+    if(identical(colnames(content),templateFieldNames[[type]]))
     {
       return(TRUE)
     }
@@ -86,7 +83,7 @@ isFileValid <- function(output,content, type){
 
 
 
-#Save the given data into the database
+# Save the given data into the database
 # Params :
 # - data : dataframe of data to insert into the database
 # - tableName : name of the table in which the data will be inserted
@@ -94,8 +91,7 @@ isFileValid <- function(output,content, type){
 saveData <- function(data,tableName,output,pool,session){
 
   request <- buildInsertQuery(data,tableName)
-  # session$sendCustomMessage(type = 'testmessage',{request} )
-  
+
   #Send query to the database using pool
   check <- tryCatch({
     conn <- poolCheckout(pool)
@@ -104,12 +100,15 @@ saveData <- function(data,tableName,output,pool,session){
     })
     poolReturn(conn)
     print("Data successfully inserted into database")
+    showNotification("Data successfully inserted into database",type = "message")
   },
   warning = function(war){
     print(war)
+    showNotification(war$message, type = "warning")
   },
   error = function(err){
     print(err)
+    showNotification(err$message,type = "error",duration = NULL)
   },
   finally = function(f){
     print(e) 
@@ -140,8 +139,17 @@ buildInsertQuery <- function(data,tableName){
     request <- paste0(request,"),")
   }
   request <- substr(request,1,nchar(request)-1)
+  request <- paste0(request," AS new_values ON DUPLICATE KEY UPDATE ")
+  for(x in headers[-1]){request <- paste0(request,x,"=new_values.",x,", ")}
+  request <- substr(request,1,nchar(request)-2)
   request <- paste0(request,";")
   
   return(request)
+}
+
+removeBrackets <- function(value){
+  str_replace(value,"\\[.*\\]","")
+  print(value)
+  return(value)
 }
 

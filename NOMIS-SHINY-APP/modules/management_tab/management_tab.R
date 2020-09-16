@@ -24,7 +24,7 @@ managementTabUI <- function(id) {
     # Create the main panel with the innerModule first unit plot UI elements inside
     mainPanel(
       id = ns('main-management'),
-      managementMainUI("1"),
+      managementMainUI(ns("main")),
       width = 8
     )
   )
@@ -32,8 +32,8 @@ managementTabUI <- function(id) {
 }
 
 managementTab <- function(input, output, session,pool){
-  callModule(managementSidebar,"sidebar")
-  callModule(managementMain,"1")
+  vars <- callModule(managementSidebar,"sidebar")
+  callModule(managementMain,"main",vars,pool)
   
 }
 

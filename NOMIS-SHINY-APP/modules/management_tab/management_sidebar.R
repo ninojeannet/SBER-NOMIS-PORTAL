@@ -7,11 +7,11 @@ managementSidebarUI <- function(id) {
   #  - id: String, the module id
   ns <- NS(id)
   div(
-    selectInput(ns("type"),label = "Select a data type",choices = c("Glacier" = "gl","Location"="loc","Patch"="patch")),
-    hidden(textInput(ns("glacier"),"Glacier")),
+    selectInput(ns("type"),label = "Select a data type",choices = c("Glacier" = "glacier","Location"="location","Patch"="patch","Enzyme"="enzyme")),
+    hidden(textInput(ns("glacier"),"Glacier",value = "")),
     hidden(textInput(ns("location"),"Location")),
     hidden(textInput(ns("patch"),"Patch")),
-    hidden(actionButton(ns("search"),"Search"))
+    hidden(actionButton(ns("search"),"Search")),
   )
 
 }
@@ -42,4 +42,8 @@ managementSidebar <- function(input, output, session){
       }
     }
   })
+  
+  return(list(
+    id = reactive({input$glacier})
+  ))
 }

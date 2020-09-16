@@ -5,12 +5,37 @@ managementMainUI <- function(id) {
   # Parameters:
   #  - id: String, the module id
   ns <- NS(id)
-  selectInput(ns("typeOfData"),label = "Select a data type",choices = c("Glacier" = "gl","Location"="loc","Patch"="patch"))
-  
+  div(
+    selectInput(ns("tmp"),label="TT",choices = "choic"),
+    dataTableOutput(ns("outputTable")),
+    actionButton(ns("search"),label = "search")
+    
+    
+  )
   # renderText(ns("tmp"),{"test"})
   
 }
 
-managementMain <- function(input, output, session){
+managementMain <- function(input, output, session,vars,pool){
   
+  
+  observeEvent(input$search,{
+    output$outputTable <- DT::renderDataTable({
+      data <- getData(pool)
+      table<-DT::datatable(data,rownames = FALSE,
+        options = list(searching = FALSE, lengthChange = FALSE),
+        selection="single")
+    })
+
+  })
+
+}
+
+getData <- function(pool){
+  conn <- poolCheckout(pool)
+  queryStatus <- dbWithTransaction(conn,{
+    dataframe <-dbGetQuery(conn,"SELECT * FROM glacier")
+  })
+  poolReturn(conn)
+  return(dataframe)
 }
