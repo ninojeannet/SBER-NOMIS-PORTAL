@@ -12,3 +12,11 @@ templateFieldNames[["enzyme"]] <- c("id_enzyme","id_patch","replicate","AG","AP"
 # tableNameIndex[["loc"]] <- "location"
 # tableNameIndex[["patch"]] <- "patch"
 # tableNameIndex[["enzyme"]] <- "enzyme"
+uniqueTogetherFields <- list()
+uniqueTogetherFields[["location"]] <- c('glacierid','type')
+uniqueTogetherFields[["patch"]] <- c('id_location','name')
+uniqueTogetherFields[["enzyme"]] <- c('id_patch','replicate')
+
+tableOptions <- list()
+tableOptions[["enzyme"]] <- c("format"="0.000000000","replicate"=3,"primary"="id_enzyme", "FK"="id_patch", "name"="replicate")
+

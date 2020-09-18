@@ -1,7 +1,6 @@
 ## This module contains the UI and server code for the Management tab
 
-source('./modules/management_tab/management_sidebar.R')
-source('./modules/management_tab/management_main.R')
+
 source('./utils/template_config.R')
 
 ## Create module UI ###############################################################
