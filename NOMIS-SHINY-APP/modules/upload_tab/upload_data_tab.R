@@ -1,4 +1,10 @@
 
+source('./utils/helper_database.R')
+source('./utils/helper_dataframe.R')
+
+source('./utils/template_config.R')
+
+
 
 uploadDataTabUI <- function(id){
   ns <- NS(id)
@@ -11,8 +17,8 @@ uploadDataTabUI <- function(id){
       div(
         selectInput(ns("type"),label = "Select a data type",choices = c("Glacier" = "glacier","Location"="location","Patch"="patch","Enzyme"="enzyme")),
         textInput(ns("glacier"),"Enter glacier ID"),
-        selectInput(ns("location"),"Select a location", choices = c("Up"="UP","Down"="DN")),
-        selectInput(ns("patch"),"Select a patch", choices = c(1,2,3)),
+        # selectInput(ns("location"),"Select a location", choices = c("Up"="UP","Down"="DN")),
+        # selectInput(ns("patch"),"Select a patch", choices = c(1,2,3)),
         actionButton(ns("generate"),"Generate template"),
       ),
       width = 4
@@ -22,7 +28,7 @@ uploadDataTabUI <- function(id){
       id = ns('main-upload'),
       div(
         rHandsontableOutput(ns("table")),
-        actionButton(ns("upload"),"Upload data")
+        hidden(actionButton(ns("upload"),"Upload data"))
       ),
       width = 8
     )
@@ -36,105 +42,163 @@ uploadDataTab <- function(input,output,session,pool){
   tableName <- reactive({input$type})
   
   dataf <- reactive({
-    tmp <- getData(pool,isolate(tableName()),input$glacier)
+    tmp <- getDataFromGlacier(pool,isolate(tableName()),input$glacier)
     return(generateFilledDF(tmp,tableName(),input$glacier))
   })
   
   observeEvent(input$generate,{
-
     output$table <- renderRHandsontable({
-      rhandsontable(dataf(),digits=10,stretchH = "all")%>% hot_cols(format = "0.000000000")
+      rhandsontable(dataf(),digits=10,stretchH = "all")%>%
+        hot_cols(format = tableOptions[[tableName()]][["format"]]) %>%
+        hot_col(readOnlyFields[[tableName()]], readOnly = TRUE) 
     })
+    showElement("upload")
   })
   
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
-    print(out)
     saveData(out,tableName(),pool)
   })
 
   
 }
 
-getData <- function(pool,tableName,glacierID){
-  conn <- poolCheckout(pool)
-  queryStatus <- dbWithTransaction(conn,{
-    query <- paste0("SELECT * FROM ",tableName," WHERE id_",tableName," LIKE '",glacierID,"%'")
-    dataframe <-dbGetQuery(conn,query)
-  })
-  poolReturn(conn)
-  return(dataframe)
-}
-
-saveData <- function(data,tableName,pool){
-  
-  request <- buildInsertQuery(data,tableName)
-  
-  #Send query to the database using pool
-  check <- tryCatch({
-    conn <- poolCheckout(pool)
-    queryStatus <- dbWithTransaction(conn,{
-      dbGetQuery(conn,request)
-    })
-    poolReturn(conn)
-    print("Data successfully inserted into database")
-    showNotification("Data successfully inserted into database",type = "message")
-  },
-  warning = function(war){
-    print(war)
-    showNotification(war$message, type = "warning")
-  },
-  error = function(err){
-    print(err)
-    showNotification(err$message,type = "error",duration = NULL)
-  },
-  finally = function(f){
-    print(e) 
-  })
-  
-}
-
-
-# Build an insert sql query
-# Params :
-# - data : dataframe of data to insert into the database
-# - tableName : name of the table in which the data will be inserted
-# Return the built request in a string
-buildInsertQuery <- function(data,tableName){
-  request <- paste0(c('INSERT INTO ',tableName,' ('))
-  headers <-colnames(data)
-  for(x in headers){request <- paste0(c(request,"`",x,"`, "))}
-  request <- paste(request,collapse = '')
-  request <- substr(request,1,nchar(request)-2)
-  request <- paste0(request,") VALUES ")
-  for(row in 1:nrow(data)){
-    request <- paste0(request,"(")
-    for(value in data[row,])
-    {
-      if(is.na(value))
-        request <- paste0(request,"NULL,")
-      else
-        request <- paste0(request,"'",value,"',")
-    }
-    request <- substr(request,1,nchar(request)-1)
-    request <- paste0(request,"),")
-  }
-  request <- substr(request,1,nchar(request)-1)
-  request <- paste0(request," AS new_values ON DUPLICATE KEY UPDATE ")
-  for(x in headers[-1]){request <- paste0(request,x,"=new_values.",x,", ")}
-  request <- substr(request,1,nchar(request)-2)
-  print(request)
-  return(request)
-}
-
-
+# This function generate a complete dataframe for a specific table and existing data
+# parameters :
+# - dataf : the existing data as a data frame
+# - tablename : the name of data's table
+# - glacierID : the id of the data's glacier
+# Return the generated data frame
 generateFilledDF <- function(dataf,tablename,glacierID){
+  
+  df <- switch (tablename,
+    'glacier' = generateGlacierDF(dataf,glacierID),
+    'location' = generateLocationDF(dataf,glacierID),
+    'patch' = generatePatchDF(dataf,glacierID),
+    generateParametersDF(dataf,tablename,glacierID)
+  )
+  str(df)
+  return(df)
+  
+}
+
+generateGlacierDF <- function(dataf,glacierID){
+  primary <- tableOptions[["glacier"]][["primary"]]
+  id <- glacierID
+  
+  nbCol <- ncol(dataf)
+  nbRow <- nrow(dataf)
+  
+  # Create a new empty dataframe
+  newdataf <- dataf
+  if (nrow(dataf) != 0)
+    newdataf[,]=matrix(ncol=ncol(newdataf), rep(NA, prod(dim(newdataf))))
+  
+  print(nrow(newdataf))
+  # Add new rows to the df if necessary
+  if(nbRow < 1)
+  {
+    print("add rows")
+    newdataf <- addRows(newdataf,-1,1,nbCol)
+  }
+  print(newdataf)
+  # Fill the df with generated columns
+  newdataf[[primary]] <- id
+  if(nrow(dataf) != 0)
+    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
+  
+  return(newdataf)
+  
+
+}
+
+generateLocationDF <- function(dataf,glacierID){
+  primary <- tableOptions[["location"]][["primary"]]
+  fk_column <- tableOptions[["location"]][["FK"]]
+  
+  idUP <- paste0(glacierID,"_UP")
+  idDN <- paste0(glacierID,"_DN")
+  
+  ids <- c(idDN,idUP)
+  fk <- glacierID
+  
+  nbCol <- ncol(dataf)
+  nbRow <- nrow(dataf)
+  
+  # Create a new empty dataframe
+  newdataf <- dataf
+  newdataf[,]=matrix(ncol=ncol(newdataf), rep(NA, prod(dim(newdataf))))
+  
+  # Add new rows to the df if necessary
+  if(nbRow < length(ids))
+  {
+    newdataf <- addRows(newdataf,nbRow,length(ids))
+  }
+  
+  # Fill the df with generated columns
+  newdataf[[primary]] <- ids
+  newdataf[[fk_column]] <- fk
+  newdataf[["type"]] <- c("Down","Up")
+  
+  newdataf <- copyDFValuesTo(dataf,newdataf,primary)
+  
+  return(newdataf)
+  
+}
+
+generatePatchDF <- function(dataf,glacierID){
+  primary <- tableOptions[["patch"]][["primary"]]
+  fk <- tableOptions[["patch"]][["FK"]]
+  
+  idUP <- paste0(glacierID,"_UP")
+  idDN <- paste0(glacierID,"_DN")
+  ids <- vector()
+  idsFk <- vector()
+  patches <- c(1,2,3)
+  for (patch in patches) {
+      idsFk <- c(idsFk,idUP)
+      idsFk <- c(idsFk,idDN)
+      ids <- c(ids,paste0(idUP,"_",patch))
+      ids <- c(ids,paste0(idDN,"_",patch))
+  }
+  ids <- sort(ids)
+  idsFk <- sort(idsFk)
+  
+  nbCol <- ncol(dataf)
+  nbRow <- nrow(dataf)
+  
+  # Create a new empty dataframe
+  newdataf <- dataf
+  newdataf[,]=matrix(ncol=ncol(newdataf), rep(NA, prod(dim(newdataf))))
+  
+  # Add new rows to the df if necessary
+  if(nbRow < length(ids))
+  {
+    newdataf <- addRows(newdataf,nbRow,length(ids))
+  }
+  
+  # Fill the df with generated columns
+  newdataf[[primary]] <- ids
+  newdataf[[fk]] <- idsFk
+  newdataf[["name"]] <- patches
+  
+  newdataf <- copyDFValuesTo(dataf,newdataf,primary)
+  
+  return(newdataf)
+  
+}
+
+generateParametersDF <- function(dataf,tablename,glacierID){
+  # Get the column names from config file
+  primary <- tableOptions[[tablename]][["primary"]]
+  fk <- tableOptions[[tablename]][["FK"]]
+  replicates <- tableOptions[[tablename]]["replicates"]
+
+  # Generate all the ids
   idUP <- paste0(glacierID,"_UP_")
   idDN <- paste0(glacierID,"_DN_")
   ids <- vector()
   idsFk <- vector()
-
-  replicates <- c('A','B','C')
   for (patch in 1:3) {
 
     for (replicate in replicates) {
@@ -144,41 +208,27 @@ generateFilledDF <- function(dataf,tablename,glacierID){
       ids <- c(ids,paste0(idDN,patch,"_",replicate))
     }
   }
+  
   ids <- sort(ids)
   idsFk <- sort(idsFk)
-  print(ids)
-  print(idsFk)
-  nbOfRow <- length(ids)
-  nbCol <- ncol(dataf)
   nbRow <- nrow(dataf)
+  
+  # Create a new empty dataframe
   newdataf <- dataf
-
   newdataf[,]=matrix(ncol=ncol(newdataf), rep(NA, prod(dim(newdataf))))
-  for (i in (nbRow+1):length(ids)) {
-    row <- vector()
-    for (j in 1:nbCol) {
-      row <- c(row,NA)
-    }
-    newdataf <- rbind(newdataf,row)
+  
+  # Add new rows to the df if necessary
+  if(nbRow < length(ids))
+  {
+    newdataf <- addRows(newdataf,nbRow,length(ids))
   }
-  newdataf[[paste0("id_",tablename)]] <- ids
-  newdataf[[tableOptions[[tablename]][["FK"]]]] <- idsFk
-  newdataf[[tableOptions[[tablename]][["name"]]]] <- replicates
-  
-  
 
-    for (i in 1:nrow(dataf)) {
-    row <-dataf[i,]
-    id <- row[[paste0("id_",tablename)]]
-    if(id %in% ids)
-    {
-        se <- newdataf[[paste0("id_",tablename)]]
-        rownumber <- which(se == id,arr.ind = TRUE)
-        newdataf[rownumber,] <- row
-    }
-  }
+  # Fill the df with generated columns
+  newdataf[[primary]] <- ids
+  newdataf[[fk]] <- idsFk
+  newdataf[["replicate"]] <- replicates
   
-  print(newdataf)
+  newdataf <- copyDFValuesTo(dataf,newdataf,primary)
   
   return(newdataf)
 }

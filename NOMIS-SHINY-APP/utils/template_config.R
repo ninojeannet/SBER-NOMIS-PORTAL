@@ -1,22 +1,23 @@
 
 templateTypes <- c("Glacier"="glacier","Location"="location","Patch metrics"="patch","Enzyme"="enzyme")
 
+parametersList <- c("enzyme")
+
 templateFieldNames <- list()
-templateFieldNames[["glacier"]] <- c('id','name','country','type','area')
-templateFieldNames[["location"]] <- c('idlocation','glacierid','type','altitude')
+templateFieldNames[["glacier"]] <- c('id_glacier','name','country','type','area')
+templateFieldNames[["location"]] <- c('id_location','id_glacier','type','altitude')
 templateFieldNames[["patch"]] <- c("id_patch","id_location","name")
 templateFieldNames[["enzyme"]] <- c("id_enzyme","id_patch","replicate","AG","AP","BG","LAP","NAG")
 
-# tableNameIndex <- list()
-# tableNameIndex[["gl"]] <- "glacier"
-# tableNameIndex[["loc"]] <- "location"
-# tableNameIndex[["patch"]] <- "patch"
-# tableNameIndex[["enzyme"]] <- "enzyme"
-uniqueTogetherFields <- list()
-uniqueTogetherFields[["location"]] <- c('glacierid','type')
-uniqueTogetherFields[["patch"]] <- c('id_location','name')
-uniqueTogetherFields[["enzyme"]] <- c('id_patch','replicate')
+readOnlyFields <- list()
+readOnlyFields[["glacier"]] <- c('id_glacier')
+readOnlyFields[["location"]] <- c('id_location','id_glacier','type')
+readOnlyFields[["patch"]] <- c('id_patch','id_location','name')
+readOnlyFields[["enzyme"]] <- c('id_enzyme','id_patch','replicate')
 
 tableOptions <- list()
-tableOptions[["enzyme"]] <- c("format"="0.000000000","replicate"=3,"primary"="id_enzyme", "FK"="id_patch", "name"="replicate")
+tableOptions[["enzyme"]] <- c("isParameter"=TRUE,"format"="0.000000000","primary"="id_enzyme", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A','B','C')))
+tableOptions[["patch"]] <- c("isParameter"=FALSE,"format"="","primary"="id_patch", "FK"="id_location", "name"="name")
+tableOptions[["location"]] <- c("isParameter"=FALSE,"format"="","primary"="id_location", "FK"="id_glacier", "name"="type")
+tableOptions[["glacier"]] <- c("isParameter"=FALSE,"format"="","primary"="id_glacier", "FK"="", "name"="name")
 
