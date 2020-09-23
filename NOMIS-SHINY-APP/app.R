@@ -66,6 +66,10 @@ source('./modules/upload_tab/upload_tab.R')
 # 
 # for(con in all_cons)
 #     +  dbDisconnect(con)
+# data("iris")
+# print(iris["Species"])
+# subsetdf <- subset(iris,grepl("setosa",Species,fixed = TRUE))
+# print(subsetdf)
 
 pool <- dbPool(
     drv = RMySQL::MySQL(),

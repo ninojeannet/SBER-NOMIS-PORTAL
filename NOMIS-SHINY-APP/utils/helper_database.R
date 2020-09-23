@@ -1,13 +1,68 @@
+source('./utils/template_config.R')
 
 
-getDataFromGlacier <- function(pool,tableName,glacierID){
+entryExistInTable <- function(pool,tablename,id){
+  request <- paste0("SELECT EXISTS( SELECT * FROM ",tablename," WHERE ",tableOptions[[tablename]][["primary"]],"=",id,")")
+  #Send query to the database using pool
   check <- tryCatch({
     conn <- poolCheckout(pool)
     queryStatus <- dbWithTransaction(conn,{
-      if (tableName == "glacier")
-        query <- paste0("SELECT * FROM ",tableName," WHERE id_",tableName," = '",glacierID,"'")
-      else
-        query <- paste0("SELECT * FROM ",tableName," WHERE id_",tableName," LIKE '",glacierID,"_%'")
+      result <- dbGetQuery(conn,request)
+    })
+    poolReturn(conn)
+    print("Data successfully inserted into database")
+    showNotification("Data successfully inserted into database",type = "message")
+  },
+  warning = function(war){
+    print(war)
+    showNotification(war$message, type = "warning")
+  },
+  error = function(err){
+    print(err)
+    showNotification(err$message,type = "error",duration = NULL)
+  },
+  finally = function(f){
+    print(e) 
+  })
+  
+  if (result == 1)
+    return(TRUE)
+  else
+    return(FALSE)
+}
+
+getDataFromGlacier <- function(pool,tableName,ids,isRange){
+  if(isRange)
+  {
+    if (tableName == "glacier")
+    {
+      query <- paste0("SELECT * FROM ",tableName," WHERE ")
+      for (id in ids) {
+        query <- paste0(query,"id_",tableName," = '",id,"'")
+        query <- paste0(query," OR ")
+      }
+    }
+    else
+    {
+      query <- paste0("SELECT * FROM ",tableName," WHERE ")
+      for (id in ids) {
+        query <- paste0(query,"id_",tableName," LIKE '",id,"_%'")
+        query <- paste0(query," OR ")
+      }
+    }
+    query <- substr(query,1,nchar(query)-4)
+  }
+  else
+  {
+    if (tableName == "glacier")
+      query <- paste0("SELECT * FROM ",tableName," WHERE id_",tableName," = '",ids,"'")
+    else
+      query <- paste0("SELECT * FROM ",tableName," WHERE id_",tableName," LIKE '",ids,"_%'")
+  }
+  
+  check <- tryCatch({
+    conn <- poolCheckout(pool)
+    queryStatus <- dbWithTransaction(conn,{
       print(query)
       dataframe <-dbGetQuery(conn,query)
       print(dataframe)
