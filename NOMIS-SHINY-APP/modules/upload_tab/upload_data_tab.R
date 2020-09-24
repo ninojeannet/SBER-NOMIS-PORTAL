@@ -21,6 +21,7 @@ uploadDataTabUI <- function(id){
                      "Range of glacier" = "range",
                      "List of glacier" = "list")),
         textInput(ns("glacier"),"Enter glacier ID"),
+        textOutput(ns("glacierStatus")),
         hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(0, 500))),
         hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
         
@@ -71,8 +72,8 @@ uploadDataTab <- function(input,output,session,pool){
         print(ids)
       }
     )
-    tmp <- getDataFromGlacier(pool,isolate(tableName()),ids, isRange)
-    return(generateFilledDF(tmp,isolate(tableName()),ids))
+    tmp <- getDataFromGlacier(pool,tableName(),ids, isRange)
+    return(generateFilledDF(tmp,tableName(),ids))
   })
   
   observeEvent(input$selectRange,{
@@ -96,14 +97,25 @@ uploadDataTab <- function(input,output,session,pool){
   })
   
   observeEvent(input$generate,{
-    table <- isolate(tableName())
-    
     output$table <- renderRHandsontable({
-      rhandsontable(isolate(dataf()),digits=10,stretchH = "all")%>%
+      shiny::validate(
+        switch (isolate(selectType()),
+                "simple" = {need(grep('GL(\\d){1,3}',isolate(input$glacier)), 'Please insert a valid ID ( ex : GL23 )')},
+                "range" = {
+                  range <- isolate(input$glacierRange)
+                  need(range[2] > range[1] & range[2] > 0 & range[1] > 0, 'Please insert a valid range of id')},
+                "list" = {need(grep('^[1-8]+(,[1-8]+)*$',isolate(input$glacierList)), 'Please insert a valid list of ID ( ex : 23,45,56 )')}
+        )
+      )
+      table <- isolate(tableName())
+      df <- isolate(dataf())
+      showElement("upload")
+      rhandsontable(df,digits=10,stretchH = "all")%>%
+        hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
         hot_cols(format = tableOptions[[table]][["format"]]) %>%
         hot_col(readOnlyFields[[table]], readOnly = TRUE) 
+      
     })
-    showElement("upload")
   })
   
   observeEvent(input$upload,{
@@ -112,6 +124,12 @@ uploadDataTab <- function(input,output,session,pool){
   })
 
   
+}
+
+validateInput <- function(){
+  validate(
+    need(input$glacier != '', 'Please choose a state.')
+  )
 }
 
 # This function generate a complete dataframe for a specific table and existing data
