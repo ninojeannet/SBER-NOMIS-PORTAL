@@ -12,17 +12,19 @@ generateFilledDF <- function(dataf,tablename,ids){
   for (glacierID in ids) {
     primaryKey <- tableOptions[[tablename]][["primary"]]
     if(tablename == "glacier")
-      subsetdf <- subset(dataf,dataf[primaryKey] == glacierID)
-    else
-      subsetdf <- subset(dataf,grepl(paste0(glacierID,"_"), dataf[primaryKey], fixed = TRUE))
-    if(ncol(subsetdf) == 0)
-      subsetdf <- dataf[FALSE,]
-    print(subsetdf)
+      subsetdataf <- subset(dataf,dataf[[primaryKey]] == glacierID)
+    else{
+      subsetdataf <- subset(dataf,grepl(paste0(glacierID,"_"), dataf[[primaryKey]], fixed = TRUE))
+    }
+    print(glacierID)
+    if(ncol(subsetdataf) == 0)
+      subsetdataf <- dataf[FALSE,]
+    
     df <- switch (tablename,
-                  'glacier' = generateGlacierDF(subsetdf,glacierID),
-                  'location' = generateLocationDF(subsetdf,glacierID),
-                  'patch' = generatePatchDF(subsetdf,glacierID),
-                  generateParametersDF(subsetdf,tablename,glacierID)
+                  'glacier' = generateGlacierDF(subsetdataf,glacierID),
+                  'location' = generateLocationDF(subsetdataf,glacierID),
+                  'patch' = generatePatchDF(subsetdataf,glacierID),
+                  generateParametersDF(subsetdataf,tablename,glacierID)
     )
     finaldf <- rbind(finaldf,df)
   }
@@ -45,11 +47,11 @@ generateGlacierDF <- function(dataf,glacierID){
   if (nrow(dataf) != 0)
     newdataf[,]=matrix(ncol=ncol(newdataf), rep(NA, prod(dim(newdataf))))
   
-  print(nrow(newdataf))
+  # print(nrow(newdataf))
   # Add new rows to the df if necessary
   if(nbRow < 1)
   {
-    print("add rows")
+    # print("add rows")
     newdataf <- addRows(newdataf,-1,1,nbCol)
   }
   # print(newdataf)
@@ -170,9 +172,9 @@ generateParametersDF <- function(dataf,tablename,glacierID){
   }
   
   ids <- sort(ids)
-  print(length(idsFk))
+  # print(length(idsFk))
   idsFk <- sort(idsFk)
-  print(idsFk)
+  # print(idsFk)
   nbRow <- nrow(dataf)
   
   # Create a new empty dataframe

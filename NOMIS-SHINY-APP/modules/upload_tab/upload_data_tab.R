@@ -121,7 +121,7 @@ validateInput <- function(input){
             "range" = {
               range <- isolate(input$glacierRange)
               need(range[2] > range[1] & range[2] > 0 & range[1] > 0, 'Please insert a valid range of id')},
-            "list" = {need(grep('^[1-8]+(,[1-8]+)*$',isolate(input$glacierList)), 'Please insert a valid list of ID ( ex : 23,45,56 )')}
+            "list" = {need(grep('^[0-9]+(,[0-9]+)*$',isolate(input$glacierList)), 'Please insert a valid list of ID ( ex : 23,45,56 )')}
     )
   )
 }
