@@ -39,34 +39,24 @@ source('./utils/template_config.R')
 # ids : list of glacier's id to query the data from
 # isRange : specify if there is multiple glacier to query
 # Return the query result as dataframe
-getDataFromGlacier <- function(pool,tableName,ids,isRange){
-  if(isRange)
+getDataFromGlacier <- function(pool,tableName,ids){
+  if (tableName == "glacier")
   {
-    if (tableName == "glacier")
-    {
-      query <- paste0("SELECT * FROM ",tableName," WHERE ")
-      for (id in ids) {
-        query <- paste0(query,"id_",tableName," = '",id,"'")
-        query <- paste0(query," OR ")
-      }
+    query <- paste0("SELECT * FROM ",tableName," WHERE ")
+    for (id in ids) {
+      query <- paste0(query,"id_",tableName," = '",id,"'")
+      query <- paste0(query," OR ")
     }
-    else
-    {
-      query <- paste0("SELECT * FROM ",tableName," WHERE ")
-      for (id in ids) {
-        query <- paste0(query,"id_",tableName," LIKE '",id,"\\_%'")
-        query <- paste0(query," OR ")
-      }
-    }
-    query <- substr(query,1,nchar(query)-4)
   }
   else
   {
-    if (tableName == "glacier")
-      query <- paste0("SELECT * FROM ",tableName," WHERE id_",tableName," = '",ids,"'")
-    else
-      query <- paste0("SELECT * FROM ",tableName," WHERE id_",tableName," LIKE '",ids,"\\_%'")
+    query <- paste0("SELECT * FROM ",tableName," WHERE ")
+    for (id in ids) {
+      query <- paste0(query,"id_",tableName," LIKE '",id,"\\_%'")
+      query <- paste0(query," OR ")
+    }
   }
+  query <- substr(query,1,nchar(query)-4)
   
   check <- tryCatch({
     conn <- poolCheckout(pool)
@@ -85,7 +75,7 @@ getDataFromGlacier <- function(pool,tableName,ids,isRange){
       showNotification(err$message,type = "error",duration = NULL)
     },
     finally = function(f){
-      print(e) 
+      print(f) 
     })
   return(dataframe)
 }
