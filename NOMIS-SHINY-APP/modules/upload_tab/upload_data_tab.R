@@ -1,10 +1,7 @@
 
 source('./utils/helper_database.R')
 source('./utils/helper_dataframe.R')
-
 source('./utils/template_config.R')
-
-
 
 uploadDataTabUI <- function(id){
   ns <- NS(id)
@@ -21,12 +18,8 @@ uploadDataTabUI <- function(id){
                      "Range of glacier" = "range",
                      "List of glacier" = "list")),
         textInput(ns("glacier"),"Enter glacier ID"),
-        textOutput(ns("glacierStatus")),
-        hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(0, 500))),
+        hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(1, 500))),
         hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
-        
-        # selectInput(ns("location"),"Select a location", choices = c("Up"="UP","Down"="DN")),
-        # selectInput(ns("patch"),"Select a patch", choices = c(1,2,3)),
         actionButton(ns("generate"),"Generate template"),
       ),
       width = 4
@@ -41,7 +34,6 @@ uploadDataTabUI <- function(id){
       width = 8
     )
   )
-  
 }
 
 
@@ -49,7 +41,6 @@ uploadDataTab <- function(input,output,session,pool){
   
   tableName <- reactive({input$type})
   selectType <- reactive({input$selectRange})
-  
   
   dataf <- reactive({
     switch (input$selectRange,
@@ -61,7 +52,6 @@ uploadDataTab <- function(input,output,session,pool){
         isRange <- TRUE
         range <- input$glacierRange
         ids <- c(paste0("GL",as.character(range[1]:range[2])))
-        print(ids)
       },
       "list" = {
         isRange = TRUE
@@ -69,7 +59,6 @@ uploadDataTab <- function(input,output,session,pool){
         ids <- gsub(" ", "", ids, fixed = TRUE)
         ids <- strsplit(ids,',')
         ids <- sapply(ids, function(x){paste0("GL",x)})
-        print(ids)
       }
     )
     tmp <- getDataFromGlacier(pool,tableName(),ids, isRange)
@@ -114,7 +103,6 @@ uploadDataTab <- function(input,output,session,pool){
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
         hot_cols(format = tableOptions[[table]][["format"]]) %>%
         hot_col(readOnlyFields[[table]], readOnly = TRUE) 
-      
     })
   })
   
@@ -122,22 +110,15 @@ uploadDataTab <- function(input,output,session,pool){
     out <- hot_to_r(input$table)
     saveData(out,isolate(tableName()),pool)
   })
-
-  
-}
-
-validateInput <- function(){
-  validate(
-    need(input$glacier != '', 'Please choose a state.')
-  )
 }
 
 # This function generate a complete dataframe for a specific table and existing data
+# Generate a dataframe for each glacier in ids and then merge them together to have one dataframe
 # parameters :
 # - dataf : the existing data as a data frame
 # - tablename : the name of data's table
-# - glacierID : the id of the data's glacier
-# Return the generated data frame
+# - ids : the list of dis of the data's glaciers
+# Return the generated data frame of the given table
 generateFilledDF <- function(dataf,tablename,ids){
   finaldf <- dataf[FALSE,]
   
@@ -158,16 +139,17 @@ generateFilledDF <- function(dataf,tablename,ids){
     )
     finaldf <- rbind(finaldf,df)
   }
-  
-  str(finaldf)
   return(finaldf)
-  
 }
 
+# Generate a specific dataframe from glacier data
+# parameters :
+# dataf : the dataframe of a glacier
+# galcierId : the ID of the given glacier
+# Return a generated dataframe of glacier
 generateGlacierDF <- function(dataf,glacierID){
   primary <- tableOptions[["glacier"]][["primary"]]
   id <- glacierID
-  
   nbCol <- ncol(dataf)
   nbRow <- nrow(dataf)
   
@@ -190,20 +172,20 @@ generateGlacierDF <- function(dataf,glacierID){
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
   
   return(newdataf)
-  
-
 }
 
+# Generate a specific dataframe from location data
+# parameters :
+# dataf : the dataframe glacier's locations
+# galcierId : the ID of the given glacier
+# Return a generated dataframe of glacier's locations
 generateLocationDF <- function(dataf,glacierID){
   primary <- tableOptions[["location"]][["primary"]]
   fk_column <- tableOptions[["location"]][["FK"]]
-  
   idUP <- paste0(glacierID,"_UP")
   idDN <- paste0(glacierID,"_DN")
-  
   ids <- c(idDN,idUP)
   fk <- glacierID
-  
   nbCol <- ncol(dataf)
   nbRow <- nrow(dataf)
   
@@ -229,10 +211,14 @@ generateLocationDF <- function(dataf,glacierID){
   
 }
 
+# Generate a specific dataframe from Patch data
+# parameters :
+# dataf : the dataframe glacier's patches
+# galcierId : the ID of the given glacier
+# Return a generated dataframe of glacier's patches
 generatePatchDF <- function(dataf,glacierID){
   primary <- tableOptions[["patch"]][["primary"]]
   fk <- tableOptions[["patch"]][["FK"]]
-  
   idUP <- paste0(glacierID,"_UP")
   idDN <- paste0(glacierID,"_DN")
   ids <- vector()
@@ -246,7 +232,6 @@ generatePatchDF <- function(dataf,glacierID){
   }
   ids <- sort(ids)
   idsFk <- sort(idsFk)
-  
   nbCol <- ncol(dataf)
   nbRow <- nrow(dataf)
   
@@ -269,9 +254,14 @@ generatePatchDF <- function(dataf,glacierID){
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
   
   return(newdataf)
-  
 }
 
+# Generate a specific dataframe from parameters data
+# parameters :
+# dataf : the dataframe glacier's parameters
+# tablename : specify for which parameters the dataframe has to be generated
+# galcierId : the ID of the given glacier
+# Return a generated dataframe of glacier's parameters
 generateParametersDF <- function(dataf,tablename,glacierID){
   # Get the column names from config file
   primary <- tableOptions[[tablename]][["primary"]]
@@ -284,7 +274,6 @@ generateParametersDF <- function(dataf,tablename,glacierID){
   ids <- vector()
   idsFk <- vector()
   for (patch in 1:3) {
-
     for (replicate in replicates) {
       idsFk <- c(idsFk,paste0(idUP,patch))
       idsFk <- c(idsFk,paste0(idDN,patch))
@@ -309,7 +298,6 @@ generateParametersDF <- function(dataf,tablename,glacierID){
   {
     newdataf <- addRows(newdataf,nbRow,length(ids))
   }
-
 
   # Fill the df with generated columns
   newdataf[[primary]] <- ids

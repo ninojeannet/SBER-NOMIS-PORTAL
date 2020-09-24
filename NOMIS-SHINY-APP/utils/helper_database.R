@@ -1,36 +1,44 @@
 source('./utils/template_config.R')
 
 
-entryExistInTable <- function(pool,tablename,id){
-  request <- paste0("SELECT EXISTS( SELECT * FROM ",tablename," WHERE ",tableOptions[[tablename]][["primary"]],"=",id,")")
-  #Send query to the database using pool
-  check <- tryCatch({
-    conn <- poolCheckout(pool)
-    queryStatus <- dbWithTransaction(conn,{
-      result <- dbGetQuery(conn,request)
-    })
-    poolReturn(conn)
-    print("Data successfully inserted into database")
-    showNotification("Data successfully inserted into database",type = "message")
-  },
-  warning = function(war){
-    print(war)
-    showNotification(war$message, type = "warning")
-  },
-  error = function(err){
-    print(err)
-    showNotification(err$message,type = "error",duration = NULL)
-  },
-  finally = function(f){
-    print(e) 
-  })
-  
-  if (result == 1)
-    return(TRUE)
-  else
-    return(FALSE)
-}
+# entryExistInTable <- function(pool,tablename,id){
+#   request <- paste0("SELECT EXISTS( SELECT * FROM ",tablename," WHERE ",tableOptions[[tablename]][["primary"]],"=",id,")")
+#   #Send query to the database using pool
+#   check <- tryCatch({
+#     conn <- poolCheckout(pool)
+#     queryStatus <- dbWithTransaction(conn,{
+#       result <- dbGetQuery(conn,request)
+#     })
+#     poolReturn(conn)
+#     print("Data successfully inserted into database")
+#     showNotification("Data successfully inserted into database",type = "message")
+#   },
+#   warning = function(war){
+#     print(war)
+#     showNotification(war$message, type = "warning")
+#   },
+#   error = function(err){
+#     print(err)
+#     showNotification(err$message,type = "error",duration = NULL)
+#   },
+#   finally = function(f){
+#     print(e) 
+#   })
+#   
+#   if (result == 1)
+#     return(TRUE)
+#   else
+#     return(FALSE)
+# }
 
+
+# Retrieve data from the database for speicific glaciers
+# Parameters :
+# pool : the connection pool to access the database
+# tablename : the name of the table to query in the database
+# ids : list of glacier's id to query the data from
+# isRange : specify if there is multiple glacier to query
+# Return the query result as dataframe
 getDataFromGlacier <- function(pool,tableName,ids,isRange){
   if(isRange)
   {
@@ -46,7 +54,7 @@ getDataFromGlacier <- function(pool,tableName,ids,isRange){
     {
       query <- paste0("SELECT * FROM ",tableName," WHERE ")
       for (id in ids) {
-        query <- paste0(query,"id_",tableName," LIKE '",id,"_%'")
+        query <- paste0(query,"id_",tableName," LIKE '",id,"\\_%'")
         query <- paste0(query," OR ")
       }
     }
@@ -82,9 +90,12 @@ getDataFromGlacier <- function(pool,tableName,ids,isRange){
   return(dataframe)
 }
 
-
+# Save the given data into the database
+# Parameters : 
+# data : the data as dataframe to save into db
+# tablename : the name of the table to save the data into
+# pool : connection pool to access the database
 saveData <- function(data,tableName,pool){
-  
   request <- buildInsertQuery(data,tableName)
   
   #Send query to the database using pool
