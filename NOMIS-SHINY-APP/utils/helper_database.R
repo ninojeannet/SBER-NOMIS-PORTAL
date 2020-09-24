@@ -57,7 +57,7 @@ getDataFromGlacier <- function(pool,tableName,ids,isRange){
     if (tableName == "glacier")
       query <- paste0("SELECT * FROM ",tableName," WHERE id_",tableName," = '",ids,"'")
     else
-      query <- paste0("SELECT * FROM ",tableName," WHERE id_",tableName," LIKE '",ids,"_%'")
+      query <- paste0("SELECT * FROM ",tableName," WHERE id_",tableName," LIKE '",ids,"\\_%'")
   }
   
   check <- tryCatch({
