@@ -13,10 +13,9 @@ generateFilledDF <- function(dataf,tablename,ids){
     primaryKey <- tableOptions[[tablename]][["primary"]]
     if(tablename == "glacier")
       subsetdataf <- subset(dataf,dataf[[primaryKey]] == glacierID)
-    else{
+    else
       subsetdataf <- subset(dataf,grepl(paste0(glacierID,"_"), dataf[[primaryKey]], fixed = TRUE))
-    }
-    print(glacierID)
+    
     if(ncol(subsetdataf) == 0)
       subsetdataf <- dataf[FALSE,]
     
@@ -47,15 +46,14 @@ generateGlacierDF <- function(dataf,glacierID){
   if (nrow(dataf) != 0)
     newdataf[,]=matrix(ncol=ncol(newdataf), rep(NA, prod(dim(newdataf))))
   
-  # print(nrow(newdataf))
   # Add new rows to the df if necessary
   if(nbRow < 1)
   {
     # print("add rows")
     newdataf <- addRows(newdataf,-1,1,nbCol)
   }
-  # print(newdataf)
-  # Fill the df with generated columns
+
+    # Fill the df with generated columns
   newdataf[[primary]] <- id
   if(nrow(dataf) != 0)
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
@@ -172,9 +170,7 @@ generateParametersDF <- function(dataf,tablename,glacierID){
   }
   
   ids <- sort(ids)
-  # print(length(idsFk))
   idsFk <- sort(idsFk)
-  # print(idsFk)
   nbRow <- nrow(dataf)
   
   # Create a new empty dataframe
