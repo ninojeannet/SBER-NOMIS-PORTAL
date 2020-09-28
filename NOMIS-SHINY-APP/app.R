@@ -132,6 +132,7 @@ ui <- tagList(
                 #visualisationTabUI('1', grabSampleDf, hfDf, sites, grabSampleParameters, hfParameters)
             )
         ),
+        
         # Add footer to navbarPageWithWrapper
         footer = htmlTemplate('html_components/footer.html')
     )
@@ -139,8 +140,10 @@ ui <- tagList(
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
+    
+    dimension <- reactive({input$dimension})
 
-    callModule(uploadTab,"1",pool)
+    callModule(uploadTab,"1",pool,dimension)
     callModule(managementTab,"1",pool)
     
     onStop(function() poolClose(pool))

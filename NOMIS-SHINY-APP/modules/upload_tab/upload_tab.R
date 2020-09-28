@@ -22,8 +22,8 @@ uploadTabUI <- function(id){
 }
 
 
-uploadTab <- function(input,output,session,pool){
+uploadTab <- function(input,output,session,pool,dimension){
   
   callModule(uploadFileTab,"upload-file",pool)
-  callModule(uploadDataTab,"upload-data",pool)
+  callModule(uploadDataTab,"upload-data",pool,dimension)
 }

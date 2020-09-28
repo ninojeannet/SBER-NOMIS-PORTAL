@@ -33,7 +33,7 @@ uploadDataTabUI <- function(id){
       id = ns('main-upload'),
       div(
         rHandsontableOutput(ns("table")),
-        hidden(actionButton(ns("upload"),"Upload data"))
+        hidden(actionButton(ns("upload"),"Upload data",class="upload-button"))
       ),
       width = 8
     )
@@ -46,12 +46,13 @@ uploadDataTabUI <- function(id){
 # output : output of the shiny app
 # session : session of the shiny app
 # pool : connection pool to access the database
-uploadDataTab <- function(input,output,session,pool){
+uploadDataTab <- function(input,output,session,pool,dimension){
   
   tableName <- reactive({input$type})
   selectType <- reactive({input$selectRange})
-  
+
   dataf <- reactive({
+    
     switch (input$selectRange,
       "simple" = {
         ids <- input$glacier
@@ -97,7 +98,8 @@ uploadDataTab <- function(input,output,session,pool){
       table <- isolate(tableName())
       df <- isolate(dataf())
       showElement("upload")
-      rhandsontable(df,digits=10,stretchH = "all")%>%
+      # 
+      rhandsontable(df,digits=10,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
         hot_cols(format = tableOptions[[table]][["format"]]) %>%
         hot_col(readOnlyFields[[table]], readOnly = TRUE) 
