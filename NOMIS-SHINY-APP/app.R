@@ -29,6 +29,7 @@ library(DBI)
 library(pool)
 library(DT)
 library(rhandsontable)
+library(lambda.r)
 
 #devtools::install_github("rstudio/pool@dplyr-pre-0.7.0-compat")
 ## Compile CSS from Sass ##########################################################

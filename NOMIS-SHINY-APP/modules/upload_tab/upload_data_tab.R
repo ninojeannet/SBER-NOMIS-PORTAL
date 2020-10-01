@@ -90,6 +90,7 @@ uploadDataTab <- function(input,output,session,pool,dimension){
         showElement("glacierList")
       }
     )
+    
   })
   
   observeEvent(input$generate,{
@@ -98,13 +99,33 @@ uploadDataTab <- function(input,output,session,pool,dimension){
       table <- isolate(tableName())
       df <- isolate(dataf())
       showElement("upload")
+      
+      # readOnlyRows <- getReadOnlyRows(df,tableName())
       # 
       rhandsontable(df,digits=10,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
-        hot_cols(format = tableOptions[[table]][["format"]]) %>%
+        hot_cols(format = tableOptions[[table]][["format"]],renderer = "
+    function(instance, td, row, col, prop, value, cellProperties) {
+      Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+      return td;
+  }") %>%
         hot_col(readOnlyFields[[table]], readOnly = TRUE) 
-    })
+        # %>%
+        # hot_row(readOnlyRows, readOnly = TRUE)
+      })
   })
+  
+
+  # observeEvent(input$table$changes$changes,{
+  #   print(input$table$changes$changes)
+  #   for (cell in input$table$changes$changes) {
+  #     rows <- append(rows,cell[[2]])
+  #   }
+  # })
+  # res <-observeEvent(input$hot_select,{
+  #   print("test")
+  # })
   
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
@@ -112,6 +133,26 @@ uploadDataTab <- function(input,output,session,pool,dimension){
   })
 }
 
+
+# getReadOnlyRows <- function(dataframe,tablename){
+#   rows <- c()
+#   
+#   colNames <- setdiff(unlist(templateFieldNames[tablename]),unlist(readOnlyFields[tablename]))
+#   dataframe <- dataframe[colNames]
+#   print(rows <- append(rows,i))
+#   # for (i in 1:nrow(dataframe)) {
+#   #   row <- dataframe[i,]
+#   #   # print(dataframe[i,])
+#   #   print(row)
+#   #   # if(is.na(row)){
+#   #   #   print(i)
+#   #   #   rows <- append(rows,i)
+#   #   # }
+#   #   # if(!is.empty(row))
+#   #   #   rows <- append(rows,i)
+#   # }
+#   return(rows)
+# }
 
 # Check if the input format are valid and if not display a message
 # Parameters :
