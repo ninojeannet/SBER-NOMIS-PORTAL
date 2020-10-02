@@ -17,7 +17,7 @@ uploadDataTabUI <- function(id){
       id = ns('sidebar-upload'),
       div(
         selectInput(ns("type"),label = "Select a data type",choices = c("Glacier" = "glacier","Location"="location","Patch"="patch","Enzyme"="enzyme","DOM"="dom")),
-        hidden(selectInput(ns("dom-type"),label = "Select a DOM parameter",choices = c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10"))),
+        hidden(selectInput(ns("domtype"),label = "Select a DOM parameter",choices = c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10"))),
         radioButtons(ns("selectRange"), "Choose a selection option :",
                      c("Unique glacier" = "simple",
                      "Range of glacier" = "range",
@@ -60,24 +60,8 @@ uploadDataTab <- function(input,output,session,pool,dimension){
   selectType <- reactive({input$selectRange})
 
   dataf <- reactive({
-    
-    switch (input$selectRange,
-      "simple" = {
-        ids <- input$glacier
-      },
-      "range" = {
-        range <- input$glacierRange
-        ids <- c(paste0("GL",as.character(range[1]:range[2])))
-      },
-      "list" = {
-        ids <- input$glacierList
-        ids <- gsub(" ", "", ids, fixed = TRUE)
-        ids <- strsplit(ids,',')
-        ids <- sapply(ids, function(x){paste0("GL",x)})
-      }
-    )
-    tmp <- getDataFromGlacier(pool,tableName(),ids)
-    return(generateFilledDF(tmp,tableName(),ids))
+    tmp <- getDataFromGlacier(pool,tableName(),ids())
+    return(generateFilledDF(tmp,tableName(),ids()))
   })
   
   observeEvent(input$selectRange,{
@@ -137,7 +121,7 @@ uploadDataTab <- function(input,output,session,pool,dimension){
   observeEvent(input$type,{
     switch (input$type,
       "dom" = {
-        showElement("dom-type")
+        showElement("domtype")
         showElement("files")
         showElement("uploadFiles")
         hideElement("generate")
@@ -145,7 +129,7 @@ uploadDataTab <- function(input,output,session,pool,dimension){
         
       },
       {
-        hideElement("dom-type")
+        hideElement("domtype")
         hideElement("files")
         hideElement("uploadFiles")
         
@@ -156,9 +140,7 @@ uploadDataTab <- function(input,output,session,pool,dimension){
     )
   })
   
-  observeEvent(input$files,{
-    files <- input$files
-    print(files)
+  ids <- reactive({
     switch (input$selectRange,
             "simple" = {
               ids <- input$glacier
@@ -173,27 +155,44 @@ uploadDataTab <- function(input,output,session,pool,dimension){
               ids <- strsplit(ids,',')
               ids <- sapply(ids, function(x){paste0("GL",x)})
             }
-    
+            
     )
-    filenames <- generateFilenames(ids)
-    print(filenames)
-    tables <- generateFileTables(filenames,files)
+  })
+  filenames <- reactive({generateFilenames(ids(),isolate(input$domtype))})
+  tablesFile <- reactive({generateFileTables(filenames(),input$files)})
+  
+  observeEvent(input$files,{
+    tables <- tablesFile()
     output$fileValid <- renderTable({ data.frame("Valid" =tables[["valid"]])})
     output$fileWrong <- renderTable({ data.frame("Wrong" =tables[["wrong"]])})
     output$fileMissing <- renderTable({ data.frame("Missing" =tables[["missing"]])})
-    
-    # ext <- tools::file_ext(files$datapath)
-    # 
-    # req(files)
 
   })
+  
   
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
     saveData(out,isolate(tableName()),pool)
   })
+  
+  observeEvent(input$uploadFiles,{
+    validFilename <- tablesFile()[["valid"]]
+    validFiles <- input$files[input$files$name %in% validFilename,]
+    print(validFiles)
+    for (row in 1:nrow(validFiles)) {
+      
+      saveFile(validFiles[row,"name"],validFiles[row,"datapath"],input$domtype)
+      # print(file)
+    }
+  })
 }
 
+saveFile <- function(name,path,tablename){
+  # destPath <- paste0("data\\",tablename,"\\",name)
+  destPath <- paste0("data/",tablename,"/",name)
+  
+  file.copy(path,destPath)
+}
 
 # getReadOnlyRows <- function(dataframe,tablename){
 #   rows <- c()
@@ -215,12 +214,12 @@ uploadDataTab <- function(input,output,session,pool,dimension){
 #   return(rows)
 # }
 
-generateFilenames <- function(ids){
+generateFilenames <- function(ids,tablename){
   filenames <- vector()
   for (id in ids) {
-    f1 <- paste0(id,"UP_1_dom.dat")
-    f2 <- paste0(id,"UP_2_dom.dat")
-    f3 <- paste0(id,"UP_3_dom.dat")
+    f1 <- paste0(id,"UP_1_",tablename,".dat")
+    f2 <- paste0(id,"UP_2_",tablename,".dat")
+    f3 <- paste0(id,"UP_3_",tablename,".dat")
     
     filenames<-c(filenames,f1)
     filenames<-c(filenames,f2)
