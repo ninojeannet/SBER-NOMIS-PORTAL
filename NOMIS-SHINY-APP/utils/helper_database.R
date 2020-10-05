@@ -40,11 +40,12 @@ source('./utils/template_config.R')
 # isRange : specify if there is multiple glacier to query
 # Return the query result as dataframe
 getDataFromGlacier <- function(pool,tableName,ids){
+  pk <- tableOptions[[tableName]][["primary"]]
   if (tableName == "glacier")
   {
     query <- paste0("SELECT * FROM ",tableName," WHERE ")
     for (id in ids) {
-      query <- paste0(query,"id_",tableName," = '",id,"'")
+      query <- paste0(query,pk," = '",id,"'")
       query <- paste0(query," OR ")
     }
   }
@@ -52,31 +53,14 @@ getDataFromGlacier <- function(pool,tableName,ids){
   {
     query <- paste0("SELECT * FROM ",tableName," WHERE ")
     for (id in ids) {
-      query <- paste0(query,"id_",tableName," LIKE '",id,"\\_%'")
+      query <- paste0(query,pk," LIKE '",id,"\\_%'")
       query <- paste0(query," OR ")
     }
   }
   query <- substr(query,1,nchar(query)-4)
   
-  check <- tryCatch({
-    conn <- poolCheckout(pool)
-    queryStatus <- dbWithTransaction(conn,{
-      print(query)
-      dataframe <-dbGetQuery(conn,query)
-      print(dataframe)
-    })
-    poolReturn(conn)},
-    warning = function(war){
-      print(war)
-      showNotification(war$message, type = "warning")
-    },
-    error = function(err){
-      print(err)
-      showNotification(err$message,type = "error",duration = NULL)
-    },
-    finally = function(f){
-      print(f) 
-    })
+  dataframe <- sendQuery(query,pool)
+  
   return(dataframe)
 }
 
@@ -88,28 +72,54 @@ getDataFromGlacier <- function(pool,tableName,ids){
 saveData <- function(data,tableName,pool){
   request <- buildInsertQuery(data,tableName)
   
+  sendQuery(query,pool)
   #Send query to the database using pool
+  # check <- tryCatch({
+  #   conn <- poolCheckout(pool)
+  #   queryStatus <- dbWithTransaction(conn,{
+  #     dbGetQuery(conn,request)
+  #   })
+  #   poolReturn(conn)
+  #   print("Data successfully inserted into database")
+  #   showNotification("Data successfully inserted into database",type = "message")
+  # },
+  # warning = function(war){
+  #   print(war)
+  #   showNotification(war$message, type = "warning")
+  # },
+  # error = function(err){
+  #   print(err)
+  #   showNotification(err$message,type = "error",duration = NULL)
+  # },
+  # finally = function(f){
+  #   print(e) 
+  # })
+  
+}
+
+sendQuery <- function(query,pool){
+  data.frame
   check <- tryCatch({
     conn <- poolCheckout(pool)
     queryStatus <- dbWithTransaction(conn,{
-      dbGetQuery(conn,request)
+      dataframe <-dbGetQuery(conn,query)
     })
     poolReturn(conn)
-    print("Data successfully inserted into database")
     showNotification("Data successfully inserted into database",type = "message")
-  },
-  warning = function(war){
-    print(war)
-    showNotification(war$message, type = "warning")
-  },
-  error = function(err){
-    print(err)
-    showNotification(err$message,type = "error",duration = NULL)
-  },
-  finally = function(f){
-    print(e) 
-  })
-  
+    return(dataframe)
+    },
+    warning = function(war){
+      print(war)
+      showNotification(war$message, type = "warning")
+    },
+    error = function(err){
+      print(err)
+      showNotification(err$message,type = "error",duration = NULL)
+    },
+    finally = function(f){
+      print(f) 
+    })
+  return(FALSE)
 }
 
 
@@ -143,4 +153,21 @@ buildInsertQuery <- function(data,tableName){
   request <- substr(request,1,nchar(request)-2)
   print(request)
   return(request)
+}
+
+saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool){
+  pk <- tableOptions[[tablename]][["primary"]]
+  fk <- tableOptions[[tablename]][["FK"]]
+  unique <- tableOptions[[tablename]][["name"]]
+  
+    # request <- paste0('INSERT INTO ',tablename,' (',"`",pk,"`,","`",field,"`) VALUES ('",pkValue,"','",value,"')")
+  # request <- paste0(request," AS new_values ON DUPLICATE KEY UPDATE ",field,"=new_values.",field)
+  df <- setNames(data.frame(matrix(ncol =4, nrow = 1)), c(pk, fk, unique,field))
+  df[[pk]] <- pkValue
+  df[[fk]] <- fkValue
+  df[[unique]] <- uniqueValue
+  df[[field]] <- value
+  print(df)
+  query <- buildInsertQuery(df,tablename)
+  sendQuery(query,pool)
 }

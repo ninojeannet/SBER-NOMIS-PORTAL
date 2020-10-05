@@ -17,7 +17,7 @@ uploadDataTabUI <- function(id){
     sidebarPanel(
       id = ns('sidebar-upload'),
       div(
-        selectInput(ns("type"),label = "Select a data type",choices = c("Glacier" = "glacier","Location"="location","Patch"="patch","Enzyme"="enzyme","DOM"="dom")),
+        selectInput(ns("type"),label = "Select a data type",choices = list("Glacier" = "glacier","Location"="location","Patch"="patch",`Microbial metrics` = c("Enzyme"="enzyme"),`Biogeochemical metrics` = c("Dissolved organic matter"="biogeo","Dissolved organic carbon"="doc"))),
         hidden(selectInput(ns("domtype"),label = "Select a DOM parameter",choices = c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10"))),
         radioButtons(ns("selectRange"), "Choose a selection option :",
                      c("Unique glacier" = "simple",
@@ -123,7 +123,7 @@ uploadDataTab <- function(input,output,session,pool,dimension){
   # })
   observeEvent(input$type,{
     switch (input$type,
-      "dom" = {
+      "biogeo" = {
         showElement("domtype")
         showElement("files")
         hideElement("generate")
@@ -187,8 +187,13 @@ uploadDataTab <- function(input,output,session,pool,dimension){
     validFiles <- input$files[input$files$name %in% validFilename,]
     print(validFiles)
     for (row in 1:nrow(validFiles)) {
+      name <- validFiles[row,"name"]
+      saveFile(name,validFiles[row,"datapath"],input$domtype)
       
-      saveFile(validFiles[row,"name"],validFiles[row,"datapath"],input$domtype)
+      pkValue <- str_remove(name,"_[^_]+\\..+")
+      fkValue <- str_remove(name,"_[^_]+_[^_]+\\..+")
+      replicate <- str_extract(str_extract(name,"_\\d_"),"\\d")
+      saveFieldInDB(tableName(),paste0("filename_",input$domtype),pkValue,fkValue,replicate,name,pool)
     }
   })
 }

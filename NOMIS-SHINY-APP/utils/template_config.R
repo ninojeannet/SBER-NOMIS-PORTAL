@@ -14,6 +14,7 @@ readOnlyFields[["glacier"]] <- c('id_glacier')
 readOnlyFields[["location"]] <- c('id_location','id_glacier','type')
 readOnlyFields[["patch"]] <- c('id_patch','id_location','name')
 readOnlyFields[["enzyme"]] <- c('id_enzyme','id_patch','replicate')
+readOnlyFields[["biogeo"]] <- c('id_biogeo','id_location','replicate')
 
 
 
@@ -22,5 +23,6 @@ tableOptions[["enzyme"]] <- c("isParameter"=TRUE,"format"="0.000000000","primary
 tableOptions[["patch"]] <- c("isParameter"=FALSE,"format"="","primary"="id_patch", "FK"="id_location", "name"="name")
 tableOptions[["location"]] <- c("isParameter"=FALSE,"format"="","primary"="id_location", "FK"="id_glacier", "name"="type")
 tableOptions[["glacier"]] <- c("isParameter"=FALSE,"format"="","primary"="id_glacier", "FK"="", "name"="name")
+tableOptions[["biogeo"]] <- c("isParameter"=TRUE,"format"="","primary"="id_biogeo", "FK"="id_location", "name"="replicate", "replicates"= list(c('1','2','3')))
 
 
