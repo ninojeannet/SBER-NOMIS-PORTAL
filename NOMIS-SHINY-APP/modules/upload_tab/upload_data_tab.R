@@ -3,6 +3,7 @@ source('./utils/helper_database.R')
 source('./utils/helper_dataframe.R')
 source('./utils/template_config.R')
 source('./utils/dataframe_generator.R')
+source('./utils/helper_file.R')
 
 # UI function of the uploadDataTab module
 # Parameters : 
@@ -34,6 +35,7 @@ uploadDataTabUI <- function(id){
     mainPanel(
       id = ns('main-upload'),
       div(
+        hidden(h1(id = ns("title"),"Selected files status")),
         div(class = "file-output",
           div(class="file-table",tableOutput(ns("fileValid"))),
           div(class="file-table",tableOutput(ns("fileWrong"))),
@@ -54,6 +56,7 @@ uploadDataTabUI <- function(id){
 # output : output of the shiny app
 # session : session of the shiny app
 # pool : connection pool to access the database
+# dimension : window size
 uploadDataTab <- function(input,output,session,pool,dimension){
   
   tableName <- reactive({input$type})
@@ -123,16 +126,15 @@ uploadDataTab <- function(input,output,session,pool,dimension){
       "dom" = {
         showElement("domtype")
         showElement("files")
-        showElement("uploadFiles")
         hideElement("generate")
         hideElement("table")
-        
+        hideElement("upload")
       },
       {
         hideElement("domtype")
         hideElement("files")
+        hideElement("title")
         hideElement("uploadFiles")
-        
         showElement("generate")
         showElement("table")
         
@@ -158,7 +160,7 @@ uploadDataTab <- function(input,output,session,pool,dimension){
             
     )
   })
-  filenames <- reactive({generateFilenames(ids(),isolate(input$domtype))})
+  filenames <- reactive({generateFilenames(ids(),input$domtype)})
   tablesFile <- reactive({generateFileTables(filenames(),input$files)})
   
   observeEvent(input$files,{
@@ -166,7 +168,12 @@ uploadDataTab <- function(input,output,session,pool,dimension){
     output$fileValid <- renderTable({ data.frame("Valid" =tables[["valid"]])})
     output$fileWrong <- renderTable({ data.frame("Wrong" =tables[["wrong"]])})
     output$fileMissing <- renderTable({ data.frame("Missing" =tables[["missing"]])})
-
+    showElement("uploadFiles")
+    showElement("title")
+    if(nrow(data.frame("Valid" =tables[["valid"]])) > 0)
+      enable("uploadFiles")
+    else
+      disable("uploadFiles")
   })
   
   
@@ -182,17 +189,11 @@ uploadDataTab <- function(input,output,session,pool,dimension){
     for (row in 1:nrow(validFiles)) {
       
       saveFile(validFiles[row,"name"],validFiles[row,"datapath"],input$domtype)
-      # print(file)
     }
   })
 }
 
-saveFile <- function(name,path,tablename){
-  # destPath <- paste0("data\\",tablename,"\\",name)
-  destPath <- paste0("data/",tablename,"/",name)
-  
-  file.copy(path,destPath)
-}
+
 
 # getReadOnlyRows <- function(dataframe,tablename){
 #   rows <- c()
@@ -214,40 +215,7 @@ saveFile <- function(name,path,tablename){
 #   return(rows)
 # }
 
-generateFilenames <- function(ids,tablename){
-  filenames <- vector()
-  for (id in ids) {
-    f1 <- paste0(id,"UP_1_",tablename,".dat")
-    f2 <- paste0(id,"UP_2_",tablename,".dat")
-    f3 <- paste0(id,"UP_3_",tablename,".dat")
-    
-    filenames<-c(filenames,f1)
-    filenames<-c(filenames,f2)
-    filenames<-c(filenames,f3)
-    
-  }
-  return(filenames)
-}
 
-generateFileTables <- function(filenames,files){
-  tables <- list()
-  tables[["valid"]] <- vector()
-  tables[["wrong"]] <- vector()
-  tables[["missing"]] <- vector()
-  for (filename in filenames) {
-    if (filename %in% files[["name"]])
-     tables[["valid"]] <- c(tables[["valid"]],filename)
-    else
-      tables[["missing"]] <- c(tables[["missing"]],filename)
-  }
-  for (val in files[["name"]]) {
-    if(!(val %in% tables[["valid"]]) & !(val %in% tables[["missing"]]))
-      tables[["wrong"]] <- c(tables[["wrong"]],val)
-    
-  }
-  
-  return(tables)
-}
 
 # Check if the input format are valid and if not display a message
 # Parameters :
