@@ -99,27 +99,18 @@ uploadDataTab <- function(input,output,session,pool,dimension){
       validateInput(input)
       table <- isolate(tableName())
       df <- isolate(dataf())
-      showElement("upload")
-      showElement("table")
-      readOnlyRows <- as.numeric(getReadOnlyRows(df,tableName()))
+
+      readOnlyRows <- as.numeric(getReadOnlyRows(df,isolate(tableName())))
       rhandsontable(df,digits=10,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
         hot_cols(format = tableOptions[[table]][["format"]]) %>%
         hot_col(mandatoryFields[[table]], readOnly = TRUE) %>%
         hot_row(readOnlyRows, readOnly = TRUE)
       })
+    showElement("upload")
+    showElement("table")
   })
   
-
-  # observeEvent(input$table$changes$changes,{
-  #   print(input$table$changes$changes)
-  #   for (cell in input$table$changes$changes) {
-  #     rows <- append(rows,cell[[2]])
-  #   }
-  # })
-  # res <-observeEvent(input$hot_select,{
-  #   print("test")
-  # })
   observeEvent(input$type,{
     if (input$type == "biogeo" & input$domtype %in% c("eem","abs1","abs10")){
       showElement("domtype")
@@ -153,9 +144,9 @@ uploadDataTab <- function(input,output,session,pool,dimension){
               ids <- strsplit(ids,',')
               ids <- sapply(ids, function(x){paste0("GL",x)})
             }
-            
     )
   })
+  
   filenames <- reactive({generateFilenames(ids(),input$domtype)})
   tablesFile <- reactive({generateFileTables(filenames(),input$files)})
   
@@ -196,17 +187,24 @@ uploadDataTab <- function(input,output,session,pool,dimension){
 }
 
 
-
+# Check for rows with existing data in the database and return a list of index of these rows
+# Parameters : 
+# - dataframe : the dataframe to check for not empty rows
+# - tablename : the name of the table of the current dataframe
+# Return a list of row indexes of not empty rows
 getReadOnlyRows <- function(dataframe,tablename){
-
-  colNames <- setdiff(unlist(templateFieldNames[tablename]),unlist(readOnlyFields[tablename]))
+  colNames <- setdiff(colnames(dataframe),unlist(mandatoryFields[tablename]))
   dataframe <- dataframe[colNames]
-  onlyExistingRows <- dataframe[rowSums(is.na(dataframe)) != ncol(dataframe),]
-  print(onlyExistingRows)
+  onlyExistingRows <- dataframe[rowSums(is.na(dataframe)) != ncol(dataframe),,drop = FALSE]
   rows <- rownames(onlyExistingRows)
   return(rows)
 }
 
+# Return the name of the table containing a given field
+# Check in the config file the tablename
+# Parameters :
+# - value : name of the field to find its table for
+# return the name of the table
 getTableNameFromValue <- function(value){
   l <- list.search(templateFieldNames,value %in% .)
   if(length(l) >0)
