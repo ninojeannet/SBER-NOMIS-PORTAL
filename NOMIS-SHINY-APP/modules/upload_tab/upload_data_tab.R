@@ -101,20 +101,12 @@ uploadDataTab <- function(input,output,session,pool,dimension){
       df <- isolate(dataf())
       showElement("upload")
       showElement("table")
-      
-      # readOnlyRows <- getReadOnlyRows(df,tableName())
-      # 
+      readOnlyRows <- as.numeric(getReadOnlyRows(df,tableName()))
       rhandsontable(df,digits=10,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
-        hot_cols(format = tableOptions[[table]][["format"]],renderer = "
-    function(instance, td, row, col, prop, value, cellProperties) {
-      Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-      return td;
-  }") %>%
-        hot_col(mandatoryFields[[table]], readOnly = TRUE) 
-        # %>%
-        # hot_row(readOnlyRows, readOnly = TRUE)
+        hot_cols(format = tableOptions[[table]][["format"]]) %>%
+        hot_col(mandatoryFields[[table]], readOnly = TRUE) %>%
+        hot_row(readOnlyRows, readOnly = TRUE)
       })
   })
   
@@ -205,25 +197,15 @@ uploadDataTab <- function(input,output,session,pool,dimension){
 
 
 
-# getReadOnlyRows <- function(dataframe,tablename){
-#   rows <- c()
-#   
-#   colNames <- setdiff(unlist(templateFieldNames[tablename]),unlist(readOnlyFields[tablename]))
-#   dataframe <- dataframe[colNames]
-#   print(rows <- append(rows,i))
-#   # for (i in 1:nrow(dataframe)) {
-#   #   row <- dataframe[i,]
-#   #   # print(dataframe[i,])
-#   #   print(row)
-#   #   # if(is.na(row)){
-#   #   #   print(i)
-#   #   #   rows <- append(rows,i)
-#   #   # }
-#   #   # if(!is.empty(row))
-#   #   #   rows <- append(rows,i)
-#   # }
-#   return(rows)
-# }
+getReadOnlyRows <- function(dataframe,tablename){
+
+  colNames <- setdiff(unlist(templateFieldNames[tablename]),unlist(readOnlyFields[tablename]))
+  dataframe <- dataframe[colNames]
+  onlyExistingRows <- dataframe[rowSums(is.na(dataframe)) != ncol(dataframe),]
+  print(onlyExistingRows)
+  rows <- rownames(onlyExistingRows)
+  return(rows)
+}
 
 getTableNameFromValue <- function(value){
   l <- list.search(templateFieldNames,value %in% .)
