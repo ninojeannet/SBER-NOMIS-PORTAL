@@ -36,19 +36,21 @@ uploadDataTabUI <- function(id){
       id = ns('main-upload'),
       div(
         hidden(h1(id = ns("title"),"Selected files status")),
-        div(class = "file-output",
+        div(class = "file-output",id=ns("tables"),
           div(class="file-table",tableOutput(ns("fileValid"))),
           div(class="file-table",tableOutput(ns("fileWrong"))),
-          div(class="file-table",tableOutput(ns("fileMissing")))
+          div(class="file-table",tableOutput(ns("fileMissing"))),
+          div(class="file-table",hidden(actionButton(ns("uploadFiles"),"Upload valid files",class="upload-button")))
         ),
         rHandsontableOutput(ns("table")),
-        hidden(actionButton(ns("upload"),"Upload data",class="upload-button")),        
-        hidden(actionButton(ns("uploadFiles"),"Upload valid files",class="upload-button"))
+        hidden(actionButton(ns("upload"),"Upload data",class="upload-button"))       
       ),
       width = 8
     )
   )
 }
+
+
 
 # Server function of the uploadDataTab module
 # Parameters : 
@@ -59,14 +61,18 @@ uploadDataTabUI <- function(id){
 # dimension : window size
 uploadDataTab <- function(input,output,session,pool,dimension){
   
-  tableName <- reactive({input$type})
+  tableName <- reactive(getTableNameFromValue({input$type}))
   selectType <- reactive({input$selectRange})
 
   dataf <- reactive({
-    tmp <- getDataFromGlacier(pool,tableName(),ids())
+    if(input$type %in% names(templateFieldNames))
+      tmp <- getTableFromGlacier(pool,tableName(),ids())
+    else
+      tmp <- getFieldFromGlacier(pool,tableName(),input$type,ids())
+    
     return(generateFilledDF(tmp,tableName(),ids()))
   })
-  
+
   observeEvent(input$selectRange,{
     switch (input$selectRange,
       "simple" = {
@@ -94,6 +100,7 @@ uploadDataTab <- function(input,output,session,pool,dimension){
       table <- isolate(tableName())
       df <- isolate(dataf())
       showElement("upload")
+      showElement("table")
       
       # readOnlyRows <- getReadOnlyRows(df,tableName())
       # 
@@ -105,7 +112,7 @@ uploadDataTab <- function(input,output,session,pool,dimension){
 
       return td;
   }") %>%
-        hot_col(readOnlyFields[[table]], readOnly = TRUE) 
+        hot_col(mandatoryFields[[table]], readOnly = TRUE) 
         # %>%
         # hot_row(readOnlyRows, readOnly = TRUE)
       })
@@ -122,24 +129,21 @@ uploadDataTab <- function(input,output,session,pool,dimension){
   #   print("test")
   # })
   observeEvent(input$type,{
-    switch (input$type,
-      "biogeo" = {
-        showElement("domtype")
-        showElement("files")
-        hideElement("generate")
-        hideElement("table")
-        hideElement("upload")
-      },
-      {
-        hideElement("domtype")
-        hideElement("files")
-        hideElement("title")
-        hideElement("uploadFiles")
-        showElement("generate")
-        showElement("table")
-        
-      }
-    )
+    if (input$type == "biogeo" & input$domtype %in% c("eem","abs1","abs10")){
+      showElement("domtype")
+      showElement("files")
+      hideElement("generate")
+      hideElement("table")
+      hideElement("upload")
+    }
+    else{
+      hideElement("domtype")
+      hideElement("files")
+      hideElement("title")
+      hideElement("uploadFiles")
+      hideElement("tables")
+      showElement("generate")
+    }
   })
   
   ids <- reactive({
@@ -170,6 +174,7 @@ uploadDataTab <- function(input,output,session,pool,dimension){
     output$fileMissing <- renderTable({ data.frame("Missing" =tables[["missing"]])})
     showElement("uploadFiles")
     showElement("title")
+    showElement("tables")
     if(nrow(data.frame("Valid" =tables[["valid"]])) > 0)
       enable("uploadFiles")
     else
@@ -220,7 +225,16 @@ uploadDataTab <- function(input,output,session,pool,dimension){
 #   return(rows)
 # }
 
-
+getTableNameFromValue <- function(value){
+  l <- list.search(templateFieldNames,value %in% .)
+  if(length(l) >0)
+    tablename <- names(l)[1]
+  else
+    tablename <- value
+  print(tablename)
+  
+  return(tablename)
+}
 
 # Check if the input format are valid and if not display a message
 # Parameters :

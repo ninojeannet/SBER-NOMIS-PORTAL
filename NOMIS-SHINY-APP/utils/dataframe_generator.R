@@ -7,6 +7,7 @@
 # - ids : the list of dis of the data's glaciers
 # Return the generated data frame of the given table
 generateFilledDF <- function(dataf,tablename,ids){
+  print(dataf)
   finaldf <- dataf[FALSE,]
   
   for (glacierID in ids) {
@@ -23,10 +24,12 @@ generateFilledDF <- function(dataf,tablename,ids){
                   'glacier' = generateGlacierDF(subsetdataf,glacierID),
                   'location' = generateLocationDF(subsetdataf,glacierID),
                   'patch' = generatePatchDF(subsetdataf,glacierID),
+                  'biogeo' = generateBiogeoDF(subsetdataf,tablename,glacierID),
                   generateParametersDF(subsetdataf,tablename,glacierID)
     )
     finaldf <- rbind(finaldf,df)
   }
+  rownames(finaldf) = seq(length=nrow(finaldf))
   return(finaldf)
 }
 
@@ -168,6 +171,55 @@ generateParametersDF <- function(dataf,tablename,glacierID){
       ids <- c(ids,paste0(idDN,patch,"_",replicate))
     }
   }
+  
+  ids <- sort(ids)
+  idsFk <- sort(idsFk)
+  nbRow <- nrow(dataf)
+  
+  # Create a new empty dataframe
+  newdataf <- dataf
+  if (nrow(dataf) != 0)
+    newdataf[,]=matrix(ncol=ncol(newdataf), rep(NA, prod(dim(newdataf))))
+  
+  # Add new rows to the df if necessary
+  if(nbRow < length(ids))
+  {
+    newdataf <- addRows(newdataf,nbRow,length(ids))
+  }
+  
+  # Fill the df with generated columns
+  newdataf[[primary]] <- ids
+  newdataf[[fk]] <- idsFk
+  newdataf[["replicate"]] <- replicates
+  if(nrow(dataf) != 0)
+    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
+  
+  return(newdataf)
+}
+
+generateBiogeoDF <- function(dataf,tablename,glacierID){
+  # Get the column names from config file
+  primary <- tableOptions[[tablename]][["primary"]]
+  fk <- tableOptions[[tablename]][["FK"]]
+  replicates <- tableOptions[[tablename]]["replicates"][[1]]
+  
+  # Generate all the ids
+  idUP <- paste0(glacierID,"_UP")
+  if(!isOnlyUP[[tablename]])
+    idDN <- paste0(glacierID,"_DN")
+  ids <- vector()
+  idsFk <- vector()
+
+  for (replicate in replicates) {
+    idsFk <- c(idsFk,idUP)
+    ids <- c(ids,paste0(idUP,"_",replicate))
+    if(!isOnlyUP[[tablename]]){
+      idsFk <- c(idsFk,idDN)
+      ids <- c(ids,paste0(idDN,"_",replicate))
+      
+    }
+  }
+  
   
   ids <- sort(ids)
   idsFk <- sort(idsFk)

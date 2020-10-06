@@ -39,7 +39,7 @@ source('./utils/template_config.R')
 # ids : list of glacier's id to query the data from
 # isRange : specify if there is multiple glacier to query
 # Return the query result as dataframe
-getDataFromGlacier <- function(pool,tableName,ids){
+getTableFromGlacier <- function(pool,tableName,ids){
   pk <- tableOptions[[tableName]][["primary"]]
   if (tableName == "glacier")
   {
@@ -59,8 +59,29 @@ getDataFromGlacier <- function(pool,tableName,ids){
   }
   query <- substr(query,1,nchar(query)-4)
   
-  dataframe <- sendQuery(query,pool)
+  dataframe <- sendQuery(query,pool,FALSE)
   
+  return(dataframe)
+}
+
+getFieldFromGlacier <- function(pool,tableName,field,ids){
+  fields <- mandatoryFields[[tableName]]
+  fields <- c(fields,field)
+  fieldnames <- ""
+  for (field in fields) {
+    fieldnames <- paste0(fieldnames,field,",")
+  }
+  fieldnames <- substr(fieldnames,1,nchar(fieldnames)-1)
+  query <- paste0("SELECT ",fieldnames," FROM ",tableName," WHERE ")
+  pk <- tableOptions[[tableName]][["primary"]]
+  for (id in ids) {
+    query <- paste0(query,pk," LIKE '",id,"\\_%'")
+    query <- paste0(query," OR ")
+  }
+  query <- substr(query,1,nchar(query)-4)
+  print(query)
+  dataframe <- sendQuery(query,pool,FALSE)
+  # 
   return(dataframe)
 }
 
@@ -70,9 +91,9 @@ getDataFromGlacier <- function(pool,tableName,ids){
 # tablename : the name of the table to save the data into
 # pool : connection pool to access the database
 saveData <- function(data,tableName,pool){
-  request <- buildInsertQuery(data,tableName)
+  query <- buildInsertQuery(data,tableName)
   
-  sendQuery(query,pool)
+  sendQuery(query,pool,TRUE)
   #Send query to the database using pool
   # check <- tryCatch({
   #   conn <- poolCheckout(pool)
@@ -97,15 +118,15 @@ saveData <- function(data,tableName,pool){
   
 }
 
-sendQuery <- function(query,pool){
-  data.frame
+sendQuery <- function(query,pool,flag){
   check <- tryCatch({
     conn <- poolCheckout(pool)
     queryStatus <- dbWithTransaction(conn,{
       dataframe <-dbGetQuery(conn,query)
     })
     poolReturn(conn)
-    showNotification("Data successfully inserted into database",type = "message")
+    if(flag)
+      showNotification("Data successfully inserted into database",type = "message")
     return(dataframe)
     },
     warning = function(war){
@@ -169,5 +190,5 @@ saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool
   df[[field]] <- value
   print(df)
   query <- buildInsertQuery(df,tablename)
-  sendQuery(query,pool)
+  sendQuery(query,pool,TRUE)
 }
