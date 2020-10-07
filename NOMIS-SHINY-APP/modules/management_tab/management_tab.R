@@ -33,7 +33,7 @@ managementTabUI <- function(id) {
   sidebarLayout(
     # Create a sidebar with the innerModule first unit input UI elements inside
     sidebarPanel(
-      id = ns('sidebar-management'),
+      id = ns('sidebar'),
       div(
         selectInput(ns("type"),label = "Select a data type",choices = c("Glacier" = "glacier","Location"="location","Patch"="patch","Enzyme"="enzyme")),
         textInput(ns("searchInput"),"ID"),
@@ -43,7 +43,7 @@ managementTabUI <- function(id) {
     ),
     # Create the main panel with the innerModule first unit plot UI elements inside
     mainPanel(
-      id = ns('main-management'),
+      id = ns('main'),
       div(
         dataTableOutput(ns("outputTable")),
       ),

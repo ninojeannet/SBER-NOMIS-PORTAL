@@ -32,7 +32,6 @@ library(rhandsontable)
 library(lambda.r)
 library(rlist)
 
-#devtools::install_github("rstudio/pool@dplyr-pre-0.7.0-compat")
 ## Compile CSS from Sass ##########################################################
 sass(
     sass_file('assets/sass/main.scss'), 
@@ -46,34 +45,15 @@ source('./utils/helper_functions.R')
 ## Compile and minify JavaScript ##################################################
 js_parser()
 
-## Load data ######################################################################
-
-####################3
-
-
 ## Load Shiny extensions functions ################################################
 source('./utils/shiny_extensions.R')
 source('app_config.R')
 
-
-## Load tabs modules ##############################################################
-#source('./modules/visualisation_tab/visualisation_tab.R')
-#source('./modules/download_tab/download_tab.R')
 ## Load tabs modules ##############################################################
 source('./modules/management_tab/management_tab.R')
 source('./modules/upload_tab/upload_tab.R')
 
 options(shiny.maxRequestSize=100*1024^2)
-# all_cons <- dbListConnections(RMySQL::MySQL())
-# 
-# print(all_cons)
-# 
-# for(con in all_cons)
-#     +  dbDisconnect(con)
-# data("iris")
-# print(iris["Species"])
-# subsetdf <- subset(iris,grepl("setosa",Species,fixed = TRUE))
-# print(subsetdf)
 
 pool <- dbPool(
     drv = RMySQL::MySQL(),
@@ -128,13 +108,13 @@ ui <- tagList(
                 # Create a tab title with an icon
                 tags$span(icon('database'),tags$span('Data Management', class = 'navbar-menu-name')),
                 # Load the managementTab module UI elements
-                managementTabUI('1')
+                managementTabUI('management')
             ),
             tabPanel(
                 # Create a tab title with an icon
                 tags$span(icon('upload'),tags$span('Upload', class = 'navbar-menu-name')),
                 # Load the uploadTab module UI elements
-                uploadTabUI('1')
+                uploadTabUI('upload')
             ),
             tabPanel(
                 # Create a tab title with an icon
@@ -153,10 +133,8 @@ ui <- tagList(
 server <- function(input, output, session) {
     
     dimension <- reactive({input$dimension})
-
-    callModule(uploadTab,"1",pool,dimension)
-    callModule(managementTab,"1",pool)
-    
+    callModule(uploadTab,"upload",pool,dimension)
+    callModule(managementTab,"management",pool)
     onStop(function() poolClose(pool))
 }
 

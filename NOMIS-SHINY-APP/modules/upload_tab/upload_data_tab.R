@@ -16,7 +16,7 @@ uploadDataTabUI <- function(id){
   sidebarLayout(
     # Create a sidebar with the innerModule first unit input UI elements inside
     sidebarPanel(
-      id = ns('sidebar-upload'),
+      id = ns('sidebar'),
       div(
         selectInput(ns("type"),label = "Select a data type",choices = uploadDataTypes),
         hidden(selectInput(ns("domtype"),label = "Select a DOM parameter",choices = uploadDOMTypes)),
@@ -34,7 +34,7 @@ uploadDataTabUI <- function(id){
     ),
     # Create the main panel with the innerModule first unit plot UI elements inside
     mainPanel(
-      id = ns('main-upload'),
+      id = ns('main'),
       div(
         hidden(h1(id = ns("title"),"Selected files status")),
         div(class = "file-output",id=ns("tables"),
@@ -92,7 +92,6 @@ uploadDataTab <- function(input,output,session,pool,dimension){
         showElement("glacierList")
       }
     )
-    
   })
   
   observeEvent(input$generate,{
@@ -100,7 +99,6 @@ uploadDataTab <- function(input,output,session,pool,dimension){
       validateInput(input)
       table <- isolate(tableName())
       df <- isolate(dataf())
-
       readOnlyRows <- as.numeric(getReadOnlyRows(df,isolate(tableName())))
       rhandsontable(df,digits=10,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
@@ -152,19 +150,27 @@ uploadDataTab <- function(input,output,session,pool,dimension){
   tablesFile <- reactive({generateFileTables(filenames(),input$files)})
   
   observeEvent(input$files,{
-    tables <- tablesFile()
-    output$fileValid <- renderTable({ data.frame("Valid" =tables[["valid"]])})
-    output$fileWrong <- renderTable({ data.frame("Wrong" =tables[["wrong"]])})
-    output$fileMissing <- renderTable({ data.frame("Missing" =tables[["missing"]])})
     showElement("uploadFiles")
     showElement("title")
     showElement("tables")
+    
+    tables <- tablesFile()
+    
+    output$fileValid <- renderTable({ 
+      validateInput(input)
+      data.frame("Valid" =tables[["valid"]])})
+    output$fileWrong <- renderTable({ 
+      validateInputEmpty(input)
+      data.frame("Wrong" =tables[["wrong"]])})
+    output$fileMissing <- renderTable({ 
+      validateInputEmpty(input)
+      data.frame("Missing" =tables[["missing"]])})
+
     if(nrow(data.frame("Valid" =tables[["valid"]])) > 0)
       enable("uploadFiles")
     else
       disable("uploadFiles")
   })
-  
   
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
@@ -174,8 +180,6 @@ uploadDataTab <- function(input,output,session,pool,dimension){
       saveLog("upload","Nino",paste0("Upload data ",isolate(tableName())," in the database"))
     else
       saveLog("upload","Nino",paste0("FAILED Upload data ",isolate(tableName())," in the database"))
-    
-
   })
   
   observeEvent(input$uploadFiles,{
@@ -256,4 +260,17 @@ validateInput <- function(input){
     )
   )
 }
+
+validateInputEmpty <- function(input){
+  shiny::validate(
+    switch (isolate(input$selectRange),
+            "simple" = {need(grep('GL(\\d){1,3}',isolate(input$glacier)), '')},
+            "range" = {
+              range <- isolate(input$glacierRange)
+              need(range[2] > range[1] & range[2] > 0 & range[1] > 0, '')},
+            "list" = {need(grep('^[0-9]+(,[0-9]+)*$',isolate(input$glacierList)), '')}
+    )
+  )
+}
+
 
