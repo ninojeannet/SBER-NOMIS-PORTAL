@@ -17,8 +17,8 @@ uploadDataTabUI <- function(id){
     sidebarPanel(
       id = ns('sidebar-upload'),
       div(
-        selectInput(ns("type"),label = "Select a data type",choices = list("Glacier" = "glacier","Location"="location","Patch"="patch",`Microbial metrics` = c("Enzyme"="enzyme"),`Biogeochemical metrics` = c("Dissolved organic matter"="biogeo","Dissolved organic carbon"="doc"))),
-        hidden(selectInput(ns("domtype"),label = "Select a DOM parameter",choices = c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10"))),
+        selectInput(ns("type"),label = "Select a data type",choices = uploadDataTypes),
+        hidden(selectInput(ns("domtype"),label = "Select a DOM parameter",choices = uploadDOMTypes)),
         radioButtons(ns("selectRange"), "Choose a selection option :",
                      c("Unique glacier" = "simple",
                      "Range of glacier" = "range",
@@ -171,18 +171,36 @@ uploadDataTab <- function(input,output,session,pool,dimension){
   })
   
   observeEvent(input$uploadFiles,{
-    validFilename <- tablesFile()[["valid"]]
-    validFiles <- input$files[input$files$name %in% validFilename,]
-    print(validFiles)
-    for (row in 1:nrow(validFiles)) {
-      name <- validFiles[row,"name"]
-      saveFile(name,validFiles[row,"datapath"],input$domtype)
-      
-      pkValue <- str_remove(name,"_[^_]+\\..+")
-      fkValue <- str_remove(name,"_[^_]+_[^_]+\\..+")
-      replicate <- str_extract(str_extract(name,"_\\d_"),"\\d")
-      saveFieldInDB(tableName(),paste0("filename_",input$domtype),pkValue,fkValue,replicate,name,pool)
-    }
+    tryCatch({
+      withProgress(message = "Saving valid files",value = 0,{
+        
+        validFilename <- tablesFile()[["valid"]]
+        validFiles <- input$files[input$files$name %in% validFilename,]
+        print(validFiles)
+        nbOfFiles <- nrow(validFiles)
+        for (row in 1:nrow(validFiles)) {
+          name <- validFiles[row,"name"]
+          saveFile(name,validFiles[row,"datapath"],input$domtype)
+          pkValue <- str_remove(name,"_[^_]+\\..+")
+          fkValue <- str_remove(name,"_[^_]+_[^_]+\\..+")
+          replicate <- str_extract(str_extract(name,"_\\d_"),"\\d")
+          saveFieldInDB(tableName(),paste0("filename_",input$domtype),pkValue,fkValue,replicate,name,pool)
+          incProgress(1/nbOfFiles, detail = paste("Saving ", name))
+        }
+      })
+      showNotification("Files successfully inserted into database",type = "message")
+    },
+    warning = function(war){
+      print(war)
+      showNotification(war$message, type = "warning")
+    },
+    error = function(err){
+      print(err)
+      showNotification(err$message,type = "error",duration = NULL)
+    },
+    finally = function(f){
+      print(f) 
+    })
   })
 }
 

@@ -62,6 +62,7 @@ source('./utils/shiny_extensions.R')
 source('./modules/management_tab/management_tab.R')
 source('./modules/upload_tab/upload_tab.R')
 
+options(shiny.maxRequestSize=100*1024^2)
 # all_cons <- dbListConnections(RMySQL::MySQL())
 # 
 # print(all_cons)
