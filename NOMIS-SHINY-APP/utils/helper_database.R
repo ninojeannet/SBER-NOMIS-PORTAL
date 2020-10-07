@@ -58,7 +58,7 @@ getTableFromGlacier <- function(pool,tableName,ids){
     }
   }
   query <- substr(query,1,nchar(query)-4)
-  
+
   dataframe <- sendQuery(query,pool,FALSE)
   
   return(dataframe)
@@ -91,21 +91,21 @@ getFieldFromGlacier <- function(pool,tableName,field,ids){
 # tablename : the name of the table to save the data into
 # pool : connection pool to access the database
 saveData <- function(data,tableName,pool){
-  query <- buildInsertQuery(data,tableName)
-  
+  query <- buildInsertQuery(data,tableName,pool)
+  print(query)
   if(is.atomic(sendQuery(query,pool,TRUE)))
     return(FALSE)
   else
     return(TRUE)
+  # return(TRUE)
 }
+
 
 sendQuery <- function(query,pool,flag){
   check <- tryCatch({
-    conn <- poolCheckout(pool)
-    queryStatus <- dbWithTransaction(conn,{
-      dataframe <-dbGetQuery(conn,query)
-    })
-    poolReturn(conn)
+    
+    dataframe <-dbGetQuery(pool,query)
+    
     if(flag)
       showNotification("Data successfully inserted into database",type = "message")
     return(dataframe)
@@ -130,7 +130,7 @@ sendQuery <- function(query,pool,flag){
 # - data : dataframe of data to insert into the database
 # - tableName : name of the table in which the data will be inserted
 # Return the built request in a string
-buildInsertQuery <- function(data,tableName){
+buildInsertQuery <- function(data,tableName,pool){
   request <- paste0(c('INSERT INTO ',tableName,' ('))
   headers <-colnames(data)
   for(x in headers){request <- paste0(c(request,"`",x,"`, "))}
@@ -141,10 +141,11 @@ buildInsertQuery <- function(data,tableName){
     request <- paste0(request,"(")
     for(value in data[row,])
     {
-      if(is.na(value))
+      if(is.na(value) | value == '')
         request <- paste0(request,"NULL,")
       else
-        request <- paste0(request,"'",value,"',")
+        request <- paste0(request,dbQuoteLiteral(pool,value),",")
+      # request <- paste0(request,"?:,")
     }
     request <- substr(request,1,nchar(request)-1)
     request <- paste0(request,"),")
@@ -170,6 +171,6 @@ saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool
   df[[unique]] <- uniqueValue
   df[[field]] <- value
   print(df)
-  query <- buildInsertQuery(df,tablename)
+  query <- buildInsertQuery(df,tablename,pool)
   sendQuery(query,pool,FALSE)
 }

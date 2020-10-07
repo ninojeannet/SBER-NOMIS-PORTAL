@@ -81,6 +81,13 @@ pool <- dbPool(
     username = "root",
     password = "admin")
 
+# conn <- poolCheckout(pool)
+# # queryStatus <- dbWithTransaction(conn,{
+# #     dataframe <-dbGetQuery(conn,query)
+# # })
+# print(dbQuoteLiteral(conn,1))
+# poolReturn(conn)
+
 # Define UI for application that draws a histogram
 ui <- tagList(
     # Load shinyjs

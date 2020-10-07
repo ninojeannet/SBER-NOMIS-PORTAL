@@ -168,7 +168,7 @@ uploadDataTab <- function(input,output,session,pool,dimension){
   
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
-  
+    print(out)
     status <- saveData(out,isolate(tableName()),pool)
     if (status)
       saveLog("upload","Nino",paste0("Upload data ",isolate(tableName())," in the database"))
