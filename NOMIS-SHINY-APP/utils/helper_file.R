@@ -53,8 +53,23 @@ generateFileTables <- function(filenames,files){
 # - tablename : name of the type of the file to save
 saveFile <- function(name,path,tablename){
   # destPath <- paste0("data\\",tablename,"\\",name)
-  destPath <- paste0("data/",tablename,"/",name)
-  if (!dir.exists(paste0("data/",tablename,"/")))
-    dir.create(paste0("data/",tablename,"/"),recursive = TRUE)
-  file.copy(path,destPath,overwrite = TRUE)
+  tryCatch({
+    destPath <- paste0("data/",tablename,"/",name)
+    if (!dir.exists(paste0("data/",tablename,"/")))
+      dir.create(paste0("data/",tablename,"/"),recursive = TRUE)
+    file.copy(path,destPath,overwrite = TRUE)
+    saveLog("upload","Nino",paste0("Upload file ",name," on the server"))
+  },
+  warning = function(war){
+    print(war)
+    # showNotification(war$message, type = "warning")
+  },
+  error = function(err){
+    print(err)
+    showNotification(err$message,type = "error",duration = NULL)
+  },
+  finally = function(f){
+    print(f) 
+  })
+
 }

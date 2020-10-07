@@ -14,56 +14,56 @@ uploadFileTabUI <- function(id) {
   
   
   wellPanel(
-    selectInput(ns('templateType'),"Select a file template",choices = templateTypes),
-    fileInput(ns("file"),"Select your file (.csv)",accept=".csv"),
-    disabled(actionButton(ns("btnUpload"),"Insert data in database",icon = icon("upload"))),
-    textOutput(ns("status")),
-    tableOutput(ns("table"))
+    # selectInput(ns('templateType'),"Select a file template",choices = templateTypes),
+    # fileInput(ns("file"),"Select your file (.csv)",accept=".csv"),
+    # disabled(actionButton(ns("btnUpload"),"Insert data in database",icon = icon("upload"))),
+    # textOutput(ns("status")),
+    # tableOutput(ns("table"))
     
   )
 }
 
 uploadFileTab <- function(input, output, session,pool){
 
-  observeEvent(input$file,{
-    file <- input$file
-    ext <- tools::file_ext(file$datapath)
-    
-    req(file)
-    if(ext != "csv"){
-      statusText <- "Please upload a csv file"
-      disable("btnUpload")
-    } 
-    else
-    {
-      statusText <- ""
-      enable("btnUpload")
-    }
-    output$status <- renderText({
-      statusText
-    })
-  })
-  
-observeEvent(input$btnUpload, {
-    file <- input$file
-    content <- read.csv(file$datapath)
-    # print(content)
-    type <- input$templateType
-    # content <- createIdColumn(content,type)
-
-    if (isFileValid(output,content,type))
-    {
-      statusText <- ""
-      saveData(content,type,output,pool,session)
-    }
-    else
-      statusText <- "File format is not valid for the selected template"
-    
-    output$status <- renderText({
-      statusText
-    })
-
-  })
+#   observeEvent(input$file,{
+#     file <- input$file
+#     ext <- tools::file_ext(file$datapath)
+#     
+#     req(file)
+#     if(ext != "csv"){
+#       statusText <- "Please upload a csv file"
+#       disable("btnUpload")
+#     } 
+#     else
+#     {
+#       statusText <- ""
+#       enable("btnUpload")
+#     }
+#     output$status <- renderText({
+#       statusText
+#     })
+#   })
+#   
+# observeEvent(input$btnUpload, {
+#     file <- input$file
+#     content <- read.csv(file$datapath)
+#     # print(content)
+#     type <- input$templateType
+#     # content <- createIdColumn(content,type)
+# 
+#     if (isFileValid(output,content,type))
+#     {
+#       statusText <- ""
+#       saveData(content,type,output,pool,session)
+#     }
+#     else
+#       statusText <- "File format is not valid for the selected template"
+#     
+#     output$status <- renderText({
+#       statusText
+#     })
+# 
+#   })
 }
 
 

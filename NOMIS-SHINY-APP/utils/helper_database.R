@@ -93,29 +93,10 @@ getFieldFromGlacier <- function(pool,tableName,field,ids){
 saveData <- function(data,tableName,pool){
   query <- buildInsertQuery(data,tableName)
   
-  sendQuery(query,pool,TRUE)
-  #Send query to the database using pool
-  # check <- tryCatch({
-  #   conn <- poolCheckout(pool)
-  #   queryStatus <- dbWithTransaction(conn,{
-  #     dbGetQuery(conn,request)
-  #   })
-  #   poolReturn(conn)
-  #   print("Data successfully inserted into database")
-  #   showNotification("Data successfully inserted into database",type = "message")
-  # },
-  # warning = function(war){
-  #   print(war)
-  #   showNotification(war$message, type = "warning")
-  # },
-  # error = function(err){
-  #   print(err)
-  #   showNotification(err$message,type = "error",duration = NULL)
-  # },
-  # finally = function(f){
-  #   print(e) 
-  # })
-  
+  if(is.atomic(sendQuery(query,pool,TRUE)))
+    return(FALSE)
+  else
+    return(TRUE)
 }
 
 sendQuery <- function(query,pool,flag){

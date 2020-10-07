@@ -4,6 +4,7 @@ source('./utils/helper_dataframe.R')
 source('./utils/template_config.R')
 source('./utils/dataframe_generator.R')
 source('./utils/helper_file.R')
+source('./utils/helper_log.R')
 
 # UI function of the uploadDataTab module
 # Parameters : 
@@ -167,7 +168,14 @@ uploadDataTab <- function(input,output,session,pool,dimension){
   
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
-    saveData(out,isolate(tableName()),pool)
+  
+    status <- saveData(out,isolate(tableName()),pool)
+    if (status)
+      saveLog("upload","Nino",paste0("Upload data ",isolate(tableName())," in the database"))
+    else
+      saveLog("upload","Nino",paste0("FAILED Upload data ",isolate(tableName())," in the database"))
+    
+
   })
   
   observeEvent(input$uploadFiles,{
