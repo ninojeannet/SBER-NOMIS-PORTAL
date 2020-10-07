@@ -53,6 +53,7 @@ js_parser()
 
 ## Load Shiny extensions functions ################################################
 source('./utils/shiny_extensions.R')
+source('app_config.R')
 
 
 ## Load tabs modules ##############################################################
@@ -76,10 +77,10 @@ options(shiny.maxRequestSize=100*1024^2)
 
 pool <- dbPool(
     drv = RMySQL::MySQL(),
-    dbname = "test",
-    host = "127.0.0.1",
-    username = "root",
-    password = "admin")
+    dbname = DBName,
+    host = hostname,
+    username = username,
+    password = password)
 
 # conn <- poolCheckout(pool)
 # # queryStatus <- dbWithTransaction(conn,{

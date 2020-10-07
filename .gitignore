@@ -1,6 +1,11 @@
 # data files
 data/
+
+#log files
 log/
+
+# Config files
+app_config.r
 
 # History files
 .Rhistory
