@@ -1,6 +1,7 @@
 
 source('./modules/management_tab/management_data_tab.R')
 source('./modules/management_tab/management_process_tab.R')
+source('./modules/management_tab/management_progress_tab.R')
 
 
 managementTabUI <- function(id) {
@@ -17,6 +18,10 @@ managementTabUI <- function(id) {
     tabPanel(
       'Process data',
       managementProcessTabUI(ns("process"))
+    ),
+    tabPanel(
+      'Project progression',
+      managementProcessTabUI(ns("progress"))
     )
   )
 }
@@ -24,6 +29,7 @@ managementTabUI <- function(id) {
 managementTab <- function(input, output, session,pool){
   callModule(managementDataTab,"data",pool)
   callModule(managementProcessTab,"process",pool)
+  callModule(managementProgressTab,"progress",pool)
   
 }
 
