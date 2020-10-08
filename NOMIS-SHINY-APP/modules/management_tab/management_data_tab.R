@@ -36,8 +36,6 @@ managementDataTabUI <- function(id) {
 }
 
 managementDataTab <- function(input, output, session,pool){
-  # vars <- callModule(managementSidebar,"sidebar")
-  # callModule(managementMain,"main",vars,pool)
   
   observeEvent(input$search,{
     output$outputTable <- DT::renderDataTable({

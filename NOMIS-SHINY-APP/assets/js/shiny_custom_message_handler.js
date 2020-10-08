@@ -5,17 +5,13 @@ Shiny.addCustomMessageHandler("testmessage",
   }
 );
 
-/*
+
 $(document).ready(function(){
-  console.log('test2')
-  $('#uploaded_progress').on("DOMSubtreeModified",function(){
-    console.log('test')
-    var target = $('#uploaded_progress').children()[0];
-    if(target.innerHTML === "Upload complete"){
-        console.log('Change')
-        target.innerHTML = 'YOUR TEXT HERE';      
+  $('.progress-bar').on("DOMSubtreeModified",function(){
+    var target = document.querySelector(".progress-bar");
+    if(target.textContent === "Upload complete"){
+        target.textContent = 'Files selected';      
     }
 
   });
 });
-*/

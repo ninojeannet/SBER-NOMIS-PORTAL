@@ -143,9 +143,12 @@ buildInsertQuery <- function(data,tableName,pool){
     {
       if(is.na(value) | value == '')
         request <- paste0(request,"NULL,")
-      else
-        request <- paste0(request,dbQuoteLiteral(pool,value),",")
-      # request <- paste0(request,"?:,")
+      else{
+        if(is.character(value))
+          request <- paste0(request,dbQuoteString(pool,value),",")
+        else
+          request <- paste0(request,value,",")
+      }
     }
     request <- substr(request,1,nchar(request)-1)
     request <- paste0(request,"),")
