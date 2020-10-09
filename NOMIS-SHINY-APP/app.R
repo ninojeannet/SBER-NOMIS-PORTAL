@@ -135,7 +135,7 @@ server <- function(input, output, session) {
     
     dimension <- reactive({input$dimension})
     callModule(uploadTab,"upload",pool,dimension)
-    callModule(managementTab,"management",pool)
+    callModule(managementTab,"management",pool,dimension)
     onStop(function() poolClose(pool))
 }
 

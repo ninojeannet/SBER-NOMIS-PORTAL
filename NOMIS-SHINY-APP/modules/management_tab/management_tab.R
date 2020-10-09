@@ -26,8 +26,8 @@ managementTabUI <- function(id) {
   )
 }
 
-managementTab <- function(input, output, session,pool){
-  callModule(managementDataTab,"data",pool)
+managementTab <- function(input, output, session,pool,dimension){
+  callModule(managementDataTab,"data",pool,dimension)
   callModule(managementProcessTab,"process",pool)
   callModule(managementProgressTab,"progress",pool)
   
