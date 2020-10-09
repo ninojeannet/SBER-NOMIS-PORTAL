@@ -31,6 +31,7 @@ library(DT)
 library(rhandsontable)
 library(lambda.r)
 library(rlist)
+#install.packages("rlist")
 
 ## Compile CSS from Sass ##########################################################
 sass(

@@ -177,3 +177,19 @@ saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool
   query <- buildInsertQuery(df,tablename,pool)
   sendQuery(query,pool,FALSE)
 }
+
+saveExpeditionInDB <- function(name,abr,pool)
+{
+  request <- 'INSERT INTO expedition (`name`,`abreviation`) VALUES (?name,?abr)'
+  query <- sqlInterpolate(pool,request,name=name,abr=abr)
+  sendQuery(query,pool,TRUE)
+}
+
+saveRangeInDB <- function(exp_name,min,max,pool)
+{
+  request <- 'INSERT INTO glacier_range (`id_expedition`,`min`,`max`) VALUES (?exp,?min,?max)'
+  exp_id <-dbGetQuery(pool,paste0("SELECT id_expedition FROM expedition WHERE name =",dbQuoteString(pool,exp_name)))
+  exp_id <-exp_id[['id_expedition']]
+  query <- sqlInterpolate(pool,request,exp=exp_id,min=min,max=max)
+  sendQuery(query,pool,FALSE)
+}
