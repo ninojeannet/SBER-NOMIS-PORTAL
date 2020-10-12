@@ -9,7 +9,7 @@ validation_popup <- function(button_id,text_id){
           fluidPage(
             fluidRow(
               h2("Validate modifications"),
-              textOutput(text_id),
+              div(class="text_out",textOutput(text_id)),
               actionButton(button_id, "Submit")
             ),
             easyClose = TRUE
