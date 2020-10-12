@@ -5,6 +5,8 @@ source('./utils/template_config.R')
 source('./utils/dataframe_generator.R')
 source('./utils/helper_file.R')
 source('./utils/helper_log.R')
+source('./modules/data_module/data_validation_popup.R')
+
 
 # UI function of the uploadDataTab module
 # Parameters : 
@@ -177,12 +179,23 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
-    print(out)
-    status <- saveData(out,isolate(tableName()),pool)
-    if (status)
-      saveLog("upload","Nino",paste0("Upload data ",isolate(tableName())," in the database"))
-    else
-      saveLog("upload","Nino",paste0("FAILED Upload data ",isolate(tableName())," in the database"))
+    # print(out)
+    if(!isUploadOnly)
+    {
+      primaryKey <- tableOptions[[tableName()]][["primary"]]
+      l <- out[updatedRows(),1]
+      l <- sort(l[!duplicated(l)])
+      ns <- session$ns
+      validation_popup(ns("submit"),ns("updated_values"))
+      output$updated_values <- renderText({l})
+    }
+    else{
+      status <- saveData(out,isolate(tableName()),pool)
+      if (status)
+        saveLog("upload","Nino",paste0("Upload data ",isolate(tableName())," in the database"))
+      else
+        saveLog("upload","Nino",paste0("FAILED Upload data ",isolate(tableName())," in the database"))
+    }
   })
   
   observeEvent(input$uploadFiles,{
@@ -217,8 +230,37 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       print(f) 
     })
   })
+  
+  observeEvent(input$submit, priority = 20,{
+    out <- hot_to_r(input$table)
+    status <- saveData(out,isolate(tableName()),pool)
+    if (status)
+      saveLog("upload","Nino",paste0("Upload data ",isolate(tableName())," in the database"))
+    else
+      saveLog("upload","Nino",paste0("FAILED Upload data ",isolate(tableName())," in the database"))
+    shinyjs::reset("entry_form")
+    removeModal()
+    
+  })
+  
+  updatedRows <- reactiveVal(vector())
+  
+  observeEvent(input$table$changes$changes,{
+    for (cell in input$table$changes$changes) {
+      if(!identical(cell[[3]],cell[[4]]))
+      {
+        id <- cell[[1]]+1
+        values <- c(updatedRows(),id)
+        updatedRows(values)
+      }
+    }
+  })
 }
 
+getUpdatedIDs <- function(data){
+  l <- data[[updatedRows(),1]]
+  print(l)
+}
 
 # Check for rows with existing data in the database and return a list of index of these rows
 # Parameters : 
