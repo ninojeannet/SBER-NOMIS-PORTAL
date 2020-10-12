@@ -9,7 +9,7 @@ source('./utils/helper_log.R')
 # UI function of the uploadDataTab module
 # Parameters : 
 # id : id of the module
-managementDataTabUI <- function(id){
+manageDataTabUI <- function(id){
   ns <- NS(id)
   
   # Create the sidebarLayout
@@ -60,7 +60,7 @@ managementDataTabUI <- function(id){
 # session : session of the shiny app
 # pool : connection pool to access the database
 # dimension : window size
-managementDataTab <- function(input,output,session,pool,dimension){
+manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectType <- reactive({input$selectRange})
@@ -99,7 +99,10 @@ managementDataTab <- function(input,output,session,pool,dimension){
       validateInput(input)
       table <- isolate(tableName())
       df <- isolate(dataf())
-      readOnlyRows <- as.numeric(getReadOnlyRows(df,isolate(tableName())))
+      if(isUploadOnly)
+        readOnlyRows <- as.numeric(getReadOnlyRows(df,isolate(tableName())))
+      else
+        readOnlyRows <- vector()
       rhandsontable(df,digits=10,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
         hot_cols(format = tableOptions[[table]][["format"]]) %>%

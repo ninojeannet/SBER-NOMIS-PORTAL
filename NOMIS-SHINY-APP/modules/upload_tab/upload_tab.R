@@ -2,7 +2,7 @@
 
 
 source('./modules/upload_tab/upload_expedition_tab.R')
-source('./modules/upload_tab/upload_data_tab.R')
+source('./modules/data_module/manage_data_tab.R')
 
 
 uploadTabUI <- function(id){
@@ -15,7 +15,7 @@ uploadTabUI <- function(id){
   tabsetPanel(
     tabPanel(
       'Upload data',
-      uploadDataTabUI(ns("data"))
+      manageDataTabUI(ns("data"))
 
   ),
   tabPanel(
@@ -30,5 +30,5 @@ uploadTabUI <- function(id){
 uploadTab <- function(input,output,session,pool,dimension){
   
   callModule(uploadExpeditionTab,"expedition",pool)
-  callModule(uploadDataTab,"data",pool,dimension)
+  callModule(manageDataTab,"data",pool,dimension,TRUE)
 }
