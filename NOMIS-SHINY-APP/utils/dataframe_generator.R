@@ -56,11 +56,11 @@ generateGlacierDF <- function(dataf,glacierID){
     newdataf <- addRows(newdataf,-1,1,nbCol)
   }
 
-    # Fill the df with generated columns
-  newdataf[[primary]] <- id
+
   if(nrow(dataf) != 0)
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
-  
+  # Fill the df with generated columns
+  newdataf[[primary]] <- id
   return(newdataf)
 }
 
@@ -90,12 +90,13 @@ generateLocationDF <- function(dataf,glacierID){
     newdataf <- addRows(newdataf,nbRow,length(ids))
   }
   
+
+  if(nrow(dataf) != 0)
+    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
   # Fill the df with generated columns
   newdataf[[primary]] <- ids
   newdataf[[fk_column]] <- fk
   newdataf[["type"]] <- c("Down","Up")
-  if(nrow(dataf) != 0)
-    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
   
   return(newdataf)
   
@@ -136,13 +137,13 @@ generatePatchDF <- function(dataf,glacierID){
     newdataf <- addRows(newdataf,nbRow,length(ids))
   }
   
+
+  if(nrow(dataf) != 0)
+    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
   # Fill the df with generated columns
   newdataf[[primary]] <- ids
   newdataf[[fk]] <- idsFk
   newdataf[["name"]] <- patches
-  if(nrow(dataf) != 0)
-    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
-  
   return(newdataf)
 }
 
@@ -187,13 +188,13 @@ generateParametersDF <- function(dataf,tablename,glacierID){
     newdataf <- addRows(newdataf,nbRow,length(ids))
   }
   
+
+  if(nrow(dataf) != 0)
+    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
   # Fill the df with generated columns
   newdataf[[primary]] <- ids
   newdataf[[fk]] <- idsFk
   newdataf[["replicate"]] <- replicates
-  if(nrow(dataf) != 0)
-    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
-  
   return(newdataf)
 }
 
@@ -236,12 +237,12 @@ generateBiogeoDF <- function(dataf,tablename,glacierID){
     newdataf <- addRows(newdataf,nbRow,length(ids))
   }
   
+
+  if(nrow(dataf) != 0)
+    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
   # Fill the df with generated columns
   newdataf[[primary]] <- ids
   newdataf[[fk]] <- idsFk
   newdataf[["replicate"]] <- replicates
-  if(nrow(dataf) != 0)
-    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
-  
   return(newdataf)
 }
