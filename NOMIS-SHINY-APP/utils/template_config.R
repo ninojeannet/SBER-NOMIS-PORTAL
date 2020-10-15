@@ -47,3 +47,20 @@ uploadDataTypes <- list("Glacier" = "glacier","Location"="location","Patch"="pat
 
 # The sublist of all the "DOM type" that can be uploaded
 uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")
+
+
+colConfig <- list()
+colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "YYYY-MM-DD"),
+                                list(col= 5, validator = "function (value, callback) {
+              if (/^\\d{1,2}:\\d{2}($|:\\d{2}$)/.test(value)) {callback(true)} else {callback(false)}}"),
+                                list(col= c(6,7), validator = "function (value, callback) {
+              if (/^-?([1-8]?[1-9]|[1-9]0)\\.{1}\\d{1,6}/.test(value)) {callback(true)} else {callback(false)}}"),
+                                list(col= c(9,10,11,12,13,14,15,16), validator = "function (value, callback) {
+              if (/^[-]?\\d*\\.?\\d*$/.test(value)) {callback(true)} else {callback(false)}}"),
+                                list(col= 8, validator = "function (value, callback) {
+              if (/\\d+/.test(value)) {callback(true)} else {callback(false)}}"),
+                                list(col= 17, type = "checkbox",default = FALSE, renderer = "function(instance, td, row, col, prop, value, cellProperties) {
+              td.style.textAlign = 'center';
+              Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+              return td;}"))
+colConfig[["enzyme"]] <- list(list(col=c(4,5,6,7,8), type = "numeric"))
