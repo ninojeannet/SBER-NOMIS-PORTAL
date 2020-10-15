@@ -1,7 +1,12 @@
 source('./utils/template_config.R')
 
-
-copyDFValuesTo <- function(dfToCopy,newdf,primary,shift){
+# Copy dataframe value to another dataframe
+# Parameters :
+# - dftoCopy : the dataframe to copy
+# - newdf : the new df to copy the values to
+# - primary : the primary key of the table
+# Return the updated dataframe
+copyDFValuesTo <- function(dfToCopy,newdf,primary){
   # Insert existing values into the new data frame
   ids <- newdf[[primary]]
   for (i in 1:nrow(dfToCopy)) {
@@ -17,13 +22,17 @@ copyDFValuesTo <- function(dfToCopy,newdf,primary,shift){
   return(newdf)
 }
 
+# Add rows filled with NA to a given dataframe
+# Parameters :
+# - df : the dataframe to apppend rows to
+# - start : the row number where to start adding rows
+# - stop : the row number where to stop adding rows
+# - nbcol : the number of column to add for each row
+# Return the updated dataframe
 addRows <- function(df,start,stop,nbCol){
   for (i in (start+1):stop) {
     row <- c(rep(NA, nbCol))
     df[i,] <- row
-    # df <- rbind(df,row)
-    # df <- rbindlist(list(df,as.list(row)))
-    # df %>% add_row(tribble_row())
   }
   return(df)
 }
@@ -55,6 +64,14 @@ getTableNameFromValue <- function(value){
   return(tablename)
 }
 
+# Generate an handsonTable according to the given table
+# set the validator, renderer and type for each columns. Values taken from config file
+# Parameters :
+# - df : the dataframe containing the data to display
+# - dimension : Dimension of the window to adapt the table
+# - readOnlyrows : list of rows to display as ReadOnly
+# - table : name of the database table
+# Return the generated handsontable
 generateHandsonTable <- function(df,dimension,readOnlyRows,table){
   if(table == "location")
     df[["rdna"]] <- as.logical(df[["rdna"]])

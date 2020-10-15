@@ -74,7 +74,14 @@ saveFile <- function(name,path,tablename){
 
 }
 
-
+# Given a set of filename and validfiles, process and store them in the server with a specific hierarchy
+# show and update a progress bar indicating the upload status
+# Parameters : 
+# - validFilename : List of all valid filename
+# - validFiles : dataframe of the valid selected files with name and datapath
+# - tablename : the name of the table to save the filename to
+# - type : the type of file (eem,abs1,abs10,..)
+# - pool : the database connection pool
 processFiles <- function(validFilename,validFiles,tablename,type,pool){
   tryCatch({
     withProgress(message = "Saving valid files",value = 0,{

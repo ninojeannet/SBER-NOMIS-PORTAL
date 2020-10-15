@@ -1,38 +1,6 @@
 source('./utils/template_config.R')
 
-
-# entryExistInTable <- function(pool,tablename,id){
-#   request <- paste0("SELECT EXISTS( SELECT * FROM ",tablename," WHERE ",tableOptions[[tablename]][["primary"]],"=",id,")")
-#   #Send query to the database using pool
-#   check <- tryCatch({
-#     conn <- poolCheckout(pool)
-#     queryStatus <- dbWithTransaction(conn,{
-#       result <- dbGetQuery(conn,request)
-#     })
-#     poolReturn(conn)
-#     print("Data successfully inserted into database")
-#     showNotification("Data successfully inserted into database",type = "message")
-#   },
-#   warning = function(war){
-#     print(war)
-#     showNotification(war$message, type = "warning")
-#   },
-#   error = function(err){
-#     print(err)
-#     showNotification(err$message,type = "error",duration = NULL)
-#   },
-#   finally = function(f){
-#     print(e) 
-#   })
-#   
-#   if (result == 1)
-#     return(TRUE)
-#   else
-#     return(FALSE)
-# }
-
-
-# Retrieve data from the database for speicific glaciers
+# Retrieve entire table from the database for specific glaciers
 # Parameters :
 # pool : the connection pool to access the database
 # tablename : the name of the table to query in the database
@@ -64,6 +32,13 @@ getTableFromGlacier <- function(pool,tableName,ids){
   return(dataframe)
 }
 
+# Retrieve specific field from a table in the database for specific glaciers
+# Parameters : 
+# - pool : the connection pool to access the database
+# - tableName : the name of the database table to retrieve the field from
+# - field : the name of the field to retrieve
+# - ids : list of ids to retrieve the field from
+# Return the query result as dataframe
 getFieldFromGlacier <- function(pool,tableName,field,ids){
   fields <- mandatoryFields[[tableName]]
   fields <- c(fields,field)
@@ -95,10 +70,14 @@ saveData <- function(data,tableName,pool){
     return(FALSE)
   else
     return(TRUE)
-  # return(TRUE)
 }
 
-
+# Send a given query to the database and return the result
+# Parameters : 
+# - query : the sql query as a string
+# - pool : the database connection pool
+# - flag : flag to show success message as boolean
+# return the query result
 sendQuery <- function(query,pool,flag){
   check <- tryCatch({
     print(query)
@@ -159,13 +138,20 @@ buildInsertQuery <- function(data,tableName,pool){
   return(request)
 }
 
+# Save a specific field from a table in the database
+# Parameters : 
+# - tablename : name of the table to save the field value into
+# - field : the name of the field to save
+# - pkvalue : the primary key of the table
+# - fkValue : the foreign key of the table
+# - uniqueValue : the unique value of the table
+# - value : the value to insert into the database
+# - pool : the database connection pool
 saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool){
   pk <- tableOptions[[tablename]][["primary"]]
   fk <- tableOptions[[tablename]][["FK"]]
   unique <- tableOptions[[tablename]][["name"]]
-  
-    # request <- paste0('INSERT INTO ',tablename,' (',"`",pk,"`,","`",field,"`) VALUES ('",pkValue,"','",value,"')")
-  # request <- paste0(request," AS new_values ON DUPLICATE KEY UPDATE ",field,"=new_values.",field)
+
   df <- setNames(data.frame(matrix(ncol =4, nrow = 1)), c(pk, fk, unique,field))
   df[[pk]] <- pkValue
   df[[fk]] <- fkValue
@@ -175,6 +161,11 @@ saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool
   sendQuery(query,pool,FALSE)
 }
 
+# Save a new expedition row in the database
+# Parameters :
+# - name : name of the expedition
+# - abr : expedition's abreviation
+# - pool: the database connection pool
 saveExpeditionInDB <- function(name,abr,pool)
 {
   request <- 'INSERT INTO expedition (`name`,`abreviation`) VALUES (?name,?abr)'
@@ -182,6 +173,12 @@ saveExpeditionInDB <- function(name,abr,pool)
   sendQuery(query,pool,TRUE)
 }
 
+# Save a new range row in the database
+# Parameters : 
+# - exp_name : expedition name linked to the new range
+# - min : minimum value of the range
+# - max : maximum value of the range
+# - pool : the database connection pool
 saveRangeInDB <- function(exp_name,min,max,pool)
 {
   request <- 'INSERT INTO glacier_range (`id_expedition`,`min`,`max`) VALUES (?exp,?min,?max)'

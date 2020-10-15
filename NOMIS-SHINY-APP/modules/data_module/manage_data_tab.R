@@ -214,6 +214,12 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # })
 }
 
+# Change the column names of the dataframe to database friendly names
+# Save the dataframe into the database
+# Parameters : 
+# - df : the dataframe to save
+# - tablename : the name of the table
+# - pool : the database connection pool
 uploadData <- function(df,tablename,pool){
   out <- setDefaultColumnName(df,tablename)
   status <- saveData(out,tablename,pool)
@@ -223,6 +229,10 @@ uploadData <- function(df,tablename,pool){
     saveLog("upload","Nino",paste0("FAILED Upload data ",tablename," in the database"))
 }
 
+# Return the dataframe updated ids as list
+# Parameters : 
+# - data : the dataframe to retrieve the updated ids from
+# Return the list of updated ids
 getUpdatedIDs <- function(data){
   l <- data[[updatedRows(),1]]
 }

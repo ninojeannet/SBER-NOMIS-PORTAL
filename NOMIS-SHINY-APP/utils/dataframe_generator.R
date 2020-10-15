@@ -204,6 +204,13 @@ generateParametersDF <- function(dataf,tablename,glacierID){
   return(newdataf)
 }
 
+
+# Generate a specific dataframe from biogeo data
+# parameters :
+# dataf : the dataframe glacier's biogeo data
+# tablename : specify for which data the dataframe has to be generated
+# galcierId : the ID of the given glacier
+# Return a generated dataframe of glacier's biogeo values
 generateBiogeoDF <- function(dataf,tablename,glacierID){
   # Get the column names from config file
   primary <- tableOptions[[tablename]][["primary"]]
@@ -223,10 +230,8 @@ generateBiogeoDF <- function(dataf,tablename,glacierID){
     if(!isOnlyUP[[tablename]]){
       idsFk <- c(idsFk,idDN)
       ids <- c(ids,paste0(idDN,"_",replicate))
-      
     }
   }
-  
   
   ids <- sort(ids)
   idsFk <- sort(idsFk)
@@ -246,19 +251,29 @@ generateBiogeoDF <- function(dataf,tablename,glacierID){
   newdataf[[primary]] <- ids
   if(nrow(dataf) != 0)
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
-  # Fill the df with generated columns
-  
+
   newdataf[[fk]] <- idsFk
   newdataf[["replicate"]] <- replicates
   return(newdataf)
 }
 
-
+# Set the default column names of a specific dataframe for database communication
+# Column names are taken from the config file
+# Parameters : 
+# - dataframe : the dataframe to update the column names to
+# - tablename : the name of the table 
+# Return the updated dataframe
 setDefaultColumnName <- function(dataframe,tablename){
   colnames(dataframe) <- templateFieldNames[[tablename]]
   return(dataframe)
 }
 
+# Set the complete column names of a specific dataframe for display
+# Column names are taken from the config file
+# Parameters : 
+# - dataframe : the dataframe to update the column names to
+# - tablename : the name of the table 
+# Return the updated dataframe
 setCompleteColumnName <- function(dataframe,tablename){
   colnames(dataframe) <- fullnameFields[[tablename]]
   return(dataframe)
