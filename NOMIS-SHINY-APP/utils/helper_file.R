@@ -73,3 +73,34 @@ saveFile <- function(name,path,tablename){
   })
 
 }
+
+
+processFiles <- function(validFilename,validFiles,tablename,type,pool){
+  tryCatch({
+    withProgress(message = "Saving valid files",value = 0,{
+      print(validFiles)
+      nbOfFiles <- nrow(validFiles)
+      for (row in 1:nrow(validFiles)) {
+        name <- validFiles[row,"name"]
+        saveFile(name,validFiles[row,"datapath"],type)
+        pkValue <- str_remove(name,"_[^_]+\\..+")
+        fkValue <- str_remove(name,"_[^_]+_[^_]+\\..+")
+        replicate <- str_extract(str_extract(name,"_\\d_"),"\\d")
+        saveFieldInDB(tablename,paste0("filename_",type),pkValue,fkValue,replicate,name,pool)
+        incProgress(1/nbOfFiles, detail = paste("Saving ", name))
+      }
+    })
+    showNotification("Files successfully inserted into database",type = "message")
+  },
+  warning = function(war){
+    print(war)
+    showNotification(war$message, type = "warning")
+  },
+  error = function(err){
+    print(err)
+    showNotification(err$message,type = "error",duration = NULL)
+  },
+  finally = function(f){
+    print(f) 
+  })
+}

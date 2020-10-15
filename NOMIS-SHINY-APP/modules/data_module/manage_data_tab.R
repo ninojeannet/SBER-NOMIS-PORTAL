@@ -69,9 +69,12 @@ manageDataTabUI <- function(id){
 manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # Create a boolean reactive value that keep track of the sidebar visibility state
   sidebarVisible <- reactiveVal(TRUE)
+  updatedRows <- reactiveVal(vector())
   
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectType <- reactive({input$selectRange})
+  filenames <- reactive({generateFilenames(ids(),input$domtype)})
+  tablesFile <- reactive({generateFileTables(filenames(),input$files)})
   
   dataf <- reactive({
     if(input$type %in% names(templateFieldNames))
@@ -80,6 +83,23 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       tmp <- getFieldFromGlacier(pool,tableName(),input$type,ids())
     
     return(generateFilledDF(tmp,tableName(),ids()))
+  })
+  
+  ids <- reactive({
+    switch (input$selectRange,
+            "simple" = {
+              ids <- input$glacier
+            },
+            "range" = {
+              range <- input$glacierRange
+              ids <- c(paste0("GL",as.character(range[1]:range[2])))
+            },
+            "list" = {
+              ids <- input$glacierList
+              ids <- gsub(" ", "", ids, fixed = TRUE)
+              ids <- strsplit(ids,',')
+              ids <- sapply(ids, function(x){paste0("GL",x)})
+            })
   })
   
   observeEvent(input$selectRange,{
@@ -135,34 +155,12 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     }
   })
   
-  ids <- reactive({
-    switch (input$selectRange,
-            "simple" = {
-              ids <- input$glacier
-            },
-            "range" = {
-              range <- input$glacierRange
-              ids <- c(paste0("GL",as.character(range[1]:range[2])))
-            },
-            "list" = {
-              ids <- input$glacierList
-              ids <- gsub(" ", "", ids, fixed = TRUE)
-              ids <- strsplit(ids,',')
-              ids <- sapply(ids, function(x){paste0("GL",x)})
-            }
-    )
-  })
-  
-  filenames <- reactive({generateFilenames(ids(),input$domtype)})
-  tablesFile <- reactive({generateFileTables(filenames(),input$files)})
-  
   observeEvent(input$files,{
     showElement("uploadFiles")
     showElement("title")
     showElement("tables")
     
     tables <- tablesFile()
-    
     output$fileValid <- renderTable({ 
       validateInput(input)
       data.frame("Valid" =tables[["valid"]])})
@@ -182,50 +180,15 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
     if(!isUploadOnly)
-    {
-      primaryKey <- tableOptions[[tableName()]][["primary"]]
-      l <- out[updatedRows(),1]
-      l <- sort(l[!duplicated(l)])
-      ns <- session$ns
-      validation_popup(ns("submit"),ns("updated_values"))
-      output$updated_values <- renderText({l})
-    }
-    else{
+      show_validation_popup(tableName(),out,updatedRows(),output,session$ns)
+    else
       uploadData(out,isolate(tableName()),pool)
-    }
   })
   
   observeEvent(input$uploadFiles,{
-    tryCatch({
-      withProgress(message = "Saving valid files",value = 0,{
-        
-        validFilename <- tablesFile()[["valid"]]
-        validFiles <- input$files[input$files$name %in% validFilename,]
-        print(validFiles)
-        nbOfFiles <- nrow(validFiles)
-        for (row in 1:nrow(validFiles)) {
-          name <- validFiles[row,"name"]
-          saveFile(name,validFiles[row,"datapath"],input$domtype)
-          pkValue <- str_remove(name,"_[^_]+\\..+")
-          fkValue <- str_remove(name,"_[^_]+_[^_]+\\..+")
-          replicate <- str_extract(str_extract(name,"_\\d_"),"\\d")
-          saveFieldInDB(tableName(),paste0("filename_",input$domtype),pkValue,fkValue,replicate,name,pool)
-          incProgress(1/nbOfFiles, detail = paste("Saving ", name))
-        }
-      })
-      showNotification("Files successfully inserted into database",type = "message")
-    },
-    warning = function(war){
-      print(war)
-      showNotification(war$message, type = "warning")
-    },
-    error = function(err){
-      print(err)
-      showNotification(err$message,type = "error",duration = NULL)
-    },
-    finally = function(f){
-      print(f) 
-    })
+    validFilename <- tablesFile()[["valid"]]
+    validFiles <- input$files[input$files$name %in% validFilename,]
+    processFiles(validFilename,validFiles,tableName(),input$domtype,pool)
   })
   
   observeEvent(input$submit, priority = 20,{
@@ -233,10 +196,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     uploadData(out,isolate(tableName()),pool)
     shinyjs::reset("entry_form")
     removeModal()
-    
   })
-  
-  updatedRows <- reactiveVal(vector())
   
   observeEvent(input$table$changes$changes,{
     for (cell in input$table$changes$changes) {
@@ -249,53 +209,9 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     }
   })
   
-  observeEvent(input$toggleSidebar,{
-    toggle("sidebar")
-  })
-}
-
-generateHandsonTable <- function(df,dimension,readOnlyRows,table){
-  if(table == "location")
-    df[["rdna"]] <- as.logical(df[["rdna"]])
-  df <- setCompleteColumnName(df,table)
-    
-  handsonTable <- rhandsontable(df,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
-    hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
-    hot_col(mandatoryFields[[table]], readOnly = TRUE) %>%
-    hot_row(readOnlyRows, readOnly = TRUE)
-  #     hot_cols(format = tableOptions[[table]][["format"]]) %>%
-  switch (table,
-          "glacier" = {
-          },
-          "location" = {
-            handsonTable <- handsonTable  %>%
-              hot_col(4, type = "date",dateFormat = "YYYY-MM-DD") %>%
-              hot_col(5, validator = "function (value, callback) {
-              if (/^\\d{1,2}:\\d{2}($|:\\d{2}$)/.test(value)) {callback(true)} else {callback(false)}}") %>%
-              hot_col(c(6,7), validator = "function (value, callback) {
-              if (/^-?([1-8]?[1-9]|[1-9]0)\\.{1}\\d{1,6}/.test(value)) {callback(true)} else {callback(false)}}") %>%
-              hot_col(c(9,10,11,12,13,14,15,16), validator = "function (value, callback) {
-              if (/^[-]?\\d*\\.?\\d*$/.test(value)) {callback(true)} else {callback(false)}}") %>%
-              hot_col(8, validator = "function (value, callback) {
-              if (/\\d+/.test(value)) {callback(true)} else {callback(false)}}")%>%
-              hot_col(17, type = "checkbox",default = FALSE, renderer = "function(instance, td, row, col, prop, value, cellProperties) {
-                td.style.textAlign = 'center';
-                Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
-
-                return td;}")
-          },
-          "patch" = {
-            
-          },
-          "enzyme" = {
-            handsonTable <- handsonTable  %>%
-              hot_col(c(4,5,6,7,8), type = "numeric")
-          }
-  )
-  
-
-  
-  return(handsonTable)
+  # observeEvent(input$toggleSidebar,{
+  #   toggle("sidebar")
+  # })
 }
 
 uploadData <- function(df,tablename,pool){
@@ -309,34 +225,6 @@ uploadData <- function(df,tablename,pool){
 
 getUpdatedIDs <- function(data){
   l <- data[[updatedRows(),1]]
-}
-
-# Check for rows with existing data in the database and return a list of index of these rows
-# Parameters : 
-# - dataframe : the dataframe to check for not empty rows
-# - tablename : the name of the table of the current dataframe
-# Return a list of row indexes of not empty rows
-getReadOnlyRows <- function(dataframe,tablename){
-  colNames <- setdiff(colnames(dataframe),unlist(mandatoryFields[tablename]))
-  dataframe <- dataframe[colNames]
-  onlyExistingRows <- dataframe[rowSums(is.na(dataframe)) != ncol(dataframe),,drop = FALSE]
-  rows <- rownames(onlyExistingRows)
-  return(rows)
-}
-
-# Return the name of the table containing a given field
-# Check in the config file the tablename
-# Parameters :
-# - value : name of the field to find its table for
-# return the name of the table
-getTableNameFromValue <- function(value){
-  l <- list.search(templateFieldNames,value %in% .)
-  if(length(l) >0)
-    tablename <- names(l)[1]
-  else
-    tablename <- value
-
-  return(tablename)
 }
 
 # Check if the input format are valid and if not display a message
@@ -365,5 +253,3 @@ validateInputEmpty <- function(input){
     )
   )
 }
-
-
