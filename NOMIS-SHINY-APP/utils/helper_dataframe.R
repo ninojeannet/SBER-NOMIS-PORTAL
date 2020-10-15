@@ -1,6 +1,6 @@
 
 
-copyDFValuesTo <- function(dfToCopy,newdf,primary){
+copyDFValuesTo <- function(dfToCopy,newdf,primary,shift){
   # Insert existing values into the new data frame
   ids <- newdf[[primary]]
   for (i in 1:nrow(dfToCopy)) {

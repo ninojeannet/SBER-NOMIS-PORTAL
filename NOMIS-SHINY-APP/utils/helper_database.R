@@ -79,7 +79,6 @@ getFieldFromGlacier <- function(pool,tableName,field,ids){
     query <- paste0(query," OR ")
   }
   query <- substr(query,1,nchar(query)-4)
-  print(query)
   dataframe <- sendQuery(query,pool,FALSE)
   # 
   return(dataframe)
@@ -92,7 +91,6 @@ getFieldFromGlacier <- function(pool,tableName,field,ids){
 # pool : connection pool to access the database
 saveData <- function(data,tableName,pool){
   query <- buildInsertQuery(data,tableName,pool)
-  print(query)
   if(is.atomic(sendQuery(query,pool,TRUE)))
     return(FALSE)
   else
@@ -103,7 +101,7 @@ saveData <- function(data,tableName,pool){
 
 sendQuery <- function(query,pool,flag){
   check <- tryCatch({
-    
+    print(query)
     dataframe <-dbGetQuery(pool,query)
     
     if(flag)
@@ -157,7 +155,7 @@ buildInsertQuery <- function(data,tableName,pool){
   request <- paste0(request," AS new_values ON DUPLICATE KEY UPDATE ")
   for(x in headers[-1]){request <- paste0(request,x,"=new_values.",x,", ")}
   request <- substr(request,1,nchar(request)-2)
-  print(request)
+
   return(request)
 }
 
@@ -173,7 +171,6 @@ saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool
   df[[fk]] <- fkValue
   df[[unique]] <- uniqueValue
   df[[field]] <- value
-  print(df)
   query <- buildInsertQuery(df,tablename,pool)
   sendQuery(query,pool,FALSE)
 }

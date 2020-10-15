@@ -14,41 +14,45 @@ source('./modules/data_module/data_validation_popup.R')
 manageDataTabUI <- function(id){
   ns <- NS(id)
   
-  # Create the sidebarLayout
-  sidebarLayout(
-    # Create a sidebar with the innerModule first unit input UI elements inside
-    sidebarPanel(
-      id = ns('sidebar'),
-      div(
-        selectInput(ns("type"),label = "Select a data type",choices = uploadDataTypes),
-        hidden(selectInput(ns("domtype"),label = "Select a DOM parameter",choices = uploadDOMTypes)),
-        radioButtons(ns("selectRange"), "Choose a selection option :",
-                     c("Unique glacier" = "simple",
-                       "Range of glacier" = "range",
-                       "List of glacier" = "list")),
-        textInput(ns("glacier"),"Enter glacier ID"),
-        hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(1, 500))),
-        hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
-        actionButton(ns("generate"),"Generate template"),
-        hidden( fileInput(ns("files"),"Select files",accept=".csv",multiple = TRUE))
-      ),
-      width = 4
-    ),
-    # Create the main panel with the innerModule first unit plot UI elements inside
-    mainPanel(
-      id = ns('main'),
-      div(
-        hidden(h1(id = ns("title"),"Selected files status")),
-        div(class = "file-output",id=ns("tables"),
-            div(class="file-table",tableOutput(ns("fileValid"))),
-            div(class="file-table",tableOutput(ns("fileWrong"))),
-            div(class="file-table",tableOutput(ns("fileMissing"))),
-            div(class="file-table",hidden(actionButton(ns("uploadFiles"),"Upload valid files",class="upload-button")))
+  div(
+    # div(class="btn-menu",actionButton(ns('toggleSidebar'), 'Hide inputs', class = 'custom-style')),
+    
+    # Create the sidebarLayout
+    sidebarLayout(
+      # Create a sidebar with the innerModule first unit input UI elements inside
+      sidebarPanel(
+        id = ns('sidebar'),
+        div(
+          selectInput(ns("type"),label = "Select a data type",choices = uploadDataTypes),
+          hidden(selectInput(ns("domtype"),label = "Select a DOM parameter",choices = uploadDOMTypes)),
+          radioButtons(ns("selectRange"), "Choose a selection option :",
+                       c("Unique glacier" = "simple",
+                         "Range of glacier" = "range",
+                         "List of glacier" = "list")),
+          textInput(ns("glacier"),"Enter glacier ID"),
+          hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(1, 500))),
+          hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
+          actionButton(ns("generate"),"Generate template"),
+          hidden( fileInput(ns("files"),"Select files",accept=".csv",multiple = TRUE))
         ),
-        rHandsontableOutput(ns("table")),
-        hidden(actionButton(ns("upload"),"Upload data",class="upload-button"))       
+        width = 2
       ),
-      width = 8
+      # Create the main panel with the innerModule first unit plot UI elements inside
+      mainPanel(
+        id = ns('main'),
+        div(
+          hidden(h1(id = ns("title"),"Selected files status")),
+          div(class = "file-output",id=ns("tables"),
+              div(class="file-table",tableOutput(ns("fileValid"))),
+              div(class="file-table",tableOutput(ns("fileWrong"))),
+              div(class="file-table",tableOutput(ns("fileMissing"))),
+              div(class="file-table",hidden(actionButton(ns("uploadFiles"),"Upload valid files",class="upload-button")))
+          ),
+          rHandsontableOutput(ns("table")),
+          hidden(actionButton(ns("upload"),"Upload data",class="upload-button"))       
+        ),
+        width = 10
+      )
     )
   )
 }
@@ -63,6 +67,8 @@ manageDataTabUI <- function(id){
 # pool : connection pool to access the database
 # dimension : window size
 manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
+  # Create a boolean reactive value that keep track of the sidebar visibility state
+  sidebarVisible <- reactiveVal(TRUE)
   
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectType <- reactive({input$selectRange})
@@ -105,11 +111,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
         readOnlyRows <- as.numeric(getReadOnlyRows(df,isolate(tableName())))
       else
         readOnlyRows <- vector()
-      rhandsontable(df,digits=10,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
-        hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
-        hot_cols(format = tableOptions[[table]][["format"]]) %>%
-        hot_col(mandatoryFields[[table]], readOnly = TRUE) %>%
-        hot_row(readOnlyRows, readOnly = TRUE)
+      generateHandsonTable(df,dimension,readOnlyRows,table)
     })
     showElement("upload")
     showElement("table")
@@ -179,7 +181,6 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
-    # print(out)
     if(!isUploadOnly)
     {
       primaryKey <- tableOptions[[tableName()]][["primary"]]
@@ -190,11 +191,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       output$updated_values <- renderText({l})
     }
     else{
-      status <- saveData(out,isolate(tableName()),pool)
-      if (status)
-        saveLog("upload","Nino",paste0("Upload data ",isolate(tableName())," in the database"))
-      else
-        saveLog("upload","Nino",paste0("FAILED Upload data ",isolate(tableName())," in the database"))
+      uploadData(out,isolate(tableName()),pool)
     }
   })
   
@@ -233,11 +230,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   
   observeEvent(input$submit, priority = 20,{
     out <- hot_to_r(input$table)
-    status <- saveData(out,isolate(tableName()),pool)
-    if (status)
-      saveLog("upload","Nino",paste0("Upload data ",isolate(tableName())," in the database"))
-    else
-      saveLog("upload","Nino",paste0("FAILED Upload data ",isolate(tableName())," in the database"))
+    uploadData(out,isolate(tableName()),pool)
     shinyjs::reset("entry_form")
     removeModal()
     
@@ -255,11 +248,67 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       }
     }
   })
+  
+  observeEvent(input$toggleSidebar,{
+    toggle("sidebar")
+  })
+}
+
+generateHandsonTable <- function(df,dimension,readOnlyRows,table){
+  if(table == "location")
+    df[["rdna"]] <- as.logical(df[["rdna"]])
+  df <- setCompleteColumnName(df,table)
+    
+  handsonTable <- rhandsontable(df,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
+    hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
+    hot_col(mandatoryFields[[table]], readOnly = TRUE) %>%
+    hot_row(readOnlyRows, readOnly = TRUE)
+  #     hot_cols(format = tableOptions[[table]][["format"]]) %>%
+  switch (table,
+          "glacier" = {
+          },
+          "location" = {
+            handsonTable <- handsonTable  %>%
+              hot_col(4, type = "date",dateFormat = "YYYY-MM-DD") %>%
+              hot_col(5, validator = "function (value, callback) {
+              if (/^\\d{1,2}:\\d{2}($|:\\d{2}$)/.test(value)) {callback(true)} else {callback(false)}}") %>%
+              hot_col(c(6,7), validator = "function (value, callback) {
+              if (/^-?([1-8]?[1-9]|[1-9]0)\\.{1}\\d{1,6}/.test(value)) {callback(true)} else {callback(false)}}") %>%
+              hot_col(c(9,10,11,12,13,14,15,16), validator = "function (value, callback) {
+              if (/^[-]?\\d*\\.?\\d*$/.test(value)) {callback(true)} else {callback(false)}}") %>%
+              hot_col(8, validator = "function (value, callback) {
+              if (/\\d+/.test(value)) {callback(true)} else {callback(false)}}")%>%
+              hot_col(17, type = "checkbox",default = FALSE, renderer = "function(instance, td, row, col, prop, value, cellProperties) {
+                td.style.textAlign = 'center';
+                Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+
+                return td;}")
+          },
+          "patch" = {
+            
+          },
+          "enzyme" = {
+            handsonTable <- handsonTable  %>%
+              hot_col(c(4,5,6,7,8), type = "numeric")
+          }
+  )
+  
+
+  
+  return(handsonTable)
+}
+
+uploadData <- function(df,tablename,pool){
+  out <- setDefaultColumnName(df,tablename)
+  status <- saveData(out,tablename,pool)
+  if (status)
+    saveLog("upload","Nino",paste0("Upload data ",tablename," in the database"))
+  else
+    saveLog("upload","Nino",paste0("FAILED Upload data ",tablename," in the database"))
 }
 
 getUpdatedIDs <- function(data){
   l <- data[[updatedRows(),1]]
-  print(l)
 }
 
 # Check for rows with existing data in the database and return a list of index of these rows
@@ -286,8 +335,7 @@ getTableNameFromValue <- function(value){
     tablename <- names(l)[1]
   else
     tablename <- value
-  print(tablename)
-  
+
   return(tablename)
 }
 

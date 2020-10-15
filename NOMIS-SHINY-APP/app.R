@@ -31,6 +31,9 @@ library(DT)
 library(rhandsontable)
 library(lambda.r)
 library(rlist)
+library(DataCombine)
+# devtools::install_github('christophergandrud/DataCombine')
+# install.packages("rlang")
 #install.packages("rlist")
 
 ## Compile CSS from Sass ##########################################################
