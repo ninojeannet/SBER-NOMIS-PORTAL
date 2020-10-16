@@ -46,6 +46,7 @@ manageDataTabUI <- function(id){
               div(class="file-table",tableOutput(ns("fileValid"))),
               div(class="file-table",tableOutput(ns("fileWrong"))),
               div(class="file-table",tableOutput(ns("fileMissing"))),
+              div(class="file-table",tableOutput(ns("fileExisting"))),
               div(class="file-table",hidden(actionButton(ns("uploadFiles"),"Upload valid files",class="upload-button")))
           ),
           rHandsontableOutput(ns("table")),
@@ -74,7 +75,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectType <- reactive({input$selectRange})
   filenames <- reactive({generateFilenames(ids(),input$domtype)})
-  tablesFile <- reactive({generateFileTables(filenames(),input$files)})
+  existingFiles <- reactive({getExistingFilenamesInDB(pool,tableName(),input$domtype,ids())})
+  tablesFile <- reactive({generateFileTables(filenames(),input$files,existingFiles())})
   
   dataf <- reactive({
     if(input$type %in% names(templateFieldNames))
@@ -170,6 +172,9 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     output$fileMissing <- renderTable({ 
       validateInputEmpty(input)
       data.frame("Missing" =tables[["missing"]])})
+    output$fileExisting <- renderTable({ 
+      validateInputEmpty(input)
+      data.frame("Existing" =tables[["existing"]])})
     
     if(nrow(data.frame("Valid" =tables[["valid"]])) > 0)
       enable("uploadFiles")

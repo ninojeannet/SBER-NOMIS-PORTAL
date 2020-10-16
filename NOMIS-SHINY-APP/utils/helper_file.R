@@ -25,11 +25,12 @@ generateFilenames <- function(ids,tablename){
 # - filenames : vector of all the valid filenames. Used to check the validity of each files
 # - files : vector of files to check
 # Return a list containing the three vectors
-generateFileTables <- function(filenames,files){
+generateFileTables <- function(filenames,files,existingFiles){
   tables <- list()
   tables[["valid"]] <- vector()
   tables[["wrong"]] <- vector()
   tables[["missing"]] <- vector()
+  tables[["existing"]] <- vector()
   for (filename in filenames) {
     if (filename %in% files[["name"]])
       tables[["valid"]] <- c(tables[["valid"]],filename)
@@ -41,8 +42,16 @@ generateFileTables <- function(filenames,files){
       tables[["wrong"]] <- c(tables[["wrong"]],val)
     
   }
+  tables[["existing"]] <- existingFiles
   
   return(tables)
+}
+
+
+getExistingFilenamesInDB <- function(pool,table,field,ids){
+  filenames <- getFieldFromGlacier(pool,table,paste0("filename_",field),ids)[[paste0("filename_",field)]]
+  print(filenames)
+  return(filenames)
 }
 
 

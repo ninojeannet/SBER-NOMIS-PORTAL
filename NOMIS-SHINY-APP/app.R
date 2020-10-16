@@ -33,8 +33,8 @@ library(lambda.r)
 library(rlist)
 library(DataCombine)
 # devtools::install_github('christophergandrud/DataCombine')
+# install.packages("devtools")
 # install.packages("rlang")
-#install.packages("rlist")
 
 ## Compile CSS from Sass ##########################################################
 sass(

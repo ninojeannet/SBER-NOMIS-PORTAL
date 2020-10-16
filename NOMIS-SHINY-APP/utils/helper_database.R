@@ -161,6 +161,9 @@ saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool
   sendQuery(query,pool,FALSE)
 }
 
+
+
+
 # Save a new expedition row in the database
 # Parameters :
 # - name : name of the expedition
