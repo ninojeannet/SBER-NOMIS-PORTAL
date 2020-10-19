@@ -14,9 +14,9 @@ validation_popup <- function(button_id,text_id){
             ),
             easyClose = TRUE
           )
+        )
       )
     )
-  )
 }
 
 show_validation_popup <- function(tablename,updatedValues,output,ns,isFileUpload,out=NULL){

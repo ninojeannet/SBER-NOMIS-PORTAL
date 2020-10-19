@@ -2,8 +2,8 @@
 uploadExpeditionTabUI <- function(id){
   ns <- NS(id)
   fluidRow(
-    column(width = 6,offset = 3,
-          panel(class="panel",
+    column(width = 6,offset = 3,class="expedition",
+          panel(class="exped-content",
             h1(class="center","Create a new expedition"),
             div(class="exped",textInput(ns("name"),"Expedition's name : ")),
             div(class="exped",textInput(ns("abr"),"Abreviation : ")),
@@ -26,7 +26,6 @@ uploadExpeditionTabUI <- function(id){
         )
     )
   )
-
 }
 
 
@@ -43,7 +42,7 @@ uploadExpeditionTab <- function(input,output,session,pool,dimension){
   iv_range$add_rule("range", ~ if (!is_valid_range(.)) "Please insert a valid range of glacier")
   iv_range$enable()
   is_valid_range <- function(newRange) {
-    b <- newRange[2] > newRange[1] & newRange[2] > 0 & newRange[1] > 0
+    b <- newRange[2] > newRange[1] & newRange[2] > 0 & newRange[1] > 0 & !is.na(newRange[1]) & !is.na(newRange[2])
     if(!b)
       disable("add")
     else
@@ -63,8 +62,7 @@ uploadExpeditionTab <- function(input,output,session,pool,dimension){
   })
   
   observeEvent(input$create,{
-    if(iv$is_valid())
-    {
+    if(iv$is_valid()){
       iv$disable()
       saveExpeditionInDB(input$name,input$abr,pool)
       for (range in input$ranges) {

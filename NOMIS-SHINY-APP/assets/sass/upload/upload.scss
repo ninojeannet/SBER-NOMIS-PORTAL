@@ -27,3 +27,18 @@
 .exped{
   margin-left: 3em;
 }
+
+.expedition {
+    background: lighten($grey5, 25);
+    border: 1px solid $primary-color;
+    border-radius: 4px;
+}
+
+.exped-content {
+  background: lighten($grey5, 25);
+  border: none;
+}
+
+.panel {
+  border: none;
+}
