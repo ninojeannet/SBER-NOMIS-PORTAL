@@ -32,9 +32,12 @@ library(rhandsontable)
 library(lambda.r)
 library(rlist)
 library(DataCombine)
+library(shinyvalidate)
 # devtools::install_github('christophergandrud/DataCombine')
-# install.packages("devtools")
+# install.packages("shiny")
 # install.packages("rlang")
+# remotes::install_github("rstudio/shinyvalidate")
+# update.packages(ask = FALSE, checkBuilt = TRUE)
 
 ## Compile CSS from Sass ##########################################################
 sass(

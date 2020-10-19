@@ -25,7 +25,7 @@ generateFilenames <- function(ids,tablename){
 # - filenames : vector of all the valid filenames. Used to check the validity of each files
 # - files : vector of files to check
 # Return a list containing the three vectors
-generateFileTables <- function(filenames,files,existingFiles){
+generateFileTables <- function(filenames,files,existingFiles,isUploadOnly){
   tables <- list()
   tables[["valid"]] <- vector()
   tables[["wrong"]] <- vector()
@@ -43,6 +43,8 @@ generateFileTables <- function(filenames,files,existingFiles){
     
   }
   tables[["existing"]] <- existingFiles
+  if(isUploadOnly)
+    tables[["valid"]] <- setdiff(tables[["valid"]],tables[["existing"]])
   
   return(tables)
 }

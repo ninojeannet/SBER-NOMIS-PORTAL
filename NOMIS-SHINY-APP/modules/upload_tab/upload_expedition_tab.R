@@ -9,7 +9,8 @@ uploadExpeditionTabUI <- function(id){
             div(class="exped",textInput(ns("abr"),"Abreviation : ")),
             div(
               div(class="inline exped",numericRangeInput(ns("range"),"Select a glacier range :",value = c(1,500))),
-              div(class="btn",actionButton(ns("add"),"Add range"))
+              div(class="btn",actionButton(ns("add"),"Add range")),
+              textOutput(ns("status"))
             ),
             div(class="exped",selectizeInput(
               inputId =  ns('ranges'),
@@ -33,6 +34,27 @@ uploadExpeditionTab <- function(input,output,session,pool,dimension){
   
   rangeVector <- reactiveVal(vector())
   
+  iv <- InputValidator$new()
+  iv$add_rule("name", sv_required())
+  iv$add_rule("abr", sv_required())
+  iv$add_rule("ranges", sv_required())
+
+  iv_range <-InputValidator$new()
+  iv_range$add_rule("range", ~ if (!is_valid_range(.)) "Please insert a valid range of glacier")
+  iv_range$enable()
+  is_valid_range <- function(newRange) {
+    b <- newRange[2] > newRange[1] & newRange[2] > 0 & newRange[1] > 0
+    if(!b)
+      disable("add")
+    else
+      enable("add")
+    return(b)
+  }
+  
+  observeEvent(input$ranges,{
+    rangeVector(input$ranges)
+  },ignoreNULL  = FALSE)
+  
   observeEvent(input$add,{
     newRange <- isolate(input$range)
     tmp <- c(rangeVector(),paste0(newRange[1]," - ",newRange[2]))
@@ -41,12 +63,17 @@ uploadExpeditionTab <- function(input,output,session,pool,dimension){
   })
   
   observeEvent(input$create,{
-    
-    saveExpeditionInDB(input$name,input$abr,pool)
-    
-    for (range in input$ranges) {
-      range <- str_split(range," - ")
-      saveRangeInDB(input$name,as.numeric(range[[1]][1]),as.numeric(range[[1]][2]),pool)
+    if(iv$is_valid())
+    {
+      iv$disable()
+      saveExpeditionInDB(input$name,input$abr,pool)
+      for (range in input$ranges) {
+        range <- str_split(range," - ")
+        saveRangeInDB(input$name,as.numeric(range[[1]][1]),as.numeric(range[[1]][2]),pool)
+      }
+    }
+    else{
+      iv$enable()
     }
   })
 }

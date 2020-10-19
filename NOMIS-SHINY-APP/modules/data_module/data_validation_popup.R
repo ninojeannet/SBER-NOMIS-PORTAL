@@ -19,10 +19,15 @@ validation_popup <- function(button_id,text_id){
   )
 }
 
-show_validation_popup <- function(tablename,out,updatedRows,output,ns){
-  primaryKey <- tableOptions[[tablename]][["primary"]]
-  l <- out[updatedRows,1]
-  l <- sort(l[!duplicated(l)])
+show_validation_popup <- function(tablename,updatedValues,output,ns,isFileUpload,out=NULL){
+  if (isFileUpload){
+    l <- updatedValues
+  }
+  else{
+    l <- out[updatedValues,1]
+    l <- sort(l[!duplicated(l)])
+  }
+  # primaryKey <- tableOptions[[tablename]][["primary"]]
   validation_popup(ns("submit"),ns("updated_values"))
   output$updated_values <- renderText({l})
 }

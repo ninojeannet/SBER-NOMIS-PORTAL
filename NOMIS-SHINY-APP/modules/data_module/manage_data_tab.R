@@ -35,7 +35,7 @@ manageDataTabUI <- function(id){
           actionButton(ns("generate"),"Generate template"),
           hidden( fileInput(ns("files"),"Select files",accept=".csv",multiple = TRUE))
         ),
-        width = 2
+        width = 3
       ),
       # Create the main panel with the innerModule first unit plot UI elements inside
       mainPanel(
@@ -52,7 +52,7 @@ manageDataTabUI <- function(id){
           rHandsontableOutput(ns("table")),
           hidden(actionButton(ns("upload"),"Upload data",class="upload-button"))       
         ),
-        width = 10
+        width = 9
       )
     )
   )
@@ -71,12 +71,13 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # Create a boolean reactive value that keep track of the sidebar visibility state
   sidebarVisible <- reactiveVal(TRUE)
   updatedRows <- reactiveVal(vector())
+  isFileUpload <- reactiveVal(FALSE)
   
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectType <- reactive({input$selectRange})
   filenames <- reactive({generateFilenames(ids(),input$domtype)})
   existingFiles <- reactive({getExistingFilenamesInDB(pool,tableName(),input$domtype,ids())})
-  tablesFile <- reactive({generateFileTables(filenames(),input$files,existingFiles())})
+  tablesFile <- reactive({generateFileTables(filenames(),input$files,existingFiles(),isUploadOnly)})
   
   dataf <- reactive({
     if(input$type %in% names(templateFieldNames))
@@ -141,6 +142,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   
   observeEvent(input$type,{
     if (input$type == "biogeo" & input$domtype %in% c("eem","abs1","abs10")){
+      isFileUpload(TRUE)
       showElement("domtype")
       showElement("files")
       hideElement("generate")
@@ -148,6 +150,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       hideElement("upload")
     }
     else{
+      isFileUpload(FALSE)
       hideElement("domtype")
       hideElement("files")
       hideElement("title")
@@ -185,7 +188,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
     if(!isUploadOnly)
-      show_validation_popup(tableName(),out,updatedRows(),output,session$ns)
+      show_validation_popup(tableName(),updatedRows(),output,session$ns,FALSE,out)
     else
       uploadData(out,isolate(tableName()),pool)
   })
@@ -193,12 +196,23 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   observeEvent(input$uploadFiles,{
     validFilename <- tablesFile()[["valid"]]
     validFiles <- input$files[input$files$name %in% validFilename,]
-    processFiles(validFilename,validFiles,tableName(),input$domtype,pool)
+    if(!isUploadOnly)
+      show_validation_popup(tableName(),validFilename,output,session$ns,TRUE)
+    else
+      processFiles(validFilename,validFiles,tableName(),input$domtype,pool)
   })
   
   observeEvent(input$submit, priority = 20,{
-    out <- hot_to_r(input$table)
-    uploadData(out,isolate(tableName()),pool)
+    if(isFileUpload()){
+      validFilename <- tablesFile()[["valid"]]
+      validFiles <- input$files[input$files$name %in% validFilename,]
+      processFiles(validFilename,validFiles,tableName(),input$domtype,pool)
+    }
+    else
+    {
+      out <- hot_to_r(input$table)
+      uploadData(out,isolate(tableName()),pool)  
+    }
     shinyjs::reset("entry_form")
     removeModal()
   })
