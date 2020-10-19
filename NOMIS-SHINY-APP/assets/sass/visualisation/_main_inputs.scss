@@ -2,6 +2,10 @@
 // Global inputs layout
 // ####################################
 
+.help {
+    float: right;
+}
+
 .main-inputs {
     display: flex;
     flex-wrap: wrap;;
@@ -15,6 +19,8 @@
     .icon-btn {
         font-size: 1.5em;
     }
+    
+
 
     @include tablet {
         .main-actions {

@@ -14,48 +14,54 @@ source('./modules/data_module/data_validation_popup.R')
 manageDataTabUI <- function(id){
   ns <- NS(id)
   
-  div(
     # div(class="btn-menu",actionButton(ns('toggleSidebar'), 'Hide inputs', class = 'custom-style')),
-    
-    # Create the sidebarLayout
-    sidebarLayout(
-      # Create a sidebar with the innerModule first unit input UI elements inside
-      sidebarPanel(
-        id = ns('sidebar'),
-        div(
-          selectInput(ns("type"),label = "Select a data type",choices = uploadDataTypes),
-          hidden(selectInput(ns("domtype"),label = "Select a DOM parameter",choices = uploadDOMTypes)),
-          radioButtons(ns("selectRange"), "Choose a selection option :",
-                       c("Unique glacier" = "simple",
-                         "Range of glacier" = "range",
-                         "List of glacier" = "list")),
-          textInput(ns("glacier"),"Enter glacier ID"),
-          hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(1, 500))),
-          hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
-          actionButton(ns("generate"),"Generate template"),
-          hidden( fileInput(ns("files"),"Select files",accept=".csv",multiple = TRUE))
-        ),
-        width = 3
-      ),
-      # Create the main panel with the innerModule first unit plot UI elements inside
-      mainPanel(
-        id = ns('main'),
-        div(
-          hidden(h1(id = ns("title"),"Selected files status")),
-          div(class = "file-output",id=ns("tables"),
-              div(class="file-table",tableOutput(ns("fileValid"))),
-              div(class="file-table",tableOutput(ns("fileWrong"))),
-              div(class="file-table",tableOutput(ns("fileMissing"))),
-              div(class="file-table",tableOutput(ns("fileExisting"))),
-              div(class="file-table",hidden(actionButton(ns("uploadFiles"),"Upload valid files",class="upload-button")))
+  div(
+    div(
+      class= 'main-inputs',
+      div(
+        class = 'main-actions',
+        actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary')
+      )),
+      # Create the sidebarLayout
+      sidebarLayout(
+        # Create a sidebar with the innerModule first unit input UI elements inside
+        sidebarPanel(
+          id = ns('sidebar'),
+          div(
+            selectInput(ns("type"),label = "Select a data type",choices = uploadDataTypes),
+            hidden(selectInput(ns("domtype"),label = "Select a DOM parameter",choices = uploadDOMTypes)),
+            radioButtons(ns("selectRange"), "Choose a selection option :",
+                         c("Unique glacier" = "simple",
+                           "Range of glacier" = "range",
+                           "List of glacier" = "list")),
+            textInput(ns("glacier"),"Enter glacier ID"),
+            hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(1, 500))),
+            hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
+            actionButton(ns("generate"),"Generate template"),
+            hidden( fileInput(ns("files"),"Select files",accept=".csv",multiple = TRUE))
           ),
-          rHandsontableOutput(ns("table")),
-          hidden(actionButton(ns("upload"),"Upload data",class="upload-button"))       
+          width = 3
         ),
-        width = 9
+        # Create the main panel with the innerModule first unit plot UI elements inside
+        mainPanel(
+          id = ns('main'),
+          div(
+            hidden(h1(id = ns("title"),"Selected files status")),
+            div(class = "file-output",id=ns("tables"),
+                div(class="file-table",tableOutput(ns("fileValid"))),
+                div(class="file-table",tableOutput(ns("fileWrong"))),
+                div(class="file-table",tableOutput(ns("fileMissing"))),
+                div(class="file-table",tableOutput(ns("fileExisting"))),
+                div(class="file-table",hidden(actionButton(ns("uploadFiles"),"Upload valid files",class="upload-button")))
+            ),
+            rHandsontableOutput(ns("table")),
+            hidden(actionButton(ns("upload"),"Upload data",class="upload-button"))       
+          ),
+          width = 9
+        )
       )
     )
-  )
+  
 }
 
 
@@ -231,6 +237,26 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # observeEvent(input$toggleSidebar,{
   #   toggle("sidebar")
   # })
+  
+  # Create an observeEvent that react to the help button
+  observeEvent(input$help, {
+    # Create modal with the corresponding htmlOutput
+    if(isUploadOnly){
+      title <- 'Upload help'
+      template <-'./html_components/help_upload_data.html'
+    }
+    else{
+      title <- 'Data Management help'
+      template <-'./html_components/help_manage_data.html'
+    }
+      
+    showModal(modalDialog(
+      title = title,
+      htmlTemplate(template),
+      footer = modalButtonWithClass('Dismiss', class = 'custom-style'),
+      easyClose = TRUE
+    ))
+  })
 }
 
 # Change the column names of the dataframe to database friendly names

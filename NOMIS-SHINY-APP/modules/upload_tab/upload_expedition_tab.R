@@ -9,7 +9,7 @@ uploadExpeditionTabUI <- function(id){
             div(class="exped",textInput(ns("abr"),"Abreviation : ")),
             div(
               div(class="inline exped",numericRangeInput(ns("range"),"Select a glacier range :",value = c(1,500))),
-              div(class="btn",actionButton(ns("add"),"Add range")),
+              div(class="btn-exped",actionButton(ns("add"),"Add range")),
               textOutput(ns("status"))
             ),
             div(class="exped",selectizeInput(
