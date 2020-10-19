@@ -54,7 +54,7 @@ colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "YYYY-MM-D
                                 list(col= 5, validator = "function (value, callback) {
               if (/^\\d{1,2}:\\d{2}($|:\\d{2}$)/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= c(6,7), validator = "function (value, callback) {
-              if (/^-?([1-8]?[1-9]|[1-9]0)\\.{1}\\d{1,6}/.test(value)) {callback(true)} else {callback(false)}}"),
+              if (/(\\-?|\\+?)?\\d+(\\.\\d+)?/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= c(9,10,11,12,13,14,15,16), validator = "function (value, callback) {
               if (/^[-]?\\d*\\.?\\d*$/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= 8, validator = "function (value, callback) {
