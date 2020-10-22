@@ -80,17 +80,17 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   isFileUpload <- reactiveVal(FALSE)
   
   tableName <- reactive(getTableNameFromValue({input$type}))
+  selectedFields <- reactive(getFieldsFromValue(input$type))
   selectType <- reactive({input$selectRange})
   filenames <- reactive({generateFilenames(ids(),input$domtype)})
   existingFiles <- reactive({getExistingFilenamesInDB(pool,tableName(),input$domtype,ids())})
   tablesFile <- reactive({generateFileTables(filenames(),input$files,existingFiles(),isUploadOnly)})
   
   dataf <- reactive({
-    if(input$type %in% names(templateFieldNames))
+    if(input$type %in% tableList)
       tmp <- getTableFromGlacier(pool,tableName(),ids())
     else
-      tmp <- getFieldFromGlacier(pool,tableName(),input$type,ids())
-    
+      tmp <- getFieldsFromGlacier(pool,tableName(),selectedFields(),ids())
     return(generateFilledDF(tmp,tableName(),ids()))
   })
   
@@ -134,13 +134,13 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   observeEvent(input$generate,{
     output$table <- renderRHandsontable({
       validateInput(input)
-      table <- isolate(tableName())
+      table <- isolate(input$type)
       df <- isolate(dataf())
       if(isUploadOnly)
-        readOnlyRows <- as.numeric(getReadOnlyRows(df,isolate(tableName())))
+        readOnlyRows <- as.numeric(getReadOnlyRows(df,tableName()))
       else
         readOnlyRows <- vector()
-      generateHandsonTable(df,dimension,readOnlyRows,table)
+      generateHandsonTable(df,dimension,readOnlyRows,table,isolate(tableName()))
     })
     showElement("upload")
     showElement("table")
@@ -196,7 +196,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     if(!isUploadOnly)
       show_validation_popup(tableName(),updatedRows(),output,session$ns,FALSE,out)
     else
-      uploadData(out,isolate(tableName()),pool)
+      uploadData(out,isolate(tableName()),isolate(input$type),pool)
   })
   
   observeEvent(input$uploadFiles,{
@@ -217,7 +217,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     else
     {
       out <- hot_to_r(input$table)
-      uploadData(out,isolate(tableName()),pool)  
+      uploadData(out,isolate(tableName()),isolate(input$type),pool)  
     }
     shinyjs::reset("entry_form")
     removeModal()
@@ -265,8 +265,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
 # - df : the dataframe to save
 # - tablename : the name of the table
 # - pool : the database connection pool
-uploadData <- function(df,tablename,pool){
-  out <- setDefaultColumnName(df,tablename)
+uploadData <- function(df,tablename,listName,pool){
+  out <- setDefaultColumnName(df,listName)
   status <- saveData(out,tablename,pool)
   if (status)
     saveLog("upload","Nino",paste0("Upload data ",tablename," in the database"))

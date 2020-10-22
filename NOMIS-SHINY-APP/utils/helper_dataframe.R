@@ -43,9 +43,12 @@ addRows <- function(df,start,stop,nbCol){
 # - tablename : the name of the table of the current dataframe
 # Return a list of row indexes of not empty rows
 getReadOnlyRows <- function(dataframe,tablename){
+  print(tablename)
   colNames <- setdiff(colnames(dataframe),unlist(mandatoryFields[tablename]))
+  print(colNames)
   dataframe <- dataframe[colNames]
   onlyExistingRows <- dataframe[rowSums(is.na(dataframe)) != ncol(dataframe),,drop = FALSE]
+  print(onlyExistingRows)
   rows <- rownames(onlyExistingRows)
   return(rows)
 }
@@ -59,9 +62,22 @@ getTableNameFromValue <- function(value){
   l <- list.search(templateFieldNames,value %in% .)
   if(length(l) >0)
     tablename <- names(l)[1]
-  else
-    tablename <- value
+  else{
+    l <- list.search(subCategoriesOfTable,value %in% .)
+    if(length(l) >0)
+      tablename <- names(l)[1]
+    else
+      tablename <- value
+  }
   return(tablename)
+}
+
+getFieldsFromValue <- function(value){
+  
+  if (value %in% names(templateFieldNames))
+    return(templateFieldNames[[value]])
+  else
+    return(value)
 }
 
 # Generate an handsonTable according to the given table
@@ -70,21 +86,24 @@ getTableNameFromValue <- function(value){
 # - df : the dataframe containing the data to display
 # - dimension : Dimension of the window to adapt the table
 # - readOnlyrows : list of rows to display as ReadOnly
-# - table : name of the database table
+# - name : name of the data to display
+# - tablename : name of the database table (can be the same as table)
 # Return the generated handsontable
-generateHandsonTable <- function(df,dimension,readOnlyRows,table){
-  if(table == "location")
+generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
+  if(name == "location")
     df[["rdna"]] <- as.logical(df[["rdna"]])
-  df <- setCompleteColumnName(df,table)
+  df <- setCompleteColumnName(df,name)
   
   handsonTable <- rhandsontable(df,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
     hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
-    hot_col(mandatoryFields[[table]], readOnly = TRUE) %>%
+    hot_col(mandatoryFields[[tablename]], readOnly = TRUE) %>%
     hot_row(readOnlyRows, readOnly = TRUE)
 
-  for (params in colConfig[[table]]) {
-    handsonTable <-  do.call(hot_col,c(list(hot=handsonTable),params))
+  if (name %in% names(colConfig)){
+    for (params in colConfig[[name]]) {
+      handsonTable <-  do.call(hot_col,c(list(hot=handsonTable),params))
+    }
   }
-
+  
   return(handsonTable)
 }

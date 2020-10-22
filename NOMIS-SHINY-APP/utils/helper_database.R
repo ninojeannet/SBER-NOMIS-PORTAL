@@ -39,20 +39,33 @@ getTableFromGlacier <- function(pool,tableName,ids){
 # - field : the name of the field to retrieve
 # - ids : list of ids to retrieve the field from
 # Return the query result as dataframe
-getFieldFromGlacier <- function(pool,tableName,field,ids){
-  fields <- mandatoryFields[[tableName]]
-  fields <- c(fields,field)
-  fieldnames <- ""
-  for (field in fields) {
+getFieldsFromGlacier <- function(pool,tableName,fields,ids){
+  AllFields <- mandatoryFields[[tableName]]
+  AllFields <- c(AllFields,fields)
+  AllFields <- unique(AllFields)
+
+    fieldnames <- ""
+  for (field in AllFields) {
     fieldnames <- paste0(fieldnames,field,",")
   }
   fieldnames <- substr(fieldnames,1,nchar(fieldnames)-1)
   query <- paste0("SELECT ",fieldnames," FROM ",tableName," WHERE ")
   pk <- tableOptions[[tableName]][["primary"]]
-  for (id in ids) {
-    query <- paste0(query,pk," LIKE '",id,"\\_%'")
-    query <- paste0(query," OR ")
+  if (tableName == "glacier")
+  {
+    for (id in ids) {
+      query <- paste0(query,pk," = '",id,"'")
+      query <- paste0(query," OR ")
+    }
   }
+  else
+  {
+    for (id in ids) {
+      query <- paste0(query,pk," LIKE '",id,"\\_%'")
+      query <- paste0(query," OR ")
+    }
+  }
+
   query <- substr(query,1,nchar(query)-4)
   dataframe <- sendQuery(query,pool,FALSE)
   # 
@@ -189,4 +202,23 @@ saveRangeInDB <- function(exp_name,min,max,pool)
   exp_id <-exp_id[['id_expedition']]
   query <- sqlInterpolate(pool,request,exp=exp_id,min=min,max=max)
   sendQuery(query,pool,FALSE)
+}
+
+
+getNbOfNotNULLEntries <- function(table,fields,ids,pool){
+  query <- 'SELECT COUNT( IF('
+  for (field in fields) {
+    query <- paste0(query,field," IS NOT NULL AND ")
+  }
+  query <- substr(query,1,nchar(query)-5)
+  query <- paste0(query,", 1, NULL)) AS result FROM ",table," WHERE ")
+  pk <- tableOptions[[table]][["primary"]]
+  for (id in ids) {
+    query <- paste0(query,pk," LIKE '",id,"\\_%'")
+    query <- paste0(query," OR ")
+  }
+  query <- substr(query,1,nchar(query)-4)
+  result <- sendQuery(query,pool,FALSE)
+  return(result)
+  # print(query)
 }

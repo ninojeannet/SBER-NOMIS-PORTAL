@@ -43,7 +43,7 @@ generateGlacierDF <- function(dataf,glacierID){
   id <- glacierID
   nbCol <- ncol(dataf)
   nbRow <- nrow(dataf)
-  
+  print(dataf)
   # Create a new empty dataframe
   newdataf <- dataf
   if (nrow(dataf) != 0)
@@ -56,8 +56,8 @@ generateGlacierDF <- function(dataf,glacierID){
     newdataf <- addRows(newdataf,-1,1,nbCol)
   }
   
-  newdataf <- addRows(newdataf,-1,1,nbCol)
-  print(newdataf)
+  # newdataf <- addRows(newdataf,-1,1,nbCol)
+  
 
   newdataf[[primary]] <- id
   if(nrow(dataf) != 0)
@@ -264,7 +264,9 @@ generateBiogeoDF <- function(dataf,tablename,glacierID){
 # - tablename : the name of the table 
 # Return the updated dataframe
 setDefaultColumnName <- function(dataframe,tablename){
-  colnames(dataframe) <- templateFieldNames[[tablename]]
+  if(tablename %in% names(templateFieldNames))
+    colnames(dataframe) <- templateFieldNames[[tablename]]
+
   return(dataframe)
 }
 
@@ -275,6 +277,7 @@ setDefaultColumnName <- function(dataframe,tablename){
 # - tablename : the name of the table 
 # Return the updated dataframe
 setCompleteColumnName <- function(dataframe,tablename){
-  colnames(dataframe) <- fullnameFields[[tablename]]
+  if(tablename %in% names(fullnameFields))
+    colnames(dataframe) <- fullnameFields[[tablename]]
   return(dataframe)
 }
