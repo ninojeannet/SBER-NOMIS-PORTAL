@@ -1,5 +1,5 @@
 
-templateTypes <- c("Glacier"="glacier","Location"="location","Patch metrics"="patch","Enzyme"="enzyme")
+templateTypes <- c("Location"="location","Patch metrics"="patch","Enzyme"="enzyme")
 
 tableList <- c("glacier","location","patch","enzyme","biogeo")
 
@@ -56,7 +56,7 @@ isOnlyUP <- list()
 isOnlyUP[["biogeo"]] <- TRUE
 
 # The list of all the data types that can be uploaded from the upload section
-uploadDataTypes <- list("Glacier" = "glacier","Location"="location","Patch"="patch",
+uploadDataTypes <- list("Location"="location","Patch"="patch",
                         `Glaciological metrics` = c("Global metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source","Other metrics"="gl_other"),
                         `Microbial metrics` = c("Enzyme"="enzyme"),
                         `Biogeochemical metrics` = c("Dissolved organic matter"="biogeo","Dissolved organic carbon"="doc"))

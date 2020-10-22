@@ -43,12 +43,9 @@ addRows <- function(df,start,stop,nbCol){
 # - tablename : the name of the table of the current dataframe
 # Return a list of row indexes of not empty rows
 getReadOnlyRows <- function(dataframe,tablename){
-  print(tablename)
   colNames <- setdiff(colnames(dataframe),unlist(mandatoryFields[tablename]))
-  print(colNames)
   dataframe <- dataframe[colNames]
   onlyExistingRows <- dataframe[rowSums(is.na(dataframe)) != ncol(dataframe),,drop = FALSE]
-  print(onlyExistingRows)
   rows <- rownames(onlyExistingRows)
   return(rows)
 }

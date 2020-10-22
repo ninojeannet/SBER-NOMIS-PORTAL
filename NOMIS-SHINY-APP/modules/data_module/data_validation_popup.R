@@ -9,7 +9,7 @@ validation_popup <- function(button_id,text_id){
           fluidPage(
             fluidRow(
               h2("Validate modifications"),
-              div(class="text_out",textOutput(text_id)),
+              div(class="text_out",textOutput(text_id,inline = TRUE)),
               actionButton(button_id, "Submit")
             ),
             easyClose = TRUE
@@ -29,5 +29,5 @@ show_validation_popup <- function(tablename,updatedValues,output,ns,isFileUpload
   }
   # primaryKey <- tableOptions[[tablename]][["primary"]]
   validation_popup(ns("submit"),ns("updated_values"))
-  output$updated_values <- renderText({l})
+  output$updated_values <- renderText({l},sep = "\t")
 }

@@ -36,7 +36,7 @@ getTableFromGlacier <- function(pool,tableName,ids){
 # Parameters : 
 # - pool : the connection pool to access the database
 # - tableName : the name of the database table to retrieve the field from
-# - field : the name of the field to retrieve
+# - fields : list of fieldnames to retrieve
 # - ids : list of ids to retrieve the field from
 # Return the query result as dataframe
 getFieldsFromGlacier <- function(pool,tableName,fields,ids){
@@ -44,7 +44,7 @@ getFieldsFromGlacier <- function(pool,tableName,fields,ids){
   AllFields <- c(AllFields,fields)
   AllFields <- unique(AllFields)
 
-    fieldnames <- ""
+  fieldnames <- ""
   for (field in AllFields) {
     fieldnames <- paste0(fieldnames,field,",")
   }
