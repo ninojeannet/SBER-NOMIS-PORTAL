@@ -21,7 +21,7 @@ managementTabUI <- function(id) {
     ),
     tabPanel(
       'Project progression',
-      managementProcessTabUI(ns("progress"))
+      managementProgressTabUI(ns("progress"))
     )
   )
 }
