@@ -34,6 +34,7 @@ library(rlist)
 library(DataCombine)
 library(shinyvalidate)
 library(formattable)
+library(sodium)
 # devtools::install_github('christophergandrud/DataCombine')
 # install.packages("shiny")
 # install.packages("rlang")
@@ -61,6 +62,10 @@ source('app_config.R')
 ## Load tabs modules ##############################################################
 source('./modules/management_tab/management_tab.R')
 source('./modules/upload_tab/upload_tab.R')
+source('./modules/login/login.R')
+source('./modules/users_tab/users_tab.R')
+source('./modules/editableDT/editableDT.R')
+
 
 options(shiny.maxRequestSize=100*1024^2)
 
@@ -93,8 +98,11 @@ ui <- tagList(
     tags$body(class = 'footer-to-bottom-container'),
     # Create the navbarPage using custom function to add a content-wrapper (defined in './utils/shiny_extensions.R')
     navbarPageWithWrapper(
+        # Create Navabar page with login
+        withLoginAction(
         # Pass in the output of shiny navbarPage()
         navbarPage(
+            id = 'main-nav',
             # Load the custom logo for the navbar title
             htmlTemplate('./html_components/logo.html'),
             
@@ -112,13 +120,6 @@ ui <- tagList(
                 # Load the visualisationTab module UI elements
                 #visualisationTabUI('1', grabSampleDf, hfDf, sites, grabSampleParameters, hfParameters)
             ),
-            # Create the data management tab
-            tabPanel(
-                # Create a tab title with an icon
-                tags$span(icon('database'),tags$span('Data Management', class = 'navbar-menu-name')),
-                # Load the managementTab module UI elements
-                managementTabUI('management')
-            ),
             tabPanel(
                 # Create a tab title with an icon
                 tags$span(icon('upload'),tags$span('Upload', class = 'navbar-menu-name')),
@@ -132,6 +133,9 @@ ui <- tagList(
                 #visualisationTabUI('1', grabSampleDf, hfDf, sites, grabSampleParameters, hfParameters)
             )
         ),
+        # Add the login module UI
+        loginUI('login')
+        ),
         
         # Add footer to navbarPageWithWrapper
         footer = htmlTemplate('html_components/footer.html')
@@ -140,11 +144,45 @@ ui <- tagList(
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-    
+    user <- callModule(login, 'login', pool)
     dimension <- reactive({input$dimension})
     callModule(uploadTab,"upload",pool,dimension)
-    callModule(managementTab,"management",pool,dimension)
     onStop(function() poolClose(pool))
+    
+    observeEvent(user$role, {
+        
+        if (user$role %in% c('sber', 'admin')) {
+            ## Generate dataManagementTab #################################################
+            # Create the data management tab
+            appendTab(
+                'main-nav',
+                tabPanel(
+                    # Create a tab title with an icon
+                    tags$span(icon('database'),tags$span('Data Management', class = 'navbar-menu-name')),
+                    # Load the managementTab module UI elements
+                    managementTabUI('management')
+                )
+            )
+            # Load data management server logic
+            callModule(managementTab,"management",pool,dimension)
+        }
+        
+        if (user$role == 'admin') {
+            ## Generate usersTab ##########################################################
+            # Create users tab
+            appendTab(
+                'main-nav',
+                tabPanel(
+                    # Create a tab title with an icon
+                    tags$span(icon('user'), tags$span('Users', class = 'navbar-menu-name')),
+                    usersTabUI('users'),
+                    value = 'users'
+                )
+            )
+            # Load users tab server logic
+            callModule(usersTab, 'users', pool)
+        }
+    })
 }
 
 # Run the application 

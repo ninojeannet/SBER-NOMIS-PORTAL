@@ -1,0 +1,21 @@
+// ####################################
+// editableDT style
+// ####################################
+
+.table-with-controls {
+    margin: 0 0 2.5em;
+
+    .datatables,
+    .table-controls {
+        margin: 0 0 1.5em;
+    }
+}
+
+.table-edit-form {
+    width: max-content;
+    margin: 0 auto;
+
+    textarea {
+        resize: vertical;
+    }
+}

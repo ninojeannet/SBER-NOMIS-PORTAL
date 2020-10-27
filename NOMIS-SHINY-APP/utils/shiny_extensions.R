@@ -254,3 +254,135 @@ pointHoverWidgetServer <- function(session, plotId, df, input,
     
   }, ignoreNULL = FALSE)
 }
+
+withLoginAction <- function(navbarPageOutput, loginUI) {
+  # Return a Shiny navbarPage with a login UI on the right of the nav bar
+  # Parameters:
+  # - navbarPageOutput: Output of shiny navbarPage() function, mandatory
+  # - loginUI: UI element to insert, ideally output from the loginUI module function, mandatory
+  #
+  # Returns an updated shiny navbarPage UI element
+  
+  # Add the loginUI to the navbar of the navbarPageOutput
+  navbarPageOutput[[3]][[1]]$children[[1]]$children[[length(navbarPageOutput[[3]][[1]]$children[[1]]$children) + 1]] <- loginUI
+  # Return the updated UI
+  return(navbarPageOutput)
+}
+
+
+createInputs <- function(df, pool, table, session = getDefaultReactiveDomain()) {
+  # Create inputs based on a df column names, types and values
+  # Parameters:
+  #  - df: Data.frame, the data used to create the inputs, should either be empty or have only one row
+  #  - pool: Pool connection, the connection to an SQL Database
+  #  - table: String, the database corresponding table
+  #  - session: Shiny session, the session in which to create the inputs, default: getDefaultReactiveDomain()
+  # 
+  # Returns a tagList of inputs
+  
+  # Create the inputs tagList
+  inputs <- tagList()
+  # Get the df column types
+  columnTypes <- df %>% lapply(type_sum) %>% unlist()
+  
+  # For each column
+  for (i in c(1:length(columnTypes))) {
+    # Get the type and the column name
+    type <- columnTypes[i]
+    column <- names(type)
+    
+    # If the df is empty, set the value to NULL
+    # Otherwise, set it to the column value unless it is an NA, then set it to NULL
+    if (nrow(df) == 0) {
+      value <- NULL
+    } else {
+      value <- df %>% pull(column)
+      if (is.na(value)) value <- NULL
+    }
+    
+    # Create the input and add it to the list
+    inputs <- tagList(
+      inputs,
+      createInput(
+        type = type,
+        label = column,
+        value = value,
+        pool = pool,
+        table = table,
+        session = session
+      )
+    )
+  }
+  
+  # Return the inputs list
+  return(inputs)
+}
+
+
+
+
+createInput <- function(type, label, value = NULL, table, pool, session = getDefaultReactiveDomain()) {
+  # Create an input based on a df column name, type and value
+  # Parameters:
+  #  - type: String, the columns type used to choose the input
+  #  - label: String the column name used to create the input label and id
+  #  - value: 'type' dependent, the value of the column used to populate the input
+  #  - table: String, the database corresponding table
+  #  - pool: Pool connection, the connection to an SQL Database
+  #  - session: Shiny session, the session in which to create the inputs, default: getDefaultReactiveDomain()
+  # 
+  # Returns the adequate input
+  
+  # Choose the input in function of the column type
+  if (type == 'dbl' | type == 'int') {
+    numericInput(session$ns(label), label = label, value = value)
+  } else if (type == 'chr') {
+    if (label == 'description') {
+      textAreaInput(session$ns(label), label = label, value = value)
+    } else {
+      textInput(session$ns(label), label = label, value = value)
+    }
+  } else if (type == 'lgl') {
+    checkboxInput(session$ns(label), label = label, value = value)
+  } else if (type == 'fct') {
+    # For a select input get the possible values from the SQL database
+    selectInput(session$ns(label), label = label, choices = getEnumValues(pool, table, label), selected = value)
+  } else if (type == 'dttm') {
+    airDatepickerInput(
+      inputId = session$ns(label),
+      label = paste(label, '(GMT)'),
+      value = value,
+      timepicker = TRUE,
+      timepickerOpts = timepickerOptions(timeFormat = 'hh:ii')
+    )
+  }
+}
+
+
+confirmationModal <- function(text = '', session = getDefaultReactiveDomain()) {
+  # Create and display a modal for action confirmation purpose
+  # Confirmation need to be done with an 'observeEvent' listening for an 'input$YES' button
+  # And modal need to be closed within this observer with 'removeModal()'
+  # Parameters:
+  #  - text: String, the optional additional text to display
+  #  - session: Shiny session, the session in which to create the inputs, default: getDefaultReactiveDomain()
+  # 
+  # Returns NULL
+  
+  # Create and display the modal
+  showModal(modalDialog(
+    size = 's',
+    div(
+      class = 'confirmation-modal',
+      h1('Are you sure ?'),
+      p(text),
+      div(
+        class = 'confirmation-buttons',
+        actionButton(session$ns('YES'), 'YES', class = 'btn-success'),
+        modalButtonWithClass('NO', class = 'btn-danger')
+      )
+    ),
+    footer = NULL
+  ), session = session)
+}
+

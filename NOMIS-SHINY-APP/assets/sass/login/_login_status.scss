@@ -1,0 +1,19 @@
+// ####################################
+// Login Status bar layout
+// ####################################
+
+.navbar-login {
+    margin: 0;
+    float: right;
+    padding: 15px;
+}
+
+.user-status {
+    color: $grey1;
+
+    &__info {
+        display: inline-block;
+        margin: 0 5px 0 0;
+        font-size: .8em;
+    }
+}
