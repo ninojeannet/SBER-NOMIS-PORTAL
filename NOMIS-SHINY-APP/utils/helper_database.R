@@ -213,20 +213,26 @@ saveRangeInDB <- function(exp_name,min,max,pool)
 }
 
 
-getNbOfNotNULLEntries <- function(table,fields,ids,pool){
-  query <- 'SELECT COUNT( IF('
+getNbOfNotNULLEntries <- function(table,fields,ids,nbOfEntry,pool){
+  result <- 0
+  for (id in ids) {
+    query <- buildCountQuery(table,fields,id,nbOfEntry)
+    nb <- as.numeric(sendQuery(query,pool,FALSE))
+    result <- result + nb 
+    
+  }
+  # print(result)
+  return(result)
+}
+
+buildCountQuery <- function(table,fields,id,nbOfEntry){
+  query <- 'SELECT if( COUNT(  IF('
   for (field in fields) {
     query <- paste0(query,field," IS NOT NULL AND ")
   }
   query <- substr(query,1,nchar(query)-5)
-  query <- paste0(query,", 1, NULL)) AS result FROM ",table," WHERE ")
+  query <- paste0(query,", 1, NULL)) = ",nbOfEntry,",1,0 ) AS result FROM ",table," WHERE ")
   pk <- tableOptions[[table]][["primary"]]
-  for (id in ids) {
-    query <- paste0(query,pk," LIKE '",id,"\\_%'")
-    query <- paste0(query," OR ")
-  }
-  query <- substr(query,1,nchar(query)-4)
-  result <- sendQuery(query,pool,FALSE)
-  return(result)
-  # print(query)
+  query <- paste0(query,pk," LIKE '",id,"\\_%'")
+  return(query)
 }

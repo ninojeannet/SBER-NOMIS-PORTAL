@@ -72,9 +72,17 @@ getTableNameFromValue <- function(value){
 getFieldsFromValue <- function(value){
   
   if (value %in% names(templateFieldNames))
+  {
     return(templateFieldNames[[value]])
-  else
-    return(value)
+    
+  }
+  else{
+    if(value %in% names(specificFields))
+       return(specificFields[[value]])
+    else
+      return(value)
+    }
+  
 }
 
 # Generate an handsonTable according to the given table
@@ -92,7 +100,15 @@ generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
   df <- setCompleteColumnName(df,name)
   
   handsonTable <- rhandsontable(df,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
-    hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)%>%
+    hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+    hot_cols(renderer = 
+    "function(instance, td, row, col, prop, value, cellProperties) {
+          if(value =='na' || value == 'NA')
+          {
+            value = '';
+          }
+          Handsontable.renderers.TextRenderer.apply(this, arguments);
+          return td;}") %>%
     hot_col(mandatoryFields[[tablename]], readOnly = TRUE) %>%
     hot_row(readOnlyRows, readOnly = TRUE)
 

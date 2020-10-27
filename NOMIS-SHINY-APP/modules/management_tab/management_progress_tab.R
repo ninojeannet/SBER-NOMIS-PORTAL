@@ -40,10 +40,10 @@ managementProgressTab <- function(input, output, session,pool){
   observeEvent(input$refresh,{
     dataframe <- df()
     rangeList(setRanges(dataframe,rangeList()))
-    updateExpeditionTable(dataframe,rangeList())
-    # output$progress_table <- renderFormattable({
-    #   getProgressTable(df())
-    # })
+    updateExpeditionTable(dataframe,rangeList(),pool)
+    output$progress_table <- renderFormattable({
+      formattable(dfFormatted(),align =c("c","c","c","c","c"), list(`test`=color_tile_valid(),`Nino`=color_tile_valid()))
+    })
   })
 }
 
@@ -84,7 +84,8 @@ setRanges <- function(dataframe,ranges){
     abr <- row[["abreviation"]]
     tmp[[abr]] <- append(tmp[[abr]],list(c(row[["min"]],row[["max"]]))) 
   }
-  return(ranges)
+  # print(ranges)
+  return(tmp)
 }
 
 

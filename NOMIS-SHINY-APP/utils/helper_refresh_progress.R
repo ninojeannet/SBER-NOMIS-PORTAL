@@ -1,29 +1,33 @@
 
+source('./utils/helper_dataframe.R')
 
-updateExpeditionTable <- function(df,ranges,params_list){
-  print(df)
-  newdf <- df %>% select(-min) %>% select(-max) %>% select(-name) %>% select(-abreviation)
+
+updateExpeditionTable <- function(df,ranges,pool){
+  newdf <- df %>% select(-min) %>% select(-max) %>% select(-abreviation)
   for (i in 1:nrow(df)) {
     row <- df[i,]
     expedRanges <- ranges[[row[["abreviation"]]]]
-    newdf <- updateExpedition(row,expedRanges,colnames(newdf),newdf)
+    newdf <- updateExpedition(row,expedRanges,colnames(newdf),newdf,pool)
   }
+  print(newdf)
   saveData(newdf,"expedition",pool)
 }
 
 
-updateExpedition(row,expedRanges,params_list,newdf){
+updateExpedition <- function(row,expedRanges,params_list,newdf,pool){
   
   ids <- generateGlacierIDs(expedRanges)
-  for (i in 2:length(params_list)){
+  nbOfGlacier <- length(ids)
+  print(nbOfGlacier)
+  for (i in 3:length(params_list)){
     param <- params_list[i]
-    # table <- getTableFrom
-    # nbEntryForOneGlacier <- NbOfEntryByGlacier[[param]] * length(ids)
-    # actualNbOfEntry <- getNbOfNotNULLEntries(table,fields,ids,pool)
+    table <- getTableNameFromValue(param)
+    fields <- getFieldsFromValue(param)
+
+    nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]] 
+    nbOfValidGlacier <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
     
-    #TODO wrong index, get table name, create index list for nbofentrybygalcier
-    # newdf[[i,]] <- paste0(actualNbOfEntry," / ",nbEntryForOneGlacier)
-    print(newdf)
+    newdf[[rownames(row),i]] <- paste0(nbOfValidGlacier," / ",nbOfGlacier)
   }
   return(newdf)
 }
@@ -33,4 +37,5 @@ generateGlacierIDs <- function(ranges){
   for (range in ranges) {
     ids <- c(ids,paste0("GL",as.character(range[1]:range[2])))
   }
+  return(ids)
 }

@@ -19,6 +19,10 @@ templateFieldNames[["biogeo"]] <- c("id_biogeo","id_location","replicate","filen
 
 subCategoriesOfTable <- list()
 subCategoriesOfTable[["glacier"]] <- c('gl_global','gl_point','gl_line','gl_area','gl_invent','gl_source','gl_other')
+subCategoriesOfTable[["biogeo"]] <- c("dom")
+
+specificFields <- list()
+specificFields[["dom"]] <- c("filename_eem","filename_abs1","filename_abs10")
 # List of mandatory field for each table
 mandatoryFields <- list()
 mandatoryFields[["glacier"]] <- c('id_glacier')
@@ -55,6 +59,8 @@ tableOptions[["biogeo"]] <- c("primary"="id_biogeo", "FK"="id_location", "name"=
 isOnlyUP <- list()
 isOnlyUP[["biogeo"]] <- TRUE
 
+nbOfEntryByGlacier <- c("enzyme"=18,"doc"=3,"dom"=3)
+
 # The list of all the data types that can be uploaded from the upload section
 uploadDataTypes <- list("Location"="location","Patch"="patch",
                         `Glaciological metrics` = c("Global metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source","Other metrics"="gl_other"),
@@ -68,13 +74,13 @@ uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs
 colConfig <- list()
 colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "YYYY-MM-DD"),
                                 list(col= 5, validator = "function (value, callback) {
-              if (/^\\d{1,2}:\\d{2}($|:\\d{2}$)/.test(value)) {callback(true)} else {callback(false)}}"),
+              if (/(^\\d{1,2}:\\d{2}($|:\\d{2}$))|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= c(6,7), validator = "function (value, callback) {
-              if (/(\\-?|\\+?)?\\d+(\\.\\d+)?/.test(value)) {callback(true)} else {callback(false)}}"),
+              if (/((\\-?|\\+?)?\\d+(\\.\\d+)?)|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= c(9,10,11,12,13,14,15,16), validator = "function (value, callback) {
-              if (/^[-]?\\d*\\.?\\d*$/.test(value)) {callback(true)} else {callback(false)}}"),
+              if (/(^[-]?\\d*\\.?\\d*$)|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= 8, validator = "function (value, callback) {
-              if (/\\d+/.test(value)) {callback(true)} else {callback(false)}}"),
+              if (/(\\d+)|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= 17, type = "checkbox",default = FALSE, renderer = "function(instance, td, row, col, prop, value, cellProperties) {
               td.style.textAlign = 'center';
               Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
