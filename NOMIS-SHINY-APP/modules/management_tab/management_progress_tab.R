@@ -23,15 +23,7 @@ managementProgressTab <- function(input, output, session,pool){
     dataframe <- getProgressTable(pool)
   })
   
-  dfFormatted <- reactive({
-    dataframe <- getProgressTable(pool)
-    headers <- dataframe[["name"]]
-    dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
-    df <- dataframe %>% select(-min) %>% select(-max) %>% select(-name) %>% select(-id_expedition)
-    df <- as.data.frame(t(df))
-    colnames(df) <- headers
-    df
-  })
+  dfFormatted <- reactiveVal(buildDF(pool))
 
   output$progress_table <- renderFormattable({
     formattable(dfFormatted(),align =c("c","c","c","c","c"), list(`test`=color_tile_valid(),`Nino`=color_tile_valid()))
@@ -41,15 +33,20 @@ managementProgressTab <- function(input, output, session,pool){
     dataframe <- df()
     rangeList(setRanges(dataframe,rangeList()))
     updateExpeditionTable(dataframe,rangeList(),pool)
-    output$progress_table <- renderFormattable({
-      formattable(dfFormatted(),align =c("c","c","c","c","c"), list(`test`=color_tile_valid(),`Nino`=color_tile_valid()))
-    })
+    dfFormatted(buildDF(pool))
   })
 }
 
-getProgressTable <- function(df){
-  formattable(df,align =c("c","c","c","c","c"), list(`test`=color_tile_valid(),`Nino`=color_tile_valid()))
+buildDF <- function(pool){
+  dataframe <- getProgressTable(pool)
+  headers <- dataframe[["name"]]
+  dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
+  df <- dataframe %>% select(-min) %>% select(-max) %>% select(-name) %>% select(-id_expedition)
+  df <- as.data.frame(t(df))
+  colnames(df) <- headers
+  return(df)
 }
+
 
 color_tile_valid <- function (...) {
   formatter("span", style = function(x) {

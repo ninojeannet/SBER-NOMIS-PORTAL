@@ -1,29 +1,38 @@
 
 uploadExpeditionTabUI <- function(id){
   ns <- NS(id)
-  fluidRow(
-    column(width = 6,offset = 3,class="expedition",
-          panel(class="exped-content",
-            h1(class="center","Create a new expedition"),
-            div(class="exped",textInput(ns("name"),"Expedition's name : ")),
-            div(class="exped",textInput(ns("abr"),"Abreviation : ")),
-            div(
-              div(class="inline exped",numericRangeInput(ns("range"),"Select a glacier range :",value = c(1,500))),
-              div(class="btn-exped",actionButton(ns("add"),"Add range")),
-              textOutput(ns("status"))
-            ),
-            div(class="exped",selectizeInput(
-              inputId =  ns('ranges'),
-              choices=c(''),
-              label = 'Ranges',
-              multiple = TRUE,
-              options = list(
-                'plugins' = list('remove_button')
+  div(
+    div(
+      class= 'main-inputs',
+      div(
+        class = 'main-actions',
+        actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary')
+    )),
+  
+    fluidRow(
+      column(width = 6,offset = 3,class="expedition",
+            panel(class="exped-content",
+              h1(class="center","Create a new expedition"),
+              div(class="exped",textInput(ns("name"),"Expedition's name : ")),
+              div(class="exped",textInput(ns("abr"),"Abreviation : ")),
+              div(
+                div(class="inline exped",numericRangeInput(ns("range"),"Select a glacier range :",value = c(1,500))),
+                div(class="btn-exped",actionButton(ns("add"),"Add range")),
+                textOutput(ns("status"))
               ),
-            )
-          ),
-          div(class="center",actionButton(ns("create"),"Create expedition"))
-        )
+              div(class="exped",selectizeInput(
+                inputId =  ns('ranges'),
+                choices=c(''),
+                label = 'Ranges',
+                multiple = TRUE,
+                options = list(
+                  'plugins' = list('remove_button')
+                ),
+              )
+            ),
+            div(class="center",actionButton(ns("create"),"Create expedition"))
+          )
+      )
     )
   )
 }

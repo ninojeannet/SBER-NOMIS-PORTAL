@@ -101,7 +101,7 @@ generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
   
   handsonTable <- rhandsontable(df,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
     hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-    hot_cols(renderer = 
+    hot_cols(fixedColumnsLeft = length(mandatoryFields[[tablename]]),renderer = 
     "function(instance, td, row, col, prop, value, cellProperties) {
           if(value =='na' || value == 'NA')
           {
