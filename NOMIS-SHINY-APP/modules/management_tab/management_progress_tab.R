@@ -26,12 +26,13 @@ managementProgressTab <- function(input, output, session,pool){
   dfFormatted <- reactiveVal(buildDF(pool))
 
   output$progress_table <- renderFormattable({
-    formattable(dfFormatted(),align =c("c","c","c","c","c"), list(`test`=color_tile_valid(),`Nino`=color_tile_valid()))
+    dff <- dfFormatted()
+    formattable(dff,align =c(rep("c",ncol(dff))), list(area(col = 1:ncol(dff)) ~ color_tile_valid()))
   })
   
   observeEvent(input$refresh,{
     dataframe <- df()
-    rangeList(setRanges(dataframe,rangeList()))
+    rangeList(setRanges(dataframe))
     updateExpeditionTable(dataframe,rangeList(),pool)
     dfFormatted(buildDF(pool))
   })
@@ -42,8 +43,9 @@ buildDF <- function(pool){
   headers <- dataframe[["name"]]
   dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
   df <- dataframe %>% select(-min) %>% select(-max) %>% select(-name) %>% select(-id_expedition)
+  df <- aggregate(df["range"], by=list(abreviation=df$abreviation,enzyme =df$enzyme,doc=df$doc,dom=df$dom), paste)
   df <- as.data.frame(t(df))
-  colnames(df) <- headers
+  colnames(df) <- sort(unique(headers))
   return(df)
 }
 
@@ -72,9 +74,9 @@ param_validator <- function(list){
   return(result)
 }
 
-setRanges <- function(dataframe,ranges){
+setRanges <- function(dataframe){
   
-  tmp <- ranges
+  tmp <- list()
   
   for (i in 1:nrow(dataframe)) {
     row <- dataframe[i,]
@@ -84,5 +86,3 @@ setRanges <- function(dataframe,ranges){
   # print(ranges)
   return(tmp)
 }
-
-

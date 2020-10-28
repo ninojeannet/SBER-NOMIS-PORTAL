@@ -101,7 +101,7 @@ saveData <- function(data,tableName,pool){
 # return the query result
 sendQuery <- function(query,pool,flag){
   check <- tryCatch({
-    print(query)
+    # print(query)
     dataframe <-dbGetQuery(pool,query)
     
     if(flag)
