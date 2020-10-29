@@ -52,7 +52,7 @@ generateFileTables <- function(filenames,files,existingFiles,isUploadOnly){
 
 getExistingFilenamesInDB <- function(pool,table,field,ids){
   filenames <- getFieldFromGlacier(pool,table,paste0("filename_",field),ids)[[paste0("filename_",field)]]
-  print(filenames)
+  filenames <- filenames[!is.na(filenames)]
   return(filenames)
 }
 
