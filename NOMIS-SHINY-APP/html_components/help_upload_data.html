@@ -1,42 +1,88 @@
+<p>This tab allows you to save data and files into the website. You'll save data or files depending on the data type you choose in the sidebar.</p>
 <h2 class="help-title">Upload data</h2>
+<p>Uploading data will generate a excel sheet like table into which you'll be able to enter your data.</p>
 <table class="help-table">
     <tbody>
         <tr>
             <th>
-                Date Range:
+                Selection option:
             </th>
             <td>
-                You can filter the data using a date range by selecting to dates. Minimum filter resolution is daily. You can reset the date to the maximum available range with the reset button. The date range is common to all the displayed plots.
+                Once you chose your data type you have multiple possibilities to identify the data that you want to upload.
+                <ul>
+                    <li>Identify your data with a single glacier ID. Recommended if your data concern only one glacier</li>
+                    <li>Identify your data with multiple glacier IDs. Recommended if your data concern multi galcier.
+                        <ul>
+                            <li>Range selection will allow you to select a range of glacier by specifing the smallest and biggest ID</li>
+                            <li>List selection will allow you to choose exactly for whic glacier you want to generate the table.
+                            You need to enter the IDs as a list (comma separated).</li>
+                        </ul>
+                    </li>
+                </ul>
             </td>
         </tr>
         <tr>
             <th>
-                Hide/show inputs button:
+                Generated table:
             </th>
             <td>
-                Allows you to hide or show the sidebar contaning the plots input elements to gain more space for visualisation.
+                The generated table is displayed once you clicked de "Generate" button. This table is pre filled with mandatory field so you can't make any mistake. The table also contains the existing data in the database. In this page you won't be able to modifiy an entry with existing values but you'll only be able to upload non-existing values. All mandatory and existing entry are read only field.
+            </td>
+        </tr>
+        <tr>
+            <th>
+                Upload generated table:
+            </th>
+            <td>
+                Once you've enter your data in the table you can insert it into the database by clicking on the "Upload data" button on the bottom right of the page.
             </td>
         </tr>
        
     </tbody>
 </table>
 <h2 class="help-title">Upload files</h2>
+<p>Uploading files will allow you to upload multiple files at once onto the website.</p>
 <table class="help-table">
     <tbody>
         <tr>
             <th>
-                Date Range:
+                Selection option:
             </th>
             <td>
-                You can filter the data using a date range by selecting to dates. Minimum filter resolution is daily. You can reset the date to the maximum available range with the reset button. The date range is common to all the displayed plots.
+                Once you chose your data type you have multiple possibilities to identify the files that you want to upload.
+                <ul>
+                    <li>Identify your files with a single glacier ID. Recommended if your files concern only one glacier</li>
+                    <li>Identify your files with multiple glacier IDs. Recommended if your files concern multi galcier.
+                        <ul>
+                            <li>Range selection will allow you to select a range of glacier by specifing the smallest and biggest ID</li>
+                            <li>List selection will allow you to choose exactly for which glacier you want to upload files.
+                            You need to enter the IDs as a list (comma separated).</li>
+                        </ul>
+                    </li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+        <tr>
+            <th>
+                Status display:
+            </th>
+            <td>
+                Once you chose your files to upload lists of files will be displayed on the page to give you a global status of all the files in the given range. Four lists will be displayed : 
+                <ul>
+                    <li>Valid files :  display the list of valid files. For a file to be valid it must have a correct filename and not already exists in the database.</li>
+                    <li>Wrong files : display the list of wrong files. List all wrong named files.</li>
+                    <li>Missing files : display the list of the missing files that should've been present in the given range.</li>
+                    <li>Existing files : display the list of existing files in the database.</li>
+                </ul>
             </td>
         </tr>
         <tr>
             <th>
-                Hide/show inputs button:
+                Upload valid files:
             </th>
             <td>
-                Allows you to hide or show the sidebar contaning the plots input elements to gain more space for visualisation.
+               You can then upload your files by clicking the "upload files" button. Only the <em>valid</em> files will be uploaded. As you can only upload file and not replace them if a file already exists in the database you won't be able to replace it.
             </td>
         </tr>
        

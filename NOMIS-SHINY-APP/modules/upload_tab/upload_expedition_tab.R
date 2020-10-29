@@ -83,4 +83,18 @@ uploadExpeditionTab <- function(input,output,session,pool,dimension){
       iv$enable()
     }
   })
+  
+  # Create an observeEvent that react to the help button
+  observeEvent(input$help, {
+    # Create modal with the corresponding htmlOutput
+    title <- 'Help'
+    template <-'./html_components/help_upload_expedition.html'
+    
+    showModal(modalDialog(
+      title = title,
+      htmlTemplate(template),
+      footer = modalButtonWithClass('Dismiss', class = 'custom-style'),
+      easyClose = TRUE
+    ))
+  })
 }

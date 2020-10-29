@@ -36,6 +36,20 @@ managementProgressTab <- function(input, output, session,pool){
     updateExpeditionTable(dataframe,rangeList(),pool)
     dfFormatted(buildDF(pool))
   })
+  
+  # Create an observeEvent that react to the help button
+  observeEvent(input$help, {
+    # Create modal with the corresponding htmlOutput
+    title <- 'Project progress help'
+    template <-'./html_components/help_manage_progression.html'
+    
+    showModal(modalDialog(
+      title = title,
+      htmlTemplate(template),
+      footer = modalButtonWithClass('Dismiss', class = 'custom-style'),
+      easyClose = TRUE
+    ))
+  })
 }
 
 buildDF <- function(pool){
