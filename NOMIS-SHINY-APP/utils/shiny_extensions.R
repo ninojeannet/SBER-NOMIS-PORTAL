@@ -359,11 +359,10 @@ createInput <- function(type, label, value = NULL, table, pool, session = getDef
   else{
     div(
       div(
-        div(class="inline exped",numericRangeInput(session$ns("range"),"Select a glacier range :",value = c(1,500))),
-        div(class="btn-exped",actionButton(session$ns("add"),"Add range")),
-        textOutput(session$ns("status"))
+        numericRangeInput(session$ns("range"),"Select a glacier range :",value = c(1,500)),
+        actionButton(session$ns("add"),"Add range")
       ),
-      div(class="exped",selectizeInput(
+      div(selectizeInput(
         inputId =  session$ns('ranges'),
         choices=value[[1]],
         selected = value[[1]],
