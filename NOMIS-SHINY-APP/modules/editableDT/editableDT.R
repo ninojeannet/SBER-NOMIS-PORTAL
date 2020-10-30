@@ -32,7 +32,7 @@ editableDTUI<- function(id) {
 
 editableDT <- function(input, output, session, pool, tableName, element,
                        tableLoading, templateInputsCreate, templateInputsEdit,
-                       creationExpr, updateExpr, deleteExpr, outputTableExpr = NULL) {
+                       creationExpr, updateExpr, deleteExpr,validatorCreateFunction,validatorUpdateFunction,extraValidatorFunction=NULL, outputTableExpr = NULL) {
 # Create the logic for the editableDT module
 # Parameters:
 #  - input, output, session: Default needed parameters to create a module
@@ -75,7 +75,6 @@ editableDT <- function(input, output, session, pool, tableName, element,
   
   
   
-  
   ## Modal creation and error display ###############################################################
   
   # Create a function to create and show a modal for either new element creation or element editing
@@ -113,7 +112,7 @@ editableDT <- function(input, output, session, pool, tableName, element,
   # Create an observeEvent that react to the modal cancel button
   observeEvent(input$cancel, ignoreInit = TRUE, {
     # Clear error
-    modalError('')
+    # modalError('')
     
     # Close modal
     removeModal()
@@ -121,23 +120,24 @@ editableDT <- function(input, output, session, pool, tableName, element,
   
   
   # Create a function that display the creation and edition errors and remove the modal if none
-  parseModalError <- function(error, type) {
+  handleModalResult <- function(error, type) {
     # Save error
     # If there is no error, remove the modal and reload the table
-    if (!is.atomic(error)) {
-      modalError('')
+    # if (!is.atomic(error)) {
+    print(error)
+      # modalError('')
       removeModal()
       reloadTable(reloadTable() + 1)
       showNotification(paste0('Row successfully ', type, 'ed!'), type = 'message')
-    }
-    else
-      modalError('Error')
+    # }
+    # else
+    #   modalError('Error')
     
     # Render the error, if any
-    output$form_error <- renderText(shiny::validate(
-      errorClass = 'form',
-      need(FALSE, message = modalError())
-    ))
+    # output$form_error <- renderText(shiny::validate(
+    #   errorClass = 'form',
+    #   need(FALSE, message = modalError())
+    # ))
   }
   
   
@@ -167,11 +167,22 @@ editableDT <- function(input, output, session, pool, tableName, element,
   })
   
   
+  
+  iv_create <- validatorCreateFunction()
+  if(is.function(extraValidatorFunction))
+    iv_range <- extraValidatorFunction()
   # Create an observeEvent that react to the modal create button
   observeEvent(input$create, ignoreInit = TRUE, {
-    # Run the element creation expression
-    # And close the modal if success or display error if not
-    parseModalError(eval(creationExpr), 'create')
+    
+    if(iv_create$is_valid()){
+      iv_create$disable()
+      res <-eval(creationExpr)
+      handleModalResult(res, 'create')
+    }
+    else{
+      iv_create$enable()
+    }
+    
   })
   
   
@@ -202,8 +213,9 @@ editableDT <- function(input, output, session, pool, tableName, element,
       # Store the edited row
       editedRow(selectedRow)
       
+      id <- paste0("id_",tableName)
       # Remove the id
-      selectedRow %<>% select(-id_user) 
+      selectedRow[[id]] <- NULL
       
       # Show element edition modal
       showInputsModal(
@@ -216,12 +228,19 @@ editableDT <- function(input, output, session, pool, tableName, element,
     }
   })
   
+  iv_update <- validatorUpdateFunction()
   
   # Create an observeEvent that react to the modal edit button
   observeEvent(input$edit, ignoreInit = TRUE, {
-    # Run the element creation expression
-    # And close the modal if success or display error if not
-    parseModalError(eval(updateExpr), 'edit')
+    if(iv_update$is_valid()){
+      iv_update$disable()
+      res <- eval(updateExpr)
+      handleModalResult(res, 'edit')
+    }
+    else{
+      iv_update$enable()
+      print("wrong")
+    }
   })
   
   
@@ -244,9 +263,10 @@ editableDT <- function(input, output, session, pool, tableName, element,
     # If rows are selected
     if (length(input$table_rows_selected) > 0) {
       # Get the selected row ids
-      print(loadTable()[input$table_rows_selected,])
+      # print(loadTable()[input$table_rows_selected,])
       
-      selectedRowIds <- loadTable()[input$table_rows_selected,]$id_user
+      id <- paste0("id_",tableName)
+      selectedRowIds <- loadTable()[input$table_rows_selected,][[id]]
       # Run the element deletion expression and retrieve the output message
       error <- eval(deleteExpr)
       
@@ -278,7 +298,19 @@ editableDT <- function(input, output, session, pool, tableName, element,
         paging = FALSE,
         scrollX = TRUE,
         columnDefs = list(list(targets = 0, visible = FALSE))
-      )) %>%
-      formatDate(c('created_at', 'updated_at'), method = 'toUTCString')
+      ))
+  })
+  
+  rangeVector <- reactiveVal(vector())
+  
+  observeEvent(input$ranges,{
+    rangeVector(input$ranges)
+  },ignoreNULL  = FALSE)
+  
+  observeEvent(input$add,{
+    newRange <- isolate(input$range)
+    tmp <- c(rangeVector(),paste0(newRange[1]," - ",newRange[2]))
+    rangeVector(tmp)
+    updateSelectizeInput(session,"ranges",choices = rangeVector(),selected = rangeVector())
   })
 }

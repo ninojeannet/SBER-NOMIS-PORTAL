@@ -1,4 +1,4 @@
-source('./utils/helper_refresh_progress.R')
+source('./utils/helper_expedition.R')
 
 managementProgressTabUI <- function(id) {
   # Parameters:
@@ -23,7 +23,7 @@ managementProgressTab <- function(input, output, session,pool){
     dataframe <- getProgressTable(pool)
   })
   
-  dfFormatted <- reactiveVal(buildDF(pool))
+  dfFormatted <- reactiveVal(buildProgressTable(pool))
 
   output$progress_table <- renderFormattable({
     dff <- dfFormatted()
@@ -34,7 +34,7 @@ managementProgressTab <- function(input, output, session,pool){
     dataframe <- df()
     rangeList(setRanges(dataframe))
     updateExpeditionTable(dataframe,rangeList(),pool)
-    dfFormatted(buildDF(pool))
+    dfFormatted(buildProgressTable(pool))
   })
   
   # Create an observeEvent that react to the help button
@@ -50,17 +50,6 @@ managementProgressTab <- function(input, output, session,pool){
       easyClose = TRUE
     ))
   })
-}
-
-buildDF <- function(pool){
-  dataframe <- getProgressTable(pool)
-  headers <- dataframe[["name"]]
-  dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
-  df <- dataframe %>% select(-min) %>% select(-max) %>% select(-name) %>% select(-id_expedition)
-  df <- aggregate(df["range"], by=list(abreviation=df$abreviation,enzyme =df$enzyme,doc=df$doc,dom=df$dom), paste)
-  df <- as.data.frame(t(df))
-  colnames(df) <- sort(unique(headers))
-  return(df)
 }
 
 

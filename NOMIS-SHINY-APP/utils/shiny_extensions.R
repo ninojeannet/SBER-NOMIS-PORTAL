@@ -284,7 +284,7 @@ createInputs <- function(df, pool, table, session = getDefaultReactiveDomain()) 
   inputs <- tagList()
   # Get the df column types
   columnTypes <- df %>% lapply(type_sum) %>% unlist()
-  
+  # print(columnTypes)
   # For each column
   for (i in c(1:length(columnTypes))) {
     # Get the type and the column name
@@ -332,7 +332,7 @@ createInput <- function(type, label, value = NULL, table, pool, session = getDef
   #  - session: Shiny session, the session in which to create the inputs, default: getDefaultReactiveDomain()
   # 
   # Returns the adequate input
-  
+  # print(value)
   # Choose the input in function of the column type
   if (type == 'dbl' | type == 'int') {
     numericInput(session$ns(label), label = label, value = value)
@@ -355,6 +355,27 @@ createInput <- function(type, label, value = NULL, table, pool, session = getDef
       timepicker = TRUE,
       timepickerOpts = timepickerOptions(timeFormat = 'hh:ii')
     )
+  }
+  else{
+    div(
+      div(
+        div(class="inline exped",numericRangeInput(session$ns("range"),"Select a glacier range :",value = c(1,500))),
+        div(class="btn-exped",actionButton(session$ns("add"),"Add range")),
+        textOutput(session$ns("status"))
+      ),
+      div(class="exped",selectizeInput(
+        inputId =  session$ns('ranges'),
+        choices=value[[1]],
+        selected = value[[1]],
+        label = 'Ranges',
+        multiple = TRUE,
+        options = list(
+          'plugins' = list('remove_button')
+        )
+      )
+      )
+    )
+    
   }
 }
 

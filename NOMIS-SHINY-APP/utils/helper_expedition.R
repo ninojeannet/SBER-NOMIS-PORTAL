@@ -43,3 +43,25 @@ generateGlacierIDs <- function(ranges){
   # print(ids)
   return(ids)
 }
+
+buildProgressTable <- function(pool){
+  dataframe <- getProgressTable(pool)
+  dataframe <- dataframe[order(dataframe$abreviation),]
+  headers <- dataframe[["name"]]
+  dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
+  df <- dataframe %>% select(-min) %>% select(-max) %>% select(-name) %>% select(-id_expedition)
+  df[is.na(df)] <- ""
+  df <- aggregate(df["range"], by=list(abreviation=df$abreviation,enzyme =df$enzyme,doc=df$doc,dom=df$dom), paste)
+  df <- df[order(df$abreviation),]
+  df <- as.data.frame(t(df))
+  colnames(df) <- unique(headers)
+  return(df)
+}
+
+buildExpeditionTable <- function(pool){
+  dataframe <- getProgressTable(pool)
+  dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
+  df <- dataframe %>% select(-min) %>% select(-max)
+  df <- aggregate(df["range"], by=list(id_expedition=df$id_expedition,name=df$name,abreviation=df$abreviation), paste)
+  return(df)
+}

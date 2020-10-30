@@ -75,5 +75,18 @@ usersTab <- function(input, output, session, pool) {
                  table = 'user',
                  ids = selectedRowIds
                )
-             ))
+             ),
+             validatorCreateFunction = function(){
+               iv <- InputValidator$new()
+               iv$add_rule("name", sv_required())
+               iv$add_rule("role", sv_required())
+               iv$add_rule("password", sv_required())
+               return(iv)
+             },
+             validatorUpdateFunction = function(){
+               iv <- InputValidator$new()
+               iv$add_rule("name", sv_required())
+               iv$add_rule("role", sv_required())
+               return(iv)
+             })
 }

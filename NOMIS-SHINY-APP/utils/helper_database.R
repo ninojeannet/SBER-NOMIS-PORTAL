@@ -205,6 +205,7 @@ saveExpeditionInDB <- function(name,abr,pool)
 # - pool : the database connection pool
 saveRangeInDB <- function(exp_name,min,max,pool)
 {
+
   request <- 'INSERT INTO glacier_range (`id_expedition`,`min`,`max`) VALUES (?exp,?min,?max)'
   exp_id <-dbGetQuery(pool,paste0("SELECT id_expedition FROM expedition WHERE name =",dbQuoteString(pool,exp_name)))
   exp_id <-exp_id[['id_expedition']]
@@ -310,7 +311,9 @@ updateUser <- function(pool, user, username = '', password = '', role = '', acti
   username <- validInputString(username)
   password <- validInputString(password)
   role <- validInputString(role)
-  
+  print("ww")
+  print(user)
+  print("ici")
   # Use previous values if not defined
   if (username == SQL('NULL')) username <- user$name
   if (role == SQL('NULL')) role <- user$role
@@ -378,13 +381,13 @@ deleteRows <- function(pool, table, ids) {
     if (length(ids) == 1) {
       query <- sqlInterpolate(
         pool,
-        "DELETE FROM ?table WHERE id_user = ?id;",
+        paste0("DELETE FROM ?table WHERE id_",table," = ?id;"),
         table = dbQuoteIdentifier(pool, table), id = ids
       )
     } else {
       query <- sqlInterpolateList(
         pool,
-        "DELETE FROM ?table WHERE id_user IN (?ids);",
+        paste0("DELETE FROM ?table WHERE id_",table," IN (?ids);"),
         vars = list(table = dbQuoteIdentifier(pool, table)),
         list_vars = list(ids = ids)
       )
@@ -412,3 +415,51 @@ sqlInterpolateList <- function(conn, sql, vars=list(), list_vars=list()) {
   }
   DBI::sqlInterpolate(conn, sql, .dots=vars)
 }
+
+
+updateExpeditionInDB <- function(pool, expedition, name = '', abreviation = '', ranges = list()) {
+  # Check for valid input string
+  print("yess")
+  name <- validInputString(name)
+  abreviation <- validInputString(abreviation)
+  # print(expedition)
+  # Use previous values if not defined
+  if (name == SQL('NULL')) name <- expedition$name
+  if (abreviation == SQL('NULL')) abreviation <- expedition$abreviation
+  if (length(ranges) ==0) ranges <- expedition$range
+
+  # Create query 
+  query <- sqlInterpolate(
+    pool,
+    "UPDATE expedition SET name = ?name, abreviation = ?abreviation WHERE id_expedition = ?id_expedition;",
+    id_expedition = expedition$id_expedition, name = name, abreviation = abreviation)
+  # Send Query and catch errors
+  sendQuery(query,pool,TRUE)
+  
+  oldRanges <- unlist(expedition$range)
+  newRanges <- unlist(ranges)
+  rangesToCreate <- setdiff(newRanges,oldRanges)
+  rangesToDelete <- setdiff(oldRanges,newRanges)
+
+  
+  updateRanges(pool,expedition$id_expedition,name,rangesToCreate,rangesToDelete)
+}
+
+updateRanges <- function(pool,id_expedition,name_expedition,rangesToCreate,rangesToDelete){
+  
+  for (oldrange in rangesToDelete) {
+    range <- str_split(oldrange," - ")
+    query <- sqlInterpolate(
+      pool,
+      "DELETE FROM glacier_range WHERE id_expedition = ?id_expedition AND min=?min AND max=?max;",
+      id_expedition = id_expedition,min=range[[1]][1],max=range[[1]][2])
+    sendQuery(query,pool,FALSE)
+  }
+  print(rangesToCreate)
+  for (range in rangesToCreate) {
+    range <- str_split(range," - ")
+    saveRangeInDB(name_expedition,as.numeric(range[[1]][1]),as.numeric(range[[1]][2]),pool)
+  }
+  
+}
+

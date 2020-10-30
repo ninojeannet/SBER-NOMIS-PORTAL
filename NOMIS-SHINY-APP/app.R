@@ -160,9 +160,9 @@ server <- function(input, output, session) {
             )
             # Load data management server logic
             callModule(managementTab,"management",pool,dimension)
-        # }s
+
         
-        if (user$role == 'admin') {
+        # if (user$role == 'admin') {
             ## Generate usersTab ##########################################################
             # Create users tab
             appendTab(
@@ -176,7 +176,7 @@ server <- function(input, output, session) {
             )
             # Load users tab server logic
             callModule(usersTab, 'users', pool)
-        }
+        # }
     })
 }
 

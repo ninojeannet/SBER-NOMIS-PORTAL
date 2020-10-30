@@ -1,6 +1,7 @@
 
 source('./modules/management_tab/management_process_tab.R')
 source('./modules/management_tab/management_progress_tab.R')
+source('./modules/management_tab/management_expedition_tab.R')
 source('./modules/data_module/manage_data_tab.R')
 
 
@@ -14,6 +15,10 @@ managementTabUI <- function(id) {
       'Manage data',
       manageDataTabUI(ns("data"))
       
+    ),
+    tabPanel(
+      'Manage expeditions',
+      managementExpeditionTabUI(ns("expedition"))
     ),
     tabPanel(
       'Process data',
@@ -30,6 +35,8 @@ managementTab <- function(input, output, session,pool,dimension){
   callModule(manageDataTab,"data",pool,dimension,FALSE)
   callModule(managementProcessTab,"process",pool)
   callModule(managementProgressTab,"progress",pool)
+  callModule(managementExpeditionTab,"expedition",pool)
+  
   
 }
 
