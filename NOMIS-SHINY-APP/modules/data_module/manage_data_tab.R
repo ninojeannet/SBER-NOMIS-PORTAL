@@ -132,6 +132,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   })
   
   observeEvent(input$generate,{
+    print(tableName())
     output$table <- renderRHandsontable({
       validateInput(input)
       table <- isolate(input$type)

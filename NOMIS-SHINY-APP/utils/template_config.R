@@ -1,7 +1,7 @@
 
 templateTypes <- c("Location"="location","Patch metrics"="patch","Enzyme"="enzyme")
 
-tableList <- c("glacier","location","patch","enzyme","biogeo")
+tableList <- c("glacier","location","patch","microbial_1","microbial_2","microbial_3","biogeo")
 
 # List of all field name contained in each table
 templateFieldNames <- list()
@@ -14,22 +14,33 @@ templateFieldNames[["gl_source"]] <- c('id_glacier','data_s','data_ts','sn_data'
 templateFieldNames[["gl_other"]] <- c('id_glacier','','','','')
 templateFieldNames[["location"]] <- c('id_location','id_glacier','type','date','time','water_temp','ph','potential','do','do_sat','w_co2','conductivity','turb','rdna')
 templateFieldNames[["patch"]] <- c("id_patch","id_location","name")
-templateFieldNames[["enzyme"]] <- c("id_enzyme","id_patch","replicate","ag","ap","bg","lap","nag")
+templateFieldNames[["enzyme"]] <- c("id_microbial_3","id_patch","replicate","ag","ap","bg","lap","nag")
 templateFieldNames[["biogeo"]] <- c("id_biogeo","id_location","replicate","filename_eem","filename_abs1","filename_abs10","doc","bix","fi")
+templateFieldNames[["microbial_1"]] <- c('id_microbial_1',"id_patch",'replicate',"eps","wba","sba")
+templateFieldNames[["microbial_2"]] <- c('id_microbial_2',"id_patch",'replicate',"bp","respiration")
+templateFieldNames[["microbial_3"]] <- c('id_microbial_3',"id_patch",'replicate',"chla","ag","ap","bg","lap","nag")
 
 subCategoriesOfTable <- list()
 subCategoriesOfTable[["glacier"]] <- c('gl_global','gl_point','gl_line','gl_area','gl_invent','gl_source','gl_other')
 subCategoriesOfTable[["biogeo"]] <- c("dom")
+subCategoriesOfTable[["microbial_1"]] <- c("ba")
+subCategoriesOfTable[["microbial_3"]] <- c("enzyme")
 
 specificFields <- list()
 specificFields[["dom"]] <- c("filename_eem","filename_abs1","filename_abs10")
+specificFields[["ba"]] <- c('wba','sba')
+specificFields[["enzyme"]] <- c("ag","ap","bg","lap","nag")
+
 # List of mandatory field for each table
 mandatoryFields <- list()
 mandatoryFields[["glacier"]] <- c('id_glacier')
 mandatoryFields[["location"]] <- c('id_location','id_glacier','type')
 mandatoryFields[["patch"]] <- c('id_patch','id_location','name')
-mandatoryFields[["enzyme"]] <- c('id_enzyme','id_patch','replicate')
+# mandatoryFields[["enzyme"]] <- c('id_enzyme','id_patch','replicate')
 mandatoryFields[["biogeo"]] <- c('id_biogeo','id_location','replicate')
+mandatoryFields[["microbial_1"]] <- c('id_microbial_1','id_patch','replicate')
+mandatoryFields[["microbial_2"]] <- c('id_microbial_2','id_patch','replicate')
+mandatoryFields[["microbial_3"]] <- c('id_microbial_3','id_patch','replicate')
 
 fullnameFields <- list()
 fullnameFields[["gl_global"]] <- c('id_glacier','Glacier name')
@@ -44,7 +55,7 @@ fullnameFields[["location"]] <- c('id_location','id_glacier','type','Date\n[DD/M
                                   'Water Temp\n[\u00B0C]','pH\n[pH]','Potential\n[mV]','Dissolved Oxygen\n[mg l-1]','Dissolved Oxygen\n[saturation]','Water Co2\n[mATM]',
                                   'Conductivity\n[uS cm -1]','Turbidity\n[NTU]','Rock DNA\npresent\n[boolean]')
 fullnameFields[["patch"]] <- c('id_patch','id_location','name')
-fullnameFields[["enzyme"]] <- c("id_enzyme","id_patch","replicate","AG\n[nmol g-1 h-1]","AP\n[nmol g-1 h-1]","BG\n[nmol g-1 h-1]","LAP\n[nmol g-1 h-1]","NAG\n[nmol g-1 h-1]")
+fullnameFields[["enzyme"]] <- c("id_microbial_3","id_patch","replicate","AG\n[nmol g-1 h-1]","AP\n[nmol g-1 h-1]","BG\n[nmol g-1 h-1]","LAP\n[nmol g-1 h-1]","NAG\n[nmol g-1 h-1]")
 fullnameFields[["biogeo"]] <- c("id_biogeo","id_location","replicate","EEM filename","Abs 1cm filename","Abs 10cm filename","DOC","BIX","FI")
 
 # List of options for each table to display in the upload section as "excel sheet"
@@ -54,6 +65,9 @@ tableOptions[["patch"]] <- c("primary"="id_patch", "FK"="id_location", "name"="n
 tableOptions[["location"]] <- c("primary"="id_location", "FK"="id_glacier", "name"="type")
 tableOptions[["glacier"]] <- c("primary"="id_glacier", "FK"="", "name"="name")
 tableOptions[["biogeo"]] <- c("primary"="id_biogeo", "FK"="id_location", "name"="replicate", "replicates"= list(c('1','2','3')))
+tableOptions[["microbial_1"]] <- c("primary"="id_microbial_1", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A')))
+tableOptions[["microbial_2"]] <- c("primary"="id_microbial_2", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A','B')))
+tableOptions[["microbial_3"]] <- c("primary"="id_microbial_3", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A','B','C')))
 
 # List of table that are only on UP location
 isOnlyUP <- list()
@@ -64,7 +78,7 @@ nbOfEntryByGlacier <- c("enzyme"=18,"doc"=3,"dom"=3)
 # The list of all the data types that can be uploaded from the upload section
 uploadDataTypes <- list("Field metrics"="location","Patch"="patch",
                         `Glaciological metrics` = c("Global metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source","Other metrics"="gl_other"),
-                        `Microbial metrics` = c("Enzyme"="enzyme"),
+                        `Microbial metrics` = c("Chlorophyll-A"="chla","Extracelullar polymeric substances"="eps","Enzyme"="enzyme","Bacterial production"="bp","Bacterial abundance"="ba","Respiration"="respiration"),
                         `Biogeochemical metrics` = c("Dissolved organic matter"="biogeo","Dissolved organic carbon"="doc"))
 
 # The sublist of all the "DOM type" that can be uploaded
@@ -87,4 +101,4 @@ colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "YYYY-MM-D
               #                   list(col= 8, validator = "function (value, callback) {
               # if (/(\\d+)|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}")
                                 )
-colConfig[["enzyme"]] <- list(list(col=c(4,5,6,7,8), type = "numeric"))
+# colConfig[["enzyme"]] <- list(list(col=c(4,5,6,7,8), type = "numeric"))

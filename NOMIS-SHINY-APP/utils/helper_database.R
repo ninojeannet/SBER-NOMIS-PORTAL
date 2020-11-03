@@ -48,6 +48,8 @@ getTableFromGlacier <- function(pool,tableName,ids){
 # - ids : list of ids to retrieve the field from
 # Return the query result as dataframe
 getFieldsFromGlacier <- function(pool,tableName,fields,ids){
+  print(tableName)
+  print(fields)
   AllFields <- mandatoryFields[[tableName]]
   AllFields <- c(AllFields,fields)
   AllFields <- unique(AllFields)
@@ -73,8 +75,9 @@ getFieldsFromGlacier <- function(pool,tableName,fields,ids){
       query <- paste0(query," OR ")
     }
   }
-
+  
   query <- substr(query,1,nchar(query)-4)
+  print(query)
   dataframe <- sendQuery(query,pool,FALSE)
   # 
   return(dataframe)
