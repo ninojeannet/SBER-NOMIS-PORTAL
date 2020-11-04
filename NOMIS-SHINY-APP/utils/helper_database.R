@@ -2,7 +2,7 @@ source('./utils/template_config.R')
 
 
 getProgressTable <- function(pool){
-  query <- "SELECT a.id_expedition,a.name,a.abreviation,a.enzyme,a.doc,a.dom,b.min,b.max
+  query <- "SELECT a.*,b.min,b.max
   FROM expedition as a,glacier_range as b 
   WHERE a.id_expedition = b.id_expedition"
   return(sendQuery(query,pool,FALSE))
@@ -50,7 +50,7 @@ getTableFromGlacier <- function(pool,tableName,ids){
 getFieldsFromGlacier <- function(pool,tableName,fields,ids){
   print(tableName)
   print(fields)
-  AllFields <- mandatoryFields[[tableName]]
+  AllFields <- c()
   AllFields <- c(AllFields,fields)
   AllFields <- unique(AllFields)
 
