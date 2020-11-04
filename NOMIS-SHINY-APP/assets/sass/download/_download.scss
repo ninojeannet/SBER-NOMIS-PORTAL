@@ -1,6 +1,31 @@
 // ####################################
 // Download tab layout
 // ####################################
+.bloc {
+    display: block;
+    margin: auto;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.list {
+        width: 40%;
+
+}
+
+.act-btn {
+    padding: 2%;
+    margin: auto;
+    text-align: center;
+}
+
+#download-data-type {
+    height: 250px;
+}
+#download-data-selectedTypes {
+        height: 250px;
+
+}
 
 .download-main {
     margin: 1.5em 0 0 0;

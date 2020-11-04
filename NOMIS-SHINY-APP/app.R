@@ -57,6 +57,7 @@ source('app_config.R')
 ## Load tabs modules ##############################################################
 source('./modules/management_tab/management_tab.R')
 source('./modules/upload_tab/upload_tab.R')
+source('./modules/download_tab/download_tab.R')
 source('./modules/login/login.R')
 source('./modules/users_tab/users_tab.R')
 source('./modules/editableDT/editableDT.R')
@@ -125,6 +126,7 @@ ui <- tagList(
                 # Create a tab title with an icon
                 tags$span(icon('download'),tags$span('Download', class = 'navbar-menu-name')),
                 # Load the visualisationTab module UI elements
+                downloadTabUI('download')
                 #visualisationTabUI('1', grabSampleDf, hfDf, sites, grabSampleParameters, hfParameters)
             )
         ),
@@ -142,6 +144,8 @@ server <- function(input, output, session) {
     user <- callModule(login, 'login', pool)
     dimension <- reactive({input$dimension})
     callModule(uploadTab,"upload",pool,dimension)
+    callModule(downloadTab,"download",pool)
+    
     onStop(function() poolClose(pool))
     
     observeEvent(user$role, {

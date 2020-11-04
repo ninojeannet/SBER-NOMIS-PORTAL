@@ -144,6 +144,21 @@ uploadDataTypes <- list("Field metrics"="location","Patch"="patch",
 uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")
 
 
+downloadDataTypes <- list(`Field metrics` = c("Field metrics - All"="location","Date"="date",
+                                              "Time"="time","Water temperature"="water_temp","Ph"="ph",
+                                              "Potential"="potential","DO"="do","do_sat"="do_sat","w_co2"="w_co2",
+                                              "Conductivity"="conductivity","Trubidity"="turb","RDNA"="rdna"),
+                        `Glaciological metrics` = c("Glaciological metrics - All" ="glacio","Identification metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source","Other metrics"="gl_other"),
+                        `Microbial metrics` = c("Microbial metrics - All" ="micro","Chlorophyll-A"="chla","Extracelullar polymeric substances"="eps","Enzyme"="enzyme","Bacterial production"="bp","Bacterial abundance"="ba","Respiration"="respiration"),
+                        `Biogeochemical metrics` = c("Biogeochemical metrics - All" ="biogeo",
+                                                     "Dissolved organic matter"="biogeo_3",
+                                                     "Dissolved organic carbon"="doc",
+                                                     "Absorbance"="absorbance",
+                                                     "Index" = "index",
+                                                     "Coble peak" = "coble",
+                                                     "Ions" = "ion",
+                                                     "Nutrients"="nutrient"))
+
 colConfig <- list()
 colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "YYYY-MM-DD"),
                                 list(col= 5, validator = "function (value, callback) {
