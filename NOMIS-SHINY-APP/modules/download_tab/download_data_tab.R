@@ -27,7 +27,7 @@ downloadDataTabUI <- function(id){
         id = ns('sidebar'),
         div(
           
-          div(class="inline list",selectInput(ns('type'), 'Type', choices= downloadDataTypes, multiple=TRUE, selectize=FALSE)),
+          div(class="inline list",selectInput(ns('type'), 'Type', choices= typeList(), multiple=TRUE, selectize=FALSE)),
           div(class="inline act-btn",div(class="bloc",actionButton(ns("add"),">>")),
               div(class="bloc",actionButton(ns("remove"),"X"))),
           div(class="inline list",selectInput(ns('selectedTypes'),choices= c(), 'Selected types', multiple=TRUE, selectize=FALSE))
@@ -43,13 +43,13 @@ downloadDataTabUI <- function(id){
           actionButton(ns("generate"),"Generate download files")
           ),
      
-        width=6
+        width=7
       ),
      mainPanel(
        id = ns('main'),
        actionButton(ns("generate"),"Generate download files")
        ,
-       width=6
+       width=5
        )
   )
   )
@@ -70,7 +70,7 @@ downloadDataTab <- function(input,output,session,pool){
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectedFields <- reactive(getFieldsFromValue(input$type))
   selectedTypes <- reactiveVal()
-
+  
   ids <- reactive({
     switch (input$selectRange,
             "simple" = {
@@ -88,6 +88,25 @@ downloadDataTab <- function(input,output,session,pool){
             })
   })
   
+  observeEvent(input$selectRange,{
+    switch (input$selectRange,
+            "simple" = {
+              showElement("glacier")
+              hideElement("glacierRange")
+              hideElement("glacierList")
+            },
+            "range" = {
+              hideElement("glacier")
+              showElement("glacierRange")
+              hideElement("glacierList")
+            },
+            "list" = {
+              hideElement("glacier")
+              hideElement("glacierRange")
+              showElement("glacierList")
+            }
+    )
+  })
   
   observeEvent(input$add,{
     newType <- isolate(input$type)
@@ -102,6 +121,76 @@ downloadDataTab <- function(input,output,session,pool){
     selectedTypes(unique(tmp))
     updateSelectizeInput(session,"selectedTypes",choices = selectedTypes())
   })
+  
+  observeEvent(input$generate,{
+    fields <- convertFieldNames(selectedTypes())
+    df <- generateDownloadDF(fields,ids(),pool)
+    # file <- generateDownloadFile(df)
+    # print(df)
+  })
+}
+
+convertFieldNames <- function(fieldstoConvert){
+  convertedFields <- c()
+  for (field in fieldstoConvert) {
+    l <- list.search(downloadDataTypes,field %in% names(.))[[1]]
+    value <- l[[field]]
+    convertedFields <- c(convertedFields,value)
+    # print(value)
+  }
+  return(convertedFields)
+}
+
+generateDownloadDF <- function(fields,ids,pool){
+  # df <- data.frame()
+  # fields <- c("date","bp","ba")
+  tables <- unlist(lapply(fields,getTableNameFromValue))
+  nbEntries <- max(levels[tables])
+  df <- data.frame(matrix(ncol = 0, nrow = nbEntries))
+  for (field in fields) {
+    table <- getTableNameFromValue(field)
+    fieldsToRetrieve <- setdiff(getFieldsFromValue(field),mandatoryFields[[table]])
+    nbReplicates <- length(tableOptions[[table]][["replicates"]])
+    
+    if(nbReplicates > 1){
+      values <-getFieldsWithFKFromGlacier(pool,tablename = table ,fields = fieldsToRetrieve,ids = ids)
+      values <- reduce(values,table)
+    }
+    else
+    {
+      values <-getFieldsFromGlacier(pool,tableName = table ,fields = fieldsToRetrieve,ids = ids)
+    }
+    column <- scale(values,table,nbEntries)
+    # print(column)
+    df[[field]] <- column
+  }
+  print(df)
+}
+
+reduce <- function(values,tablename){
+    # print(values)
+    fk <- tableOptions[[tablename]][["FK"]]
+    colToSummarise <-names(values %>% select(-all_of(fk)))
+    values <- values %>%                                        
+      group_by(.dots=fk) %>%                         
+      summarise_at(vars(colToSummarise),mean) %>%  
+      select(-all_of(fk))
+    # print(values)
+  return(values)
+}
+
+scale <- function(values,tablename,nbFinalEntries){
+  # tablename <- "location"
+  # values <- data.frame(date = c(1,2))
+  # df <- data.frame(var1 = c('a', 'b', 'c'), var2 = c('d', 'e', 'f'))
+  # print(values)
+  nbEntries <- levels[tablename]
+  factor <- nbFinalEntries / nbEntries
+  newdf <- values[rep(row.names(values), each=factor), 1:ncol(values) ]
+  newdf <- as.data.frame(newdf)
+  colnames(newdf) <- names(values)
+  # print(newdf)
+  return(newdf)
 }
 
 # Check if the input format are valid and if not display a message

@@ -112,14 +112,15 @@ fullnameFields[["respiration"]] <- c("ID","Patch","Replicate","Respiration\n[mg 
 # List of options for each table to display in the upload section as "excel sheet"
 tableOptions <- list()
 tableOptions[["enzyme"]] <- c("primary"="id_enzyme", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A','B','C')))
-tableOptions[["patch"]] <- c("primary"="id_patch", "FK"="id_location", "name"="name")
-tableOptions[["location"]] <- c("primary"="id_location", "FK"="id_glacier", "name"="type")
-tableOptions[["glacier"]] <- c("primary"="id_glacier", "FK"="", "name"="name")
+tableOptions[["patch"]] <- c("primary"="id_patch", "FK"="id_location", "name"="name", "replicates"= list(c()))
+tableOptions[["location"]] <- c("primary"="id_location", "FK"="id_glacier", "name"="type", "replicates"= list(c()))
+tableOptions[["glacier"]] <- c("primary"="id_glacier", "FK"="", "name"="name", "replicates"= list(c()))
 tableOptions[["biogeo_3"]] <- c("primary"="id_biogeo_3", "FK"="id_location", "name"="replicate", "replicates"= list(c('A','B','C')))
 tableOptions[["biogeo_1"]] <- c("primary"="id_biogeo_1", "FK"="id_location", "name"="replicate", "replicates"= list(c('A')))
 tableOptions[["microbial_1"]] <- c("primary"="id_microbial_1", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A')))
 tableOptions[["microbial_2"]] <- c("primary"="id_microbial_2", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A','B')))
 tableOptions[["microbial_3"]] <- c("primary"="id_microbial_3", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A','B','C')))
+
 
 # List of table that are only on UP location
 isOnlyUP <- list()
@@ -127,7 +128,8 @@ isOnlyUP[["biogeo_3"]] <- TRUE
 isOnlyUP[["biogeo_1"]] <- FALSE
 
 nbOfEntryByGlacier <- c("enzyme"=18,"chla"=18,"respiration"=12,"bp"=12,"ba"=6,"eps"=6,"nutrient"=2,"ion"=2,"doc"=3,"dom"=3)
-
+nbOfEntryByTable <- c("glacier"=1,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=12,"microbial_3"=18,"biogeo_3"=3,"biogeo_1"=1)
+levels <- c("glacier"=1,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=6,"microbial_3"=6,"biogeo_3"=1,"biogeo_1"=1)
 # The list of all the data types that can be uploaded from the upload section
 uploadDataTypes <- list("Field metrics"="location","Patch"="patch",
                         `Glaciological metrics` = c("Identification metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source","Other metrics"="gl_other"),
@@ -158,7 +160,16 @@ downloadDataTypes <- list(`Field metrics` = c("Field metrics - All"="location","
                                                      "Coble peak" = "coble",
                                                      "Ions" = "ion",
                                                      "Nutrients"="nutrient"))
-
+typeList <- function(){
+  l <- downloadDataTypes
+  i <- 1
+  for (metrics in l) {
+    l[[i]] <- names(metrics)
+    # print(metrics)
+    i <- i+1
+  }
+  l    
+}
 colConfig <- list()
 colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "YYYY-MM-DD"),
                                 list(col= 5, validator = "function (value, callback) {

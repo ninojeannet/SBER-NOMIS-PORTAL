@@ -40,6 +40,15 @@ getTableFromGlacier <- function(pool,tableName,ids){
   return(dataframe)
 }
 
+getFieldsWithFKFromGlacier <- function(pool,tablename,fields,ids){
+  if(tableOptions[[tablename]][["FK"]] != "")
+  {
+    fk <- tableOptions[[tablename]][["FK"]]
+    fields <- c(fk,fields)
+  }
+  return(getFieldsFromGlacier(pool,tablename,fields,ids))
+}
+
 # Retrieve specific field from a table in the database for specific glaciers
 # Parameters : 
 # - pool : the connection pool to access the database
@@ -48,14 +57,12 @@ getTableFromGlacier <- function(pool,tableName,ids){
 # - ids : list of ids to retrieve the field from
 # Return the query result as dataframe
 getFieldsFromGlacier <- function(pool,tableName,fields,ids){
-  print(tableName)
-  print(fields)
   AllFields <- c()
   AllFields <- c(AllFields,fields)
   AllFields <- unique(AllFields)
 
   fieldnames <- ""
-  for (field in AllFields) {
+  for (field in fields) {
     fieldnames <- paste0(fieldnames,field,",")
   }
   fieldnames <- substr(fieldnames,1,nchar(fieldnames)-1)
