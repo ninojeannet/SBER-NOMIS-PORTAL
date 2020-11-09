@@ -34,6 +34,7 @@ templateFieldNames[["eps"]] <- c("id_microbial_1","id_patch","replicate","eps")
 templateFieldNames[["bp"]] <- c("id_microbial_2","id_patch","replicate","bp")
 templateFieldNames[["ba"]] <- c("id_microbial_1","id_patch","replicate","wba","sba")
 templateFieldNames[["respiration"]] <- c("id_microbial_2","id_patch","replicate","respiration")
+templateFieldNames[["doc"]] <- c("id_biogeo_3","id_location","replicate","doc")
 
 subCategoriesOfTable <- list()
 subCategoriesOfTable[["glacier"]] <- c('gl_global','gl_point','gl_line','gl_area','gl_invent','gl_source','gl_other')

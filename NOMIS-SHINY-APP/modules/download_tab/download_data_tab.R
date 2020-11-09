@@ -47,7 +47,7 @@ downloadDataTabUI <- function(id){
       ),
      mainPanel(
        id = ns('main'),
-       actionButton(ns("generate"),"Generate download files")
+       downloadButton(ns("downloadFile"),"Download file")
        ,
        width=5
        )
@@ -70,6 +70,8 @@ downloadDataTab <- function(input,output,session,pool){
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectedFields <- reactive(getFieldsFromValue(input$type))
   selectedTypes <- reactiveVal()
+  
+  dfToDownload <- reactiveVal()
   
   ids <- reactive({
     switch (input$selectRange,
@@ -125,9 +127,17 @@ downloadDataTab <- function(input,output,session,pool){
   observeEvent(input$generate,{
     fields <- convertFieldNames(selectedTypes())
     df <- generateDownloadDF(fields,ids(),pool)
-    # file <- generateDownloadFile(df)
-    # print(df)
+    dfToDownload(df)
   })
+  
+  output$downloadFile <- downloadHandler(
+    filename = function() {
+      paste("test", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(dfToDownload(), file, row.names = FALSE,na = "NA")
+    }
+  )
 }
 
 convertFieldNames <- function(fieldstoConvert){
@@ -136,17 +146,22 @@ convertFieldNames <- function(fieldstoConvert){
     l <- list.search(downloadDataTypes,field %in% names(.))[[1]]
     value <- l[[field]]
     convertedFields <- c(convertedFields,value)
-    # print(value)
   }
   return(convertedFields)
 }
 
 generateDownloadDF <- function(fields,ids,pool){
-  # df <- data.frame()
-  # fields <- c("date","bp","ba")
   tables <- unlist(lapply(fields,getTableNameFromValue))
   nbEntries <- max(levels[tables])
-  df <- data.frame(matrix(ncol = 0, nrow = nbEntries))
+  nbRow <- nbEntries*length(ids)
+  df <- data.frame(matrix(ncol = 0, nrow = nbRow))
+  if(nbEntries == 6)
+    df[["patch"]] <- unlist(getFieldsFromGlacier(pool,tableName = "patch" ,fields = c("id_patch"),ids = ids))
+  else if(nbEntries == 2)
+    df[["location"]] <- unlist(getFieldsFromGlacier(pool,tableName = "location" ,fields = c("id_location"),ids = ids))
+  else
+    df[["glacier"]] <-  unlist(ids)
+  
   for (field in fields) {
     table <- getTableNameFromValue(field)
     fieldsToRetrieve <- setdiff(getFieldsFromValue(field),mandatoryFields[[table]])
@@ -160,36 +175,33 @@ generateDownloadDF <- function(fields,ids,pool){
     {
       values <-getFieldsFromGlacier(pool,tableName = table ,fields = fieldsToRetrieve,ids = ids)
     }
-    column <- scale(values,table,nbEntries)
-    # print(column)
+    column <- unlist(scale(values,table,nbEntries))
+
+    if(field=="date")
+      column <- format(as.Date(column),"%d.%m.%Y")
     df[[field]] <- column
   }
   print(df)
+  return(df)
 }
 
 reduce <- function(values,tablename){
-    # print(values)
     fk <- tableOptions[[tablename]][["FK"]]
     colToSummarise <-names(values %>% select(-all_of(fk)))
     values <- values %>%                                        
       group_by(.dots=fk) %>%                         
       summarise_at(vars(colToSummarise),mean) %>%  
       select(-all_of(fk))
-    # print(values)
   return(values)
 }
 
 scale <- function(values,tablename,nbFinalEntries){
-  # tablename <- "location"
-  # values <- data.frame(date = c(1,2))
-  # df <- data.frame(var1 = c('a', 'b', 'c'), var2 = c('d', 'e', 'f'))
-  # print(values)
+
   nbEntries <- levels[tablename]
   factor <- nbFinalEntries / nbEntries
   newdf <- values[rep(row.names(values), each=factor), 1:ncol(values) ]
   newdf <- as.data.frame(newdf)
   colnames(newdf) <- names(values)
-  # print(newdf)
   return(newdf)
 }
 
