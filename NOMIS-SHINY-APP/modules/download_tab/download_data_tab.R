@@ -47,6 +47,8 @@ downloadDataTabUI <- function(id){
       ),
      mainPanel(
        id = ns('main'),
+       hidden(
+       verbatimTextOutput(ns('preview'))),
        downloadButton(ns("downloadFile"),"Download file")
        ,
        width=5
@@ -72,6 +74,8 @@ downloadDataTab <- function(input,output,session,pool){
   selectedTypes <- reactiveVal()
   
   dfToDownload <- reactiveVal()
+  fields <- reactiveVal()
+  nbOfGlacier <- reactiveVal()
   
   ids <- reactive({
     switch (input$selectRange,
@@ -128,16 +132,30 @@ downloadDataTab <- function(input,output,session,pool){
     fields <- convertFieldNames(selectedTypes())
     df <- generateDownloadDF(fields,ids(),pool)
     dfToDownload(df)
+    nbOfGlacier(length(ids()))
+    fields(names(df))
+    showElement("preview")
   })
   
   output$downloadFile <- downloadHandler(
     filename = function() {
-      paste("test", ".csv", sep = "")
+      paste("nomis-",format(Sys.time(), "%Y%m%d-%H%M"),'-db', ".csv", sep = "")
     },
     content = function(file) {
       write.csv(dfToDownload(), file, row.names = FALSE,na = "NA")
     }
   )
+  
+  output$preview <- renderPrint({
+
+    isMerged <- TRUE
+    cat("# File summary",'\n')
+    cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
+    cat('# Number of glacier : ',nbOfGlacier(),'\n')
+    cat('# Selected fields','\n',fields(),'\n')
+    if(isMerged)
+      cat('Some of these data have been average when they have replicates.','\n')
+  })
 }
 
 convertFieldNames <- function(fieldstoConvert){
@@ -154,6 +172,8 @@ generateDownloadDF <- function(fields,ids,pool){
   tables <- unlist(lapply(fields,getTableNameFromValue))
   nbEntries <- max(levels[tables])
   nbRow <- nbEntries*length(ids)
+  
+  
   df <- data.frame(matrix(ncol = 0, nrow = nbRow))
   if(nbEntries == 6)
     df[["patch"]] <- unlist(getFieldsFromGlacier(pool,tableName = "patch" ,fields = c("id_patch"),ids = ids))
@@ -181,6 +201,8 @@ generateDownloadDF <- function(fields,ids,pool){
       column <- format(as.Date(column),"%d.%m.%Y")
     df[[field]] <- column
   }
+  
+
   print(df)
   return(df)
 }
