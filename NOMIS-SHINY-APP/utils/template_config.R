@@ -1,6 +1,4 @@
 
-# templateTypes <- c("Location"="location","Patch metrics"="patch","Enzyme"="enzyme")
-
 tableList <- c("glacier","location","patch","microbial_1","microbial_2","microbial_3","biogeo_3","biogeo_1")
 
 # List of all field name contained in each table
@@ -14,20 +12,17 @@ templateFieldNames[["gl_source"]] <- c('id_glacier','data_s','data_ts','sn_data'
 templateFieldNames[["gl_other"]] <- c('id_glacier','','','','')
 templateFieldNames[["location"]] <- c('id_location','id_glacier','type','date','time','water_temp','ph','potential','do','do_sat','w_co2','conductivity','turb','rdna')
 templateFieldNames[["patch"]] <- c("id_patch","id_location","name")
-
-templateFieldNames[["biogeo_3"]] <- c("id_biogeo_3","id_location","replicate","filename_eem","filename_abs1","filename_abs10",
-                                    "doc","abs254","abs300","suva","e2e3","e4e6","s275295","s350400","s300700",
-                                    "sr","bix","fi","hix","coble_b","coble_t","coble_a","coble_m","coble_c","coble_r")
+# templateFieldNames[["biogeo_3"]] <- c("id_biogeo_3","id_location","replicate","filename_eem","filename_abs1","filename_abs10",
+#                                     "doc","abs254","abs300","suva","e2e3","e4e6","s275295","s350400","s300700",
+#                                     "sr","bix","fi","hix","coble_b","coble_t","coble_a","coble_m","coble_c","coble_r")
 templateFieldNames[["coble"]] <- c("id_biogeo_3","id_location","replicate","coble_b","coble_t","coble_a","coble_m","coble_c","coble_r")
-templateFieldNames[["index"]] <- c("id_biogeo_3","id_location","replicate","bix","fi","hix")
-templateFieldNames[["absorbance"]] <- c("id_biogeo_3","id_location","replicate","abs254","abs300","suva","e2e3","e4e6","s275295","s350400","s300700","sr")
-
+templateFieldNames[["indices"]] <- c("id_biogeo_3","id_location","replicate","abs254","abs300",
+                                        "suva","e2e3","e4e6","s275295","s350400","s300700","sr","bix","fi","hix")
 templateFieldNames[["ion"]] <- c("id_biogeo_1","id_location","replicate","i1_na","i2_k","i3_mg","i4_ca","i5_cl","i6_so4")
 templateFieldNames[["nutrient"]] <- c("id_biogeo_1","id_location","replicate","n1_tn","n2_tp","n3_srp","n4_nh4","n5_no3","n6_no2")
-
-templateFieldNames[["microbial_1"]] <- c('id_microbial_1',"id_patch",'replicate',"eps","wba","sba")
-templateFieldNames[["microbial_2"]] <- c('id_microbial_2',"id_patch",'replicate',"bp","respiration")
-templateFieldNames[["microbial_3"]] <- c('id_microbial_3',"id_patch",'replicate',"chla","ag","ap","bg","lap","nag")
+# templateFieldNames[["microbial_1"]] <- c('id_microbial_1',"id_patch",'replicate',"eps","wba","sba")
+# templateFieldNames[["microbial_2"]] <- c('id_microbial_2',"id_patch",'replicate',"bp","respiration")
+# templateFieldNames[["microbial_3"]] <- c('id_microbial_3',"id_patch",'replicate',"chla","ag","ap","bg","lap","nag")
 templateFieldNames[["enzyme"]] <- c("id_microbial_3","id_patch","replicate","ag","ap","bg","lap","nag")
 templateFieldNames[["chla"]] <- c("id_microbial_3","id_patch","replicate","chla")
 templateFieldNames[["eps"]] <- c("id_microbial_1","id_patch","replicate","eps")
@@ -38,27 +33,20 @@ templateFieldNames[["doc"]] <- c("id_biogeo_3","id_location","replicate","doc")
 
 subCategoriesOfTable <- list()
 subCategoriesOfTable[["glacier"]] <- c('gl_global','gl_point','gl_line','gl_area','gl_invent','gl_source','gl_other')
-subCategoriesOfTable[["biogeo_3"]] <- c("dom","coble","absorbance","index")
+subCategoriesOfTable[["biogeo_3"]] <- c("dom","coble","indices","doc")
 subCategoriesOfTable[["biogeo_1"]] <- c("ion","nutrient")
-
-subCategoriesOfTable[["microbial_1"]] <- c("ba")
-subCategoriesOfTable[["microbial_3"]] <- c("enzyme")
+subCategoriesOfTable[["microbial_1"]] <- c("ba","eps")
+subCategoriesOfTable[["microbial_2"]] <- c("respiration","bp")
+subCategoriesOfTable[["microbial_3"]] <- c("enzyme","chla")
 
 specificFields <- list()
 specificFields[["dom"]] <- c("filename_eem","filename_abs1","filename_abs10")
-# # specificFields[["coble"]] <- c("coble_b","coble_t","coble_a","coble_m","coble_c","coble_r")
-# # specificFields[["absorbance"]] <- c("abs254","abs300","suva","e2e3","e4e6","s275295","s350400","s300700","sr")
-# # specificFields[["index"]] <- c("bix","fi","hix")
-# 
-# specificFields[["ba"]] <- c('wba','sba')
-# specificFields[["enzyme"]] <- c("ag","ap","bg","lap","nag")
 
 # List of mandatory field for each table
 mandatoryFields <- list()
 mandatoryFields[["glacier"]] <- c('id_glacier')
 mandatoryFields[["location"]] <- c('id_location','id_glacier','type')
 mandatoryFields[["patch"]] <- c('id_patch','id_location','name')
-# mandatoryFields[["enzyme"]] <- c('id_enzyme','id_patch','replicate')
 mandatoryFields[["biogeo_3"]] <- c('id_biogeo_3','id_location','replicate')
 mandatoryFields[["biogeo_1"]] <- c('id_biogeo_1','id_location','replicate')
 mandatoryFields[["microbial_1"]] <- c('id_microbial_1','id_patch','replicate')
@@ -69,7 +57,6 @@ mandatoryColumns <- list()
 mandatoryColumns[["glacier"]] <- c(1)
 mandatoryColumns[["location"]] <- c(1,2,3)
 mandatoryColumns[["patch"]] <- c(1,2,3)
-# mandatoryFields[["enzyme"]] <- c('id_enzyme','id_patch','replicate')
 mandatoryColumns[["biogeo_3"]] <- c(1,2,3)
 mandatoryColumns[["biogeo_1"]] <- c(1,2,3)
 mandatoryColumns[["microbial_1"]] <- c(1,2,3)
@@ -89,19 +76,18 @@ fullnameFields[["location"]] <- c('ID','Glacier','Type','Date\n[DD/MM/YYYY]','Ti
                                   'Water Temp\n[\u00B0C]','pH\n[pH]','Potential\n[mV]','Dissolved Oxygen\n[mg l-1]','Dissolved Oxygen\n[saturation]','Water Co2\n[mATM]',
                                   'Conductivity\n[uS cm -1]','Turbidity\n[NTU]','Rock DNA\npresent\n[boolean]')
 fullnameFields[["patch"]] <- c("ID","Location",'name')
-
 fullnameFields[["coble"]] <- c("ID","Location","Replicate","Coble peak B\n[RU]","Coble peak T\n[RU]","Coble peak A\n[RU]","Coble peak M\n[RU]","Coble peak C\n[RU]","Coble peak R\n[RU]")
-fullnameFields[["index"]] <- c("ID","Location","Replicate","Biological index\n[proportion]","Fluorescence index\n[proportion]","Humification index\n[proportion]")
-fullnameFields[["absorbance"]] <- c("ID","Location","Replicate","Absorbance\nat 254nm\n[m-1]","Absorbance\nat 300nm\n[m-1]",
+fullnameFields[["indices"]] <- c("ID","Location","Replicate","Absorbance\nat 254nm\n[m-1]","Absorbance\nat 300nm\n[m-1]",
                                     "Specific UV\nAbsorbance\n[mg C l-1 m-1]","E2:E3\n(Abs 250:365nm)\n[proportion]","E4:E6\n(Abs 465:665nm)\n[proportion]",
                                     "Slope Absorbance\nrange 275-295nm\n[nm-1]","Slope Absorbance\nrange 350-400nm\n[nm-1]",
-                                    "Slope Absorbance\nrange 300-700nm\n[nm-1]","Slope ratio\n(275-295:350-400nm)\n[proportion]")
-
+                                    "Slope Absorbance\nrange 300-700nm\n[nm-1]","Slope ratio\n(275-295:350-400nm)\n[proportion]",
+                                    "Biological index\n[proportion]","Fluorescence index\n[proportion]","Humification index\n[proportion]")
 fullnameFields[["ion"]] <- c("ID","Location","Replicate","Ion 1\nSodium\n[ug l-1]","Ion 2\nPotassium\n[ug l-1]","Ion 3\nMagnesium\n[ug l-1]",
                              "Ion 4\nCalcium\n[ug l-1]","Ion 5\nChloride\n[ug l-1]","Ion 6\nSulfate\n[ug l-1]")
 fullnameFields[["nutrient"]] <- c("ID","Location","Replicate","Nutrients 1\nTotal Nitrogen\n[ug l-1]","Nutrients 2\nTotal Phosphorus\n[ug l-1]",
                                   "Nutrients 3\nSoluble reactive\nphosphorus\n[ug l-1]","Nutrients 4\nAmmonium\n[ug l-1]",
                                   "Nutrients 5\nNitrate\n[ug l-1]","Nutrients 6\nNitrite\n[ug l-1]")
+fullnameFields[["doc"]] <- c("ID","Location","Replicate","Dissolved organic carbon")
 
 fullnameFields[["chla"]] <- c("ID","Patch","Replicate","CHLA\n[ug g-1]")
 fullnameFields[["enzyme"]] <- c("ID","Patch","Replicate","AG\n[nmol g-1 h-1]","AP\n[nmol g-1 h-1]","BG\n[nmol g-1 h-1]","LAP\n[nmol g-1 h-1]","NAG\n[nmol g-1 h-1]")
@@ -129,16 +115,15 @@ isOnlyUP[["biogeo_3"]] <- TRUE
 isOnlyUP[["biogeo_1"]] <- FALSE
 
 nbOfEntryByGlacier <- c("enzyme"=18,"chla"=18,"respiration"=12,"bp"=12,"ba"=6,"eps"=6,"nutrient"=2,"ion"=2,"doc"=3,"dom"=3)
-nbOfEntryByTable <- c("glacier"=1,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=12,"microbial_3"=18,"biogeo_3"=3,"biogeo_1"=1)
-levels <- c("glacier"=1,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=6,"microbial_3"=6,"biogeo_3"=1,"biogeo_1"=1)
+nbOfEntryByTable <- c("glacier"=1,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=12,"microbial_3"=18,"biogeo_3"=6,"biogeo_1"=2)
+levels <- c("glacier"=1,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=6,"microbial_3"=6,"biogeo_3"=2,"biogeo_1"=2)
 # The list of all the data types that can be uploaded from the upload section
 uploadDataTypes <- list("Field metrics"="location","Patch"="patch",
                         `Glaciological metrics` = c("Identification metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source","Other metrics"="gl_other"),
                         `Microbial metrics` = c("Chlorophyll-A"="chla","Extracelullar polymeric substances"="eps","Enzyme"="enzyme","Bacterial production"="bp","Bacterial abundance"="ba","Respiration"="respiration"),
                         `Biogeochemical metrics` = c("Dissolved organic matter"="biogeo_3",
+                                                     "Dissolved organic matter indices"="indices",
                                                      "Dissolved organic carbon"="doc",
-                                                     "Absorbance"="absorbance",
-                                                     "Index" = "index",
                                                      "Coble peak" = "coble",
                                                      "Ions" = "ion",
                                                      "Nutrients"="nutrient"))
@@ -147,18 +132,18 @@ uploadDataTypes <- list("Field metrics"="location","Patch"="patch",
 uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")
 
 
-downloadDataTypes <- list(`Field metrics` = c("Field metrics - All"="location","Date"="date",
+downloadDataTypes <- list(`Field metrics` = c("Field metrics - All"="location-all","Date"="date",
                                               "Time"="time","Water temperature"="water_temp","Ph"="ph",
-                                              "Potential"="potential","DO"="do","do_sat"="do_sat","w_co2"="w_co2",
-                                              "Conductivity"="conductivity","Trubidity"="turb","RDNA"="rdna"),
-                        `Glaciological metrics` = c("Glaciological metrics - All" ="glacio","Identification metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source","Other metrics"="gl_other"),
-                        `Microbial metrics` = c("Microbial metrics - All" ="micro","Chlorophyll-A"="chla","Extracelullar polymeric substances"="eps","Enzyme"="enzyme","Bacterial production"="bp","Bacterial abundance"="ba","Respiration"="respiration"),
-                        `Biogeochemical metrics` = c("Biogeochemical metrics - All" ="biogeo",
-                                                     "Dissolved organic matter"="biogeo_3",
+                                              "Potential"="potential","Dissolved oxygen"="do","Dissolved oxygen saturation"="do_sat","Water CO2"="w_co2",
+                                              "Conductivity"="conductivity","Turbidity"="turb","Rock DNA present"="rdna"),
+                        `Glaciological metrics` = c("Glaciological metrics - All" ="glacio-all","Identification metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source"
+                                                    # ,"Other metrics"="gl_other"
+                                                    ),
+                        `Microbial metrics` = c("Microbial metrics - All" ="micro-all","Chlorophyll-A"="chla","Extracelullar polymeric substances"="eps","Enzymes"="enzyme","Bacterial production"="bp","Bacterial abundance"="ba","Respiration"="respiration"),
+                        `Biogeochemical metrics` = c("Biogeochemical metrics - All" ="biogeo-all",
+                                                     "Dissolved organic matter indices"="indices",
                                                      "Dissolved organic carbon"="doc",
-                                                     "Absorbance"="absorbance",
-                                                     "Index" = "index",
-                                                     "Coble peak" = "coble",
+                                                     "Coble peaks" = "coble",
                                                      "Ions" = "ion",
                                                      "Nutrients"="nutrient"))
 typeList <- function(){

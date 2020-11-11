@@ -49,7 +49,7 @@ downloadDataTabUI <- function(id){
        id = ns('main'),
        hidden(
        verbatimTextOutput(ns('preview'))),
-       downloadButton(ns("downloadFile"),"Download file")
+       hidden(downloadButton(ns("downloadFile"),"Download file"))
        ,
        width=5
        )
@@ -116,7 +116,11 @@ downloadDataTab <- function(input,output,session,pool){
   
   observeEvent(input$add,{
     newType <- isolate(input$type)
+    if(grepl("All", newType, fixed = TRUE))
+      newType <- unlist(unname(list.search(typeList(),newType %in% .)))[-1]
     tmp <- c(selectedTypes(),newType)
+    print(tmp)
+    
     selectedTypes(unique(tmp))
     updateSelectizeInput(session,"selectedTypes",choices = selectedTypes())
   })
@@ -135,6 +139,7 @@ downloadDataTab <- function(input,output,session,pool){
     nbOfGlacier(length(ids()))
     fields(names(df))
     showElement("preview")
+    showElement("downloadFile")
   })
   
   output$downloadFile <- downloadHandler(
@@ -170,10 +175,10 @@ convertFieldNames <- function(fieldstoConvert){
 
 generateDownloadDF <- function(fields,ids,pool){
   tables <- unlist(lapply(fields,getTableNameFromValue))
+  print(tables)
   nbEntries <- max(levels[tables])
   nbRow <- nbEntries*length(ids)
-  
-  
+
   df <- data.frame(matrix(ncol = 0, nrow = nbRow))
   if(nbEntries == 6)
     df[["patch"]] <- unlist(getFieldsFromGlacier(pool,tableName = "patch" ,fields = c("id_patch"),ids = ids))
@@ -186,7 +191,7 @@ generateDownloadDF <- function(fields,ids,pool){
     table <- getTableNameFromValue(field)
     fieldsToRetrieve <- setdiff(getFieldsFromValue(field),mandatoryFields[[table]])
     nbReplicates <- length(tableOptions[[table]][["replicates"]])
-    
+    # print(nbReplicates)
     if(nbReplicates > 1){
       values <-getFieldsWithFKFromGlacier(pool,tablename = table ,fields = fieldsToRetrieve,ids = ids)
       values <- reduce(values,table)
@@ -195,31 +200,64 @@ generateDownloadDF <- function(fields,ids,pool){
     {
       values <-getFieldsFromGlacier(pool,tableName = table ,fields = fieldsToRetrieve,ids = ids)
     }
-    column <- unlist(scale(values,table,nbEntries))
+    print(values)
+    column <- scale(values,table,nbEntries)
 
     if(field=="date")
-      column <- format(as.Date(column),"%d.%m.%Y")
-    df[[field]] <- column
-  }
-  
+      column <- format(as.Date(unlist(column)),"%d.%m.%Y")
 
+    if(is.null(ncol(column))){
+      name <- str_replace_all(convertColnames(field),"\n"," ")
+      df[[name]] <- unlist(column)
+      
+    }
+    else{
+      for(i in 1:ncol(column)){
+        name <- str_replace_all(convertColnames(names(column[i])),"\n"," ")
+        # print(name)
+        print(column[i])
+        df[[name]] <- unlist(column[i])
+      }
+    }
+  }
   print(df)
   return(df)
 }
 
+convertColnames <- function(field){
+  # print(field)
+  category <- getCategoryFromValue(field)
+  index <- which(templateFieldNames[[category]] == field)[[1]]
+  return(fullnameFields[[category]][[index]])
+}
+
 reduce <- function(values,tablename){
+#     tablename <- "biogeo_3"
+#     values <- data.frame(id_location=c(1,2,3,4),doc=c(5,6,7,8),dom=c(8,9,10,11))
     fk <- tableOptions[[tablename]][["FK"]]
     colToSummarise <-names(values %>% select(-all_of(fk)))
+    # colToSummarise <- c(colToSummarise,"dom")
     values <- values %>%                                        
       group_by(.dots=fk) %>%                         
-      summarise_at(vars(colToSummarise),mean) %>%  
-      select(-all_of(fk))
+      summarise_at(vars(colToSummarise),mean,na.rm = TRUE) 
+    values[is.na(values)] <- NA
+    
+    if(!is.null(isOnlyUP[[tablename]]) && isOnlyUP[[tablename]]){
+      values <- values %>% mutate(rownum = row_number()) %>% 
+        bind_rows(., filter(., !is.na(fk)) %>% 
+                    mutate(across(colToSummarise,function(.){NA}), rownum = rownum-.5)) %>% 
+        arrange(rownum) %>%
+        select(-rownum)
+    }
+    values <- values %>%
+        select(-all_of(fk))
+    # print(values)
   return(values)
 }
 
 scale <- function(values,tablename,nbFinalEntries){
-
   nbEntries <- levels[tablename]
+
   factor <- nbFinalEntries / nbEntries
   newdf <- values[rep(row.names(values), each=factor), 1:ncol(values) ]
   newdf <- as.data.frame(newdf)

@@ -26,7 +26,11 @@ install.packages(
            "lambda.r",
            "rlist",
            "formattable",
-           "DataCombine"
+           "DataCombine",
+           "staRdom",
+           "kableExtra"
+           ,
+           "xlsx"
   ),
   repos = 'https://cran.rstudio.com/'
 )

@@ -57,15 +57,31 @@ getReadOnlyRows <- function(dataframe,tablename){
 # return the name of the table
 getTableNameFromValue <- function(value){
   l <- list.search(templateFieldNames,value %in% .)
-  if(length(l) >0)
-    tablename <- names(l)[1]
-  else{
-    l <- list.search(subCategoriesOfTable,value %in% .)
-    if(length(l) >0)
+  if(length(l) >0){
+    # tablename <- names(l)[1]
+    l1 <- list.search(subCategoriesOfTable,names(l)[1] %in% .)
+    if(length(l1) >0)
+      tablename <- names(l1)[1]
+    else
       tablename <- names(l)[1]
+  }
+  else{
+    l1 <- list.search(subCategoriesOfTable,value %in% .)
+    if(length(l1) >0)
+      tablename <- names(l1)[1]
     else
       tablename <- value
   }
+  return(tablename)
+}
+
+getCategoryFromValue <- function(value){
+  l <- list.search(templateFieldNames,value %in% .)
+  if(length(l) >0){
+    tablename <- names(l)[1]
+  }
+  else
+    tablename <- value
   return(tablename)
 }
 
