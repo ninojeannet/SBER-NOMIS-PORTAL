@@ -26,11 +26,12 @@ downloadDataTabUI <- function(id){
       sidebarPanel(
         id = ns('sidebar'),
         div(
-          
+          prettySwitch(ns("multiple"),"Allow multiple parameters selection",value = TRUE,fill = TRUE),
           div(class="inline list",selectInput(ns('type'), 'Type', choices= typeList(), multiple=TRUE, selectize=FALSE)),
           div(class="inline act-btn",div(class="bloc",actionButton(ns("add"),">>")),
               div(class="bloc",actionButton(ns("remove"),"X"))),
-          div(class="inline list",selectInput(ns('selectedTypes'),choices= c(), 'Selected types', multiple=TRUE, selectize=FALSE))
+          hidden(div(id=ns("m"),class="inline list",selectInput(ns('selectedTypes'),choices= c(), 'Selected types', multiple=TRUE, selectize=FALSE))),
+          div(id=ns("o"),class="inline list",textInput(ns('onlyType'), 'Selected type'))
         ),
         div(
           radioButtons(ns("selectRange"), "Choose a selection option :",
@@ -92,6 +93,16 @@ downloadDataTab <- function(input,output,session,pool){
               ids <- strsplit(ids,',')
               ids <- sapply(ids, function(x){paste0("GL",x)})
             })
+  })
+  
+  observeEvent(input$multiple,{
+  #   toggleElement("selectedTypes")
+  #   toggleElement("onlyType")
+    toggle("m")
+    toggle("o")
+    # hideElement("selectedTypes")
+    # showElement("selectedType")
+    
   })
   
   observeEvent(input$selectRange,{
