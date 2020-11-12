@@ -10,13 +10,25 @@
 
 .list {
         width: 40%;
-
+        display: inline-block;
+        vertical-align: top;
 }
 
 .act-btn {
+    display: inline-block;
     padding: 2%;
     margin: auto;
     text-align: center;
+    vertical-align: middle;
+}
+
+.lists > *{
+    vertical-align: middle;
+    line-height: normal;
+}
+
+#download-data-o {
+    vertical-align: top;
 }
 
 #download-data-type {

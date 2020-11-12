@@ -27,11 +27,12 @@ downloadDataTabUI <- function(id){
         id = ns('sidebar'),
         div(
           prettySwitch(ns("multiple"),"Allow multiple parameters selection",value = TRUE,fill = TRUE),
-          div(class="inline list",selectInput(ns('type'), 'Type', choices= typeList(), multiple=TRUE, selectize=FALSE)),
-          div(class="inline act-btn",div(class="bloc",actionButton(ns("add"),">>")),
+          div(class="lists",
+          div(class="list",selectInput(ns('type'), 'Type', choices= typeList(), multiple=TRUE, selectize=FALSE)),
+          div(class="act-btn",div(class="bloc",actionButton(ns("add"),">>")),
               div(class="bloc",actionButton(ns("remove"),"X"))),
-          hidden(div(id=ns("m"),class="inline list",selectInput(ns('selectedTypes'),choices= c(), 'Selected types', multiple=TRUE, selectize=FALSE))),
-          div(id=ns("o"),class="inline list",textInput(ns('onlyType'), 'Selected type'))
+          hidden(div(id=ns("m"),class="list",selectInput(ns('selectedTypes'),choices= c(), 'Selected types', multiple=TRUE, selectize=FALSE))),
+          div(id=ns("o"),class="list",textInput(ns('onlyType'), 'Selected type')))
         ),
         div(
           radioButtons(ns("selectRange"), "Choose a selection option :",
@@ -73,10 +74,13 @@ downloadDataTab <- function(input,output,session,pool){
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectedFields <- reactive(getFieldsFromValue(input$type))
   selectedTypes <- reactiveVal()
+  selectedOnlyType <- reactiveVal()
   
   dfToDownload <- reactiveVal()
   fields <- reactiveVal()
   nbOfGlacier <- reactiveVal()
+  
+  isMultiple <- reactiveVal(FALSE)
   
   ids <- reactive({
     switch (input$selectRange,
@@ -96,12 +100,13 @@ downloadDataTab <- function(input,output,session,pool){
   })
   
   observeEvent(input$multiple,{
-  #   toggleElement("selectedTypes")
-  #   toggleElement("onlyType")
+
+    disable("onlyType")
     toggle("m")
     toggle("o")
-    # hideElement("selectedTypes")
-    # showElement("selectedType")
+    isMultiple(!isMultiple())
+    # selectedTypes()
+    print(isMultiple())
     
   })
   
@@ -129,23 +134,44 @@ downloadDataTab <- function(input,output,session,pool){
     newType <- isolate(input$type)
     if(grepl("All", newType, fixed = TRUE))
       newType <- unlist(unname(list.search(typeList(),newType %in% .)))[-1]
-    tmp <- c(selectedTypes(),newType)
-    print(tmp)
-    
-    selectedTypes(unique(tmp))
-    updateSelectizeInput(session,"selectedTypes",choices = selectedTypes())
+    if(isMultiple()){
+      tmp <- c(selectedTypes(),newType)
+      selectedTypes(unique(tmp))
+      updateSelectizeInput(session,"selectedTypes",choices = selectedTypes())
+    }
+    else{
+      selectedOnlyType(newType[1])
+      updateTextInput(session,"onlyType",value = selectedOnlyType())
+    }
+
   })
   
   observeEvent(input$remove,{
     typesToRemove <- isolate(input$selectedTypes)
-    tmp <- setdiff(selectedTypes(),typesToRemove)
-    selectedTypes(unique(tmp))
-    updateSelectizeInput(session,"selectedTypes",choices = selectedTypes())
+    if(isMultiple()){
+      tmp <- setdiff(selectedTypes(),typesToRemove)
+      selectedTypes(unique(tmp))
+      updateSelectizeInput(session,"selectedTypes",choices = selectedTypes())
+    }
+    else{
+      selectedOnlyType("")
+      updateTextInput(session,"onlyType",value = selectedOnlyType())
+    }
   })
   
   observeEvent(input$generate,{
-    fields <- convertFieldNames(selectedTypes())
-    df <- generateDownloadDF(fields,ids(),pool)
+    if(isMultiple()){
+      fields <- convertFieldNames(selectedTypes())
+      df <- generateMergedDownloadDF(fields,ids(),pool)
+    }
+    else{
+      field <- convertFieldNames(selectedOnlyType())
+      print(field)
+      df <- generateSimpleDownloadDF(field,ids(),pool)
+      print(df)
+      
+    }
+    
     dfToDownload(df)
     nbOfGlacier(length(ids()))
     fields(names(df))
@@ -184,7 +210,20 @@ convertFieldNames <- function(fieldstoConvert){
   return(convertedFields)
 }
 
-generateDownloadDF <- function(fields,ids,pool){
+generateSimpleDownloadDF <- function(field,ids,pool){
+  table <- getTableNameFromValue(field)
+  fields <- unique(c(mandatoryFields[[table]], getFieldsFromValue(field)))
+  df <- getFieldsFromGlacier(pool,table,fields,ids)
+  newnames <- c()
+  for (field in fields) {
+    newName <- str_replace_all(convertColnames(field),"\n"," ")
+    newnames <- c(newnames,newName)
+  }
+  colnames(df) <- newnames
+  return(df)
+}
+
+generateMergedDownloadDF <- function(fields,ids,pool){
   tables <- unlist(lapply(fields,getTableNameFromValue))
   print(tables)
   nbEntries <- max(levels[tables])
@@ -236,8 +275,9 @@ generateDownloadDF <- function(fields,ids,pool){
 }
 
 convertColnames <- function(field){
-  # print(field)
+  print(field)
   category <- getCategoryFromValue(field)
+  print(category)
   index <- which(templateFieldNames[[category]] == field)[[1]]
   return(fullnameFields[[category]][[index]])
 }

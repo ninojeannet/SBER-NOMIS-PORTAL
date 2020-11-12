@@ -49,6 +49,15 @@ getFieldsWithFKFromGlacier <- function(pool,tablename,fields,ids){
   return(getFieldsFromGlacier(pool,tablename,fields,ids))
 }
 
+# getFieldWithMandatoryFromGlacier <- function(pool,tableName,field,ids){
+#   AllFields <- mandatoryFields[[tableName]]
+#   AllFields <- c(AllFields,field)
+#   AllFields <- unique(AllFields)
+#   print(AllFields)
+#   print(tableName)
+#   return(getFieldsFromGlacier(pool,tableName,AllFields,ids))
+# }
+
 # Retrieve specific field from a table in the database for specific glaciers
 # Parameters : 
 # - pool : the connection pool to access the database
@@ -57,9 +66,7 @@ getFieldsWithFKFromGlacier <- function(pool,tablename,fields,ids){
 # - ids : list of ids to retrieve the field from
 # Return the query result as dataframe
 getFieldsFromGlacier <- function(pool,tableName,fields,ids){
-  AllFields <- c()
-  AllFields <- c(AllFields,fields)
-  AllFields <- unique(AllFields)
+
 
   fieldnames <- ""
   for (field in fields) {

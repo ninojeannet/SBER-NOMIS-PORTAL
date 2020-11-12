@@ -78,7 +78,8 @@ getTableNameFromValue <- function(value){
 getCategoryFromValue <- function(value){
   l <- list.search(templateFieldNames,value %in% .)
   if(length(l) >0){
-    tablename <- names(l)[1]
+    tmp <- names(l)
+    tablename <- tmp[[length(tmp)]]
   }
   else
     tablename <- value
