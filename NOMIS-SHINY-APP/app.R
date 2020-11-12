@@ -73,14 +73,6 @@ pool <- dbPool(
     username = username,
     password = password)
 
-# conn <- poolCheckout(pool)
-# # queryStatus <- dbWithTransaction(conn,{
-# #     dataframe <-dbGetQuery(conn,query)
-# # })
-# print(dbQuoteLiteral(conn,1))
-# poolReturn(conn)
-
-
 # Define UI for application that draws a histogram
 ui <- tagList(
     # Load shinyjs
@@ -115,15 +107,15 @@ ui <- tagList(
             tabPanel(
                 # Create a tab title with an icon
                 tags$span(icon('chart-bar'),tags$span('Visualisation', class = 'navbar-menu-name')),
-                # Load the visualisationTab module UI elements
-                #visualisationTabUI('1', grabSampleDf, hfDf, sites, grabSampleParameters, hfParameters)
-            ),
+               ),
+            # Create the upload tab
             tabPanel(
                 # Create a tab title with an icon
                 tags$span(icon('upload'),tags$span('Upload', class = 'navbar-menu-name')),
                 # Load the uploadTab module UI elements
                 uploadTabUI('upload')
             ),
+            # Create the download tab
             tabPanel(
                 # Create a tab title with an icon
                 tags$span(icon('download'),tags$span('Download', class = 'navbar-menu-name')),

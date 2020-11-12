@@ -8,7 +8,7 @@ source('./utils/helper_log.R')
 source('./modules/data_module/data_validation_popup.R')
 
 
-# UI function of the uploadDataTab module
+# UI function of the downloadDataTab module
 # Parameters : 
 # id : id of the module
 downloadDataTabUI <- function(id){
@@ -22,7 +22,6 @@ downloadDataTabUI <- function(id){
         actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary')
       )),
     sidebarLayout(
-      # Create a sidebar with the innerModule first unit input UI elements inside
       sidebarPanel(
         id = ns('sidebar'),
         div(
@@ -55,33 +54,30 @@ downloadDataTabUI <- function(id){
        ,
        width=5
        )
-  )
+    )
   )
 }
 
-
-
-# Server function of the uploadDataTab module
+# Server function of the downloadDataTab module
 # Parameters : 
 # input : input of the shiny app
 # output : output of the shiny app
 # session : session of the shiny app
 # pool : connection pool to access the database
-# dimension : window size
 downloadDataTab <- function(input,output,session,pool){
-  # Create a boolean reactive value that keep track of the sidebar visibility state
-
-  tableName <- reactive(getTableNameFromValue({input$type}))
-  selectedFields <- reactive(getFieldsFromValue(input$type))
+  # Reactive values
   selectedTypes <- reactiveVal()
   selectedOnlyType <- reactiveVal()
-  
   dfToDownload <- reactiveVal()
   fields <- reactiveVal()
   nbOfGlacier <- reactiveVal()
-  
   isMultiple <- reactiveVal(FALSE)
   
+  # Reactive variable
+  tableName <- reactive(getTableNameFromValue({input$type}))
+  selectedFields <- reactive(getFieldsFromValue(input$type))
+  
+  # Reactive variable which contains the list of all chosen glacier's id
   ids <- reactive({
     switch (input$selectRange,
             "simple" = {
@@ -99,17 +95,17 @@ downloadDataTab <- function(input,output,session,pool){
             })
   })
   
+  # ObserveEvent that reacts to "multiple" input update
+  # toggle multiple / single parameters selection
   observeEvent(input$multiple,{
-
     disable("onlyType")
     toggle("m")
     toggle("o")
     isMultiple(!isMultiple())
-    # selectedTypes()
-    print(isMultiple())
-    
   })
   
+  # observeEvent that react to selectrange input's update
+  # Enable / disable html component 
   observeEvent(input$selectRange,{
     switch (input$selectRange,
             "simple" = {
@@ -130,6 +126,8 @@ downloadDataTab <- function(input,output,session,pool){
     )
   })
   
+  # ObserveEvent that reacts to "add" input button
+  # Add selected parameters from params list to the selected parameters input 
   observeEvent(input$add,{
     newType <- isolate(input$type)
     if(grepl("All", newType, fixed = TRUE))
@@ -146,6 +144,8 @@ downloadDataTab <- function(input,output,session,pool){
 
   })
   
+  # ObserveEvent that reacts to "remove" input button
+  # remove selected parameters from selected params list 
   observeEvent(input$remove,{
     typesToRemove <- isolate(input$selectedTypes)
     if(isMultiple()){
@@ -159,6 +159,8 @@ downloadDataTab <- function(input,output,session,pool){
     }
   })
   
+  # ObserveEvent that reacts to the "generate" input button
+  # Generate a file according to the given parameters and glacier ids
   observeEvent(input$generate,{
     if(isMultiple()){
       fields <- convertFieldNames(selectedTypes())
@@ -179,6 +181,7 @@ downloadDataTab <- function(input,output,session,pool){
     showElement("downloadFile")
   })
   
+  # Handler that allow user to download the previously generated file
   output$downloadFile <- downloadHandler(
     filename = function() {
       paste("nomis-",format(Sys.time(), "%Y%m%d-%H%M"),'-db', ".csv", sep = "")
@@ -188,8 +191,8 @@ downloadDataTab <- function(input,output,session,pool){
     }
   )
   
+  # Render a small summary of the generated file
   output$preview <- renderPrint({
-
     isMerged <- TRUE
     cat("# File summary",'\n')
     cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
@@ -200,6 +203,10 @@ downloadDataTab <- function(input,output,session,pool){
   })
 }
 
+# Convert a list of displayed field names to their database names
+# Parameters : 
+# - fieldstoConvert : the list of names to convert
+# Return the converted list
 convertFieldNames <- function(fieldstoConvert){
   convertedFields <- c()
   for (field in fieldstoConvert) {
@@ -210,6 +217,13 @@ convertFieldNames <- function(fieldstoConvert){
   return(convertedFields)
 }
 
+# Generate a dataframe of fields from the same table
+# the dataframe contains detailed value from the database such as replicates
+# Parameters : 
+# - field : the field / category of field to put in the data frame
+# - ids : lists of glaciers ids
+# - pool : the database connection pool
+# Return the generated data frame
 generateSimpleDownloadDF <- function(field,ids,pool){
   table <- getTableNameFromValue(field)
   fields <- unique(c(mandatoryFields[[table]], getFieldsFromValue(field)))
@@ -223,6 +237,13 @@ generateSimpleDownloadDF <- function(field,ids,pool){
   return(df)
 }
 
+# Generate a dataframe which can contains fields from any table.
+# The function merge, reduce and scale data to obtains one only data frame containing all the desired parameters
+# Parameters : 
+# - fields : list of the selected fields. Those fields will be in the dataframe
+# - ids : Lists of selecteed glacier ids
+# - pool : The database connection pool
+# Return the generated data frame
 generateMergedDownloadDF <- function(fields,ids,pool){
   tables <- unlist(lapply(fields,getTableNameFromValue))
   print(tables)
@@ -241,7 +262,7 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     table <- getTableNameFromValue(field)
     fieldsToRetrieve <- setdiff(getFieldsFromValue(field),mandatoryFields[[table]])
     nbReplicates <- length(tableOptions[[table]][["replicates"]])
-    # print(nbReplicates)
+
     if(nbReplicates > 1){
       values <-getFieldsWithFKFromGlacier(pool,tablename = table ,fields = fieldsToRetrieve,ids = ids)
       values <- reduce(values,table)
@@ -264,7 +285,6 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     else{
       for(i in 1:ncol(column)){
         name <- str_replace_all(convertColnames(names(column[i])),"\n"," ")
-        # print(name)
         print(column[i])
         df[[name]] <- unlist(column[i])
       }
@@ -274,6 +294,10 @@ generateMergedDownloadDF <- function(fields,ids,pool){
   return(df)
 }
 
+# Get the display name of the given field
+# Parameter :
+# - field : field to convert 
+# Return the converted name
 convertColnames <- function(field){
   print(field)
   category <- getCategoryFromValue(field)
@@ -282,12 +306,16 @@ convertColnames <- function(field){
   return(fullnameFields[[category]][[index]])
 }
 
+# This function merges all the replicate of a parameters to eliminate the replicates 
+# and replace it with an average value.
+# Parameters : 
+# - values : the data frame to reduce 
+# - tablename : the table name of the input values
+# Return the reduced data frame
 reduce <- function(values,tablename){
-#     tablename <- "biogeo_3"
-#     values <- data.frame(id_location=c(1,2,3,4),doc=c(5,6,7,8),dom=c(8,9,10,11))
+  
     fk <- tableOptions[[tablename]][["FK"]]
     colToSummarise <-names(values %>% select(-all_of(fk)))
-    # colToSummarise <- c(colToSummarise,"dom")
     values <- values %>%                                        
       group_by(.dots=fk) %>%                         
       summarise_at(vars(colToSummarise),mean,na.rm = TRUE) 
@@ -302,13 +330,18 @@ reduce <- function(values,tablename){
     }
     values <- values %>%
         select(-all_of(fk))
-    # print(values)
   return(values)
 }
 
+# This function scale the given data frame to the desired final size.
+# It duplicates all values to have a data frame of the right size
+# Parameters :
+# - values : the data frame to scale
+# - tablename : the table name of the data frame 
+# - nbFinalEntries : the final number of entries to have per glacier
+# Returned the scaled data frame
 scale <- function(values,tablename,nbFinalEntries){
   nbEntries <- levels[tablename]
-
   factor <- nbFinalEntries / nbEntries
   newdf <- values[rep(row.names(values), each=factor), 1:ncol(values) ]
   newdf <- as.data.frame(newdf)

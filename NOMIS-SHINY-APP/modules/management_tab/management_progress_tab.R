@@ -1,8 +1,10 @@
 source('./utils/helper_expedition.R')
 
+# UI side of the managementProgressTab module
+# Parameters:
+#  - id: String, the module id
 managementProgressTabUI <- function(id) {
-  # Parameters:
-  #  - id: String, the module id
+
   ns <- NS(id)
   div(
     div(
@@ -16,20 +18,30 @@ managementProgressTabUI <- function(id) {
   )
 }
 
+# Server side of the managementProgressTab module
+# Parameters : 
+# input : input of the shiny app
+# output : output of the shiny app
+# session : session of the shiny app
+# pool : connection pool to access the database
 managementProgressTab <- function(input, output, session,pool){
+  # Reactive value
   rangeList <- reactiveVal(list())
+  dfFormatted <- reactiveVal(buildProgressTable(pool))
   
+  # Reactive variable
   df <- reactive({
     dataframe <- getProgressTable(pool)
   })
   
-  dfFormatted <- reactiveVal(buildProgressTable(pool))
-
+  # Render the data table of the overall project progress
   output$progress_table <- renderFormattable({
     dff <- dfFormatted()
     formattable(dff,align =c(rep("c",ncol(dff))), list(area(col = 1:ncol(dff)) ~ color_tile_valid()))
   })
   
+  # ObserveEvent that reacts to the refresh button click
+  # Refresh the data table progress by fetching the database
   observeEvent(input$refresh,{
     dataframe <- df()
     rangeList(setRanges(dataframe))
@@ -52,7 +64,7 @@ managementProgressTab <- function(input, output, session,pool){
   })
 }
 
-
+# Function that color cell according to cell content
 color_tile_valid <- function (...) {
   formatter("span", style = function(x) {
     style( padding = "0 4px", 
@@ -60,7 +72,8 @@ color_tile_valid <- function (...) {
           `background-color` = ifelse(param_validator(x), "lightgreen", "white"))
   })}
 
-
+# Validator that checks if the cell should be colored or not
+# Retunr boolean
 param_validator <- function(list){
   result <- vector()
   for (x in list) {
@@ -77,15 +90,17 @@ param_validator <- function(list){
   return(result)
 }
 
+# create and return a list of ranges from the given data frame
+# PArameters : 
+# - dataframe : the data frame from which create the list
+# Return the list of ranges
 setRanges <- function(dataframe){
   
   tmp <- list()
-  
   for (i in 1:nrow(dataframe)) {
     row <- dataframe[i,]
     abr <- row[["abreviation"]]
     tmp[[abr]] <- append(tmp[[abr]],list(c(row[["min"]],row[["max"]]))) 
   }
-  # print(ranges)
   return(tmp)
 }

@@ -14,7 +14,6 @@ source('./modules/data_module/data_validation_popup.R')
 manageDataTabUI <- function(id){
   ns <- NS(id)
   
-    # div(class="btn-menu",actionButton(ns('toggleSidebar'), 'Hide inputs', class = 'custom-style')),
   div(
     div(
       class= 'main-inputs',
@@ -24,7 +23,6 @@ manageDataTabUI <- function(id){
       )),
       # Create the sidebarLayout
       sidebarLayout(
-        # Create a sidebar with the innerModule first unit input UI elements inside
         sidebarPanel(
           id = ns('sidebar'),
           div(
@@ -42,7 +40,7 @@ manageDataTabUI <- function(id){
           ),
           width = 3
         ),
-        # Create the main panel with the innerModule first unit plot UI elements inside
+        # Create the main panel
         mainPanel(
           id = ns('main'),
           div(
@@ -61,10 +59,7 @@ manageDataTabUI <- function(id){
         )
       )
     )
-  
 }
-
-
 
 # Server function of the uploadDataTab module
 # Parameters : 
@@ -73,12 +68,14 @@ manageDataTabUI <- function(id){
 # session : session of the shiny app
 # pool : connection pool to access the database
 # dimension : window size
+# isUploadOnly : boolean indicating if this module is for upload only or not
 manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
-  # Create a boolean reactive value that keep track of the sidebar visibility state
+  # Reactive value
   sidebarVisible <- reactiveVal(TRUE)
   updatedRows <- reactiveVal(vector())
   isFileUpload <- reactiveVal(FALSE)
   
+  # Reactive variable
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectedFields <- reactive(getFieldsFromValue(input$type))
   selectType <- reactive({input$selectRange})
@@ -86,6 +83,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   existingFiles <- reactive({getExistingFilenamesInDB(pool,tableName(),input$domtype,ids())})
   tablesFile <- reactive({generateFileTables(filenames(),input$files,existingFiles(),isUploadOnly)})
   
+  # Reactive variable which contains the dataframe to display
   dataf <- reactive({
     if(input$type %in% tableList)
       tmp <- getTableFromGlacier(pool,tableName(),ids())
@@ -94,6 +92,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     return(generateFilledDF(tmp,tableName(),ids()))
   })
   
+  # Reactive variable which contains the list of all chosen glacier's id
   ids <- reactive({
     switch (input$selectRange,
             "simple" = {
@@ -111,6 +110,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
             })
   })
   
+  # observeEvent that react to selectrange input's update
+  # Enable / disable html component 
   observeEvent(input$selectRange,{
     switch (input$selectRange,
             "simple" = {
@@ -131,6 +132,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     )
   })
   
+  # observeEvent that react to generate input's update
+  # Generate and render the data table 
   observeEvent(input$generate,{
     print(tableName())
     output$table <- renderRHandsontable({
@@ -147,6 +150,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     showElement("table")
   })
   
+  # observeEvent that react to type input's update
+  # Hide / show html elements
   observeEvent(input$type,{
     if (input$type == "biogeo" & input$domtype %in% c("eem","abs1","abs10")){
       isFileUpload(TRUE)
@@ -167,6 +172,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     }
   })
   
+  # observeEvent that react to files input's update
+  # Generate and render lists of files (valid, missing, wrong, existing)
   observeEvent(input$files,{
     showElement("uploadFiles")
     showElement("title")
@@ -192,6 +199,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       disable("uploadFiles")
   })
   
+  # observeEvent that react to upload button click
+  # Save the data table in the database
   observeEvent(input$upload,{
     out <- hot_to_r(input$table)
     if(!isUploadOnly)
@@ -200,6 +209,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       uploadData(out,isolate(tableName()),isolate(input$type),pool)
   })
   
+  # observeEvent that react to uplooadFiles button click
+  # save valid files on the server
   observeEvent(input$uploadFiles,{
     validFilename <- tablesFile()[["valid"]]
     validFiles <- input$files[input$files$name %in% validFilename,]
@@ -209,6 +220,9 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       processFiles(validFilename,validFiles,tableName(),input$domtype,pool)
   })
   
+  # observeEvent that react to submit button click
+  # submit button is located in the validation popup window
+  # Save updated data once validated
   observeEvent(input$submit, priority = 20,{
     if(isFileUpload()){
       validFilename <- tablesFile()[["valid"]]
@@ -224,6 +238,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     removeModal()
   })
   
+  # observeEvent that react to each update on the data table
+  # Keep tracks of each updated rows
   observeEvent(input$table$changes$changes,{
     for (cell in input$table$changes$changes) {
       if(!identical(cell[[3]],cell[[4]]))
@@ -234,10 +250,6 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       }
     }
   })
-  
-  # observeEvent(input$toggleSidebar,{
-  #   toggle("sidebar")
-  # })
   
   # Create an observeEvent that react to the help button
   observeEvent(input$help, {
@@ -265,6 +277,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
 # Parameters : 
 # - df : the dataframe to save
 # - tablename : the name of the table
+# - listName : the name of the list to display in the table
 # - pool : the database connection pool
 uploadData <- function(df,tablename,listName,pool){
   out <- setDefaultColumnName(df,listName)

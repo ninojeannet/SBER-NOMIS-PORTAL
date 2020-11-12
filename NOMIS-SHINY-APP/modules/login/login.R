@@ -2,13 +2,12 @@
 
 ## Create module UI ###############################################################
 
+# Create the UI for the login module
+# Parameters:
+#  - id: String, the module id
+# 
+# Returns a div containing the layout
 loginUI <- function(id) {
-  # Create the UI for the login module
-  # Parameters:
-  #  - id: String, the module id
-  # 
-  # Returns a div containing the layout
-  
   # Create namespace
   ns <- NS(id)
   
@@ -25,18 +24,15 @@ loginUI <- function(id) {
   )
 }
 
-
-
 ## Create module server function ##################################################
 
+# Create the logic for the login module
+# Parameters:
+#  - input, output, session: Default needed parameters to create a module
+#  - pool: The pool connection to the database
+# 
+# Returns the reactive values containing the user info
 login <- function(input, output, session, pool) {
-  # Create the logic for the login module
-  # Parameters:
-  #  - input, output, session: Default needed parameters to create a module
-  #  - pool: The pool connection to the database
-  # 
-  # Returns the reactive values containing the user info
-  
   ## Default User creation #########################################################
   
   # Create a some reactive values linked to the login status
@@ -46,9 +42,6 @@ login <- function(input, output, session, pool) {
     role = 'visitor',
     error = ''
   )
-  
-  
-  
   
   ## Login modal form #############################################################
   
@@ -70,9 +63,6 @@ login <- function(input, output, session, pool) {
     )
   )
   
-  
-  
-  
   ## Login modal display ##########################################################
   
   # Create observeEvent that react to the showLoginForm button
@@ -80,9 +70,6 @@ login <- function(input, output, session, pool) {
     req(user$loggedin == FALSE)
     showModal(loginForm)
   })
-  
-  
-  
   
   
   ## Login logic ##################################################################
@@ -116,9 +103,7 @@ login <- function(input, output, session, pool) {
     user$error <- 'Incorrect username / password combination!'
   })
   
-  
-  
-  
+
   ## Closing login modal logic ####################################################
   
   # Create an observeEvent that react to the cancel button
@@ -131,8 +116,6 @@ login <- function(input, output, session, pool) {
   })
   
   
-  
-  
   ## Error display logic ##########################################################
   
   # Render the error with validate in a renderText
@@ -140,8 +123,7 @@ login <- function(input, output, session, pool) {
     errorClass = 'form',
     need(FALSE, message = user$error)
   ))
-  
-  
+
   
   ## Log In Status logic ##########################################################
   
@@ -165,8 +147,7 @@ login <- function(input, output, session, pool) {
     }
   })
   
-  
-  
+
   ## Log out logic ################################################################
   
   # Create an observeEvent that react to the logout button
@@ -175,9 +156,6 @@ login <- function(input, output, session, pool) {
     # Refresh browser
     session$reload()
   })
-  
-  
-  
   
   ## Module return value ##########################################################
   

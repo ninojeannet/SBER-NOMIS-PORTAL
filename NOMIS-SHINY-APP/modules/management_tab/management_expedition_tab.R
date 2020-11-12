@@ -1,13 +1,11 @@
 
 ## Create module UI ###############################################################
 
+# Create the UI for the managementExpeditionTab module
+# Parameters:
+#  - id: String, the module id
+# 
 managementExpeditionTabUI <- function(id) {
-  # Create the UI for the managementExpeditionTab module
-  # Parameters:
-  #  - id: String, the module id
-  # 
-  # Returns a tagList with the layout
-  
   # Create namespace
   ns <- NS(id)
   
@@ -24,14 +22,14 @@ managementExpeditionTabUI <- function(id) {
 
 ## Create module server function ##################################################
 
+# Create the logic for the usersTab module
+# Parameters:
+#  - input, output, session: Default needed parameters to create a module
+#  - pool: The pool connection to the database
+# 
+# Returns NULL
 managementExpeditionTab <- function(input, output, session, pool) {
-  # Create the logic for the usersTab module
-  # Parameters:
-  #  - input, output, session: Default needed parameters to create a module
-  #  - pool: The pool connection to the database
-  # 
-  # Returns NULL
-  
+
   # Call editableDT module
   callModule(editableDT, 'expedition', pool = pool, tableName = 'expedition', element = 'expedition',
              tableLoading = expression(

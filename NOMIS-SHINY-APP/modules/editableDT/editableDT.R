@@ -2,13 +2,13 @@
 
 ## Create module UI ###############################################################
 
+# Create the UI for the login module
+# Parameters:
+#  - id: String, the module id
+# 
+# Returns a div containing the layout
 editableDTUI<- function(id) {
-  # Create the UI for the login module
-  # Parameters:
-  #  - id: String, the module id
-  # 
-  # Returns a div containing the layout
-  
+
   # Create namespace
   ns <- NS(id)
   
@@ -29,10 +29,6 @@ editableDTUI<- function(id) {
 
 
 ## Create module server function ##################################################
-
-editableDT <- function(input, output, session, pool, tableName, element,
-                       tableLoading, templateInputsCreate, templateInputsEdit,
-                       creationExpr, updateExpr, deleteExpr,validatorCreateFunction,validatorUpdateFunction,extraValidatorFunction=NULL, outputTableExpr = NULL) {
 # Create the logic for the editableDT module
 # Parameters:
 #  - input, output, session: Default needed parameters to create a module
@@ -54,10 +50,18 @@ editableDT <- function(input, output, session, pool, tableName, element,
 #                  You can use the editedRow() reactive value that return a df containing the row being edited with all the previous values and id.
 #  - deleteExpr: Expression, the expression to run in order to delete rows from the SQL database
 #                You can use the 'selectedRowIds' symbol in your expression which is the a numeric vector of the selected row ids.
+#  - validatorCreateFunction :  Function, return a validator for the create modal form.
+#  - validatorUpdateFunction : Function, return a validator for the update modal form.
+#  - extraValidatorFunction : Function, return an extra validator for any modal form. Not Mandatory
 #  - outputTableExpr: Expression, the expression to run in order to apply modification to the df before create the datatable
 #                     You can use the 'loadedTable' symbol in your expression which is the loaded df.
 # 
 # Returns NULL
+editableDT <- function(input, output, session, pool, tableName, element,
+                       tableLoading, templateInputsCreate, templateInputsEdit,
+                       creationExpr, updateExpr, deleteExpr,validatorCreateFunction,
+                       validatorUpdateFunction,extraValidatorFunction=NULL, outputTableExpr = NULL) {
+
   
   ## Table loading ################################################################
   
@@ -111,8 +115,6 @@ editableDT <- function(input, output, session, pool, tableName, element,
   
   # Create an observeEvent that react to the modal cancel button
   observeEvent(input$cancel, ignoreInit = TRUE, {
-    # Clear error
-    # modalError('')
     
     # Close modal
     removeModal()
@@ -121,41 +123,20 @@ editableDT <- function(input, output, session, pool, tableName, element,
   
   # Create a function that display the creation and edition errors and remove the modal if none
   handleModalResult <- function(error, type) {
-    # Save error
-    # If there is no error, remove the modal and reload the table
-    # if (!is.atomic(error)) {
-    print(error)
-      # modalError('')
-      removeModal()
-      reloadTable(reloadTable() + 1)
-      showNotification(paste0('Row successfully ', type, 'ed!'), type = 'message')
-    # }
-    # else
-    #   modalError('Error')
-    
-    # Render the error, if any
-    # output$form_error <- renderText(shiny::validate(
-    #   errorClass = 'form',
-    #   need(FALSE, message = modalError())
-    # ))
+    removeModal()
+    reloadTable(reloadTable() + 1)
+    showNotification(paste0('Row successfully ', type, 'ed!'), type = 'message')
   }
-  
-  
-  
-  
   
   ## Element creation #############################################################
   
   # Create an observe event that react to both create buttons
   observeEvent(input$create_top, ignoreInit = TRUE, {
     req(input$create_top != 0)
-    
     # Create an empty table with the same format as the loaded one
     inputsTemplate <- loadTable() %>% head(0)
-    
     # Rune the 'templateInputsCreate' expression to get the df template
     inputsTemplate <- eval(templateInputsCreate)
-    
     # Show element creation modal
     showInputsModal(
       type = 'create',
@@ -165,8 +146,6 @@ editableDT <- function(input, output, session, pool, tableName, element,
       inputsTemplate = inputsTemplate
     )
   })
-  
-  
   
   iv_create <- validatorCreateFunction()
   if(is.function(extraValidatorFunction))
@@ -182,9 +161,7 @@ editableDT <- function(input, output, session, pool, tableName, element,
     else{
       iv_create$enable()
     }
-    
   })
-  
   
   ## Element editing #################################################################
   
@@ -206,17 +183,13 @@ editableDT <- function(input, output, session, pool, tableName, element,
     } else {
       # Get the selected row
       selectedRow <- loadTable()[input$table_rows_selected,]
-      
       # Run the 'templateInputsEdit' expression to get the df template
       selectedRow <- eval(templateInputsEdit)
-      
       # Store the edited row
       editedRow(selectedRow)
-      
       id <- paste0("id_",tableName)
       # Remove the id
       selectedRow[[id]] <- NULL
-      
       # Show element edition modal
       showInputsModal(
         type = 'edit',
@@ -243,9 +216,6 @@ editableDT <- function(input, output, session, pool, tableName, element,
     }
   })
   
-  
-  
-  
   ## Element deletion #############################################################
   
   # Create an observeEvent that react to both delete buttons
@@ -254,35 +224,21 @@ editableDT <- function(input, output, session, pool, tableName, element,
     confirmationModal('You are about to permanently delete rows from this table. Please confirm your action.')
   })
   
-  
   # Create an observeEvent linked to the YES button of the confirmation modal
   observeEvent(input$YES, ignoreInit = TRUE, {
     # Remove confirmation modal
     removeModal()
-    
     # If rows are selected
     if (length(input$table_rows_selected) > 0) {
       # Get the selected row ids
-      # print(loadTable()[input$table_rows_selected,])
-      
       id <- paste0("id_",tableName)
       selectedRowIds <- loadTable()[input$table_rows_selected,][[id]]
       # Run the element deletion expression and retrieve the output message
       error <- eval(deleteExpr)
-      
-      # # Show success or error notification
-      # if (!is.atomic(error)) {
-      #   showNotification('Rows successfully deleted!', type = 'message')
-      # } else {
-      #   showNotification(paste('The following error(s) occured:', error, sep = '\n'))
-      # }
-      
       # Reload table
       reloadTable(reloadTable() + 1)
     }
   })
-  
-  
   
   ## Table rendering ##############################################################
   
@@ -302,11 +258,14 @@ editableDT <- function(input, output, session, pool, tableName, element,
   })
   
   rangeVector <- reactiveVal(vector())
-  
+  # ObserveEvent that react to the ranges input update.
+  # Store the updated ranges in rangevector reactValue
   observeEvent(input$ranges,{
     rangeVector(input$ranges)
   },ignoreNULL  = FALSE)
   
+  # ObserveEvent that react to the add input button click.
+  # Add the given range to the ranges input
   observeEvent(input$add,{
     newRange <- isolate(input$range)
     tmp <- c(rangeVector(),paste0(newRange[1]," - ",newRange[2]))

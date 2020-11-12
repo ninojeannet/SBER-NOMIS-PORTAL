@@ -1,4 +1,9 @@
 
+# Validation popup function
+# Create  a modal to validate the update in the database
+# Parameters : 
+# - button_id : the id of the submit button
+# - text_id : the id of the textouput which displays updated rows
 validation_popup <- function(button_id,text_id){
   
   showModal(
@@ -19,6 +24,14 @@ validation_popup <- function(button_id,text_id){
     )
 }
 
+# Show validation popup
+# Parameters : 
+# - tablename : name of the selected table
+# - updatedValues : list of updated values from the data table
+# - output : output variable to access shiny elements
+# - ns : current namespace
+# - isFileUpload :  boolean indicating if it's file or data upload
+# - out : not mandatory. The data table to retrieve the updated  values from
 show_validation_popup <- function(tablename,updatedValues,output,ns,isFileUpload,out=NULL){
   if (isFileUpload){
     l <- updatedValues
