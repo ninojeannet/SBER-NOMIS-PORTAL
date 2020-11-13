@@ -75,6 +75,11 @@ getTableNameFromValue <- function(value){
   return(tablename)
 }
 
+# Return the category containing a given field
+# Check in the config file the category
+# Parameters :
+# - value : name of the field to find its category for
+# return the category
 getCategoryFromValue <- function(value){
   l <- list.search(templateFieldNames,value %in% .)
   if(length(l) >0){
@@ -86,12 +91,16 @@ getCategoryFromValue <- function(value){
   return(tablename)
 }
 
+# Return the fields from a given value
+# Check in the config file 
+# Parameters :
+# - value : nvalue to find fields for
+# return the fields
 getFieldsFromValue <- function(value){
   
   if (value %in% names(templateFieldNames))
   {
     return(templateFieldNames[[value]])
-    
   }
   else{
     if(value %in% names(specificFields))
@@ -99,7 +108,6 @@ getFieldsFromValue <- function(value){
     else
       return(value)
     }
-  
 }
 
 # Generate an handsonTable according to the given table

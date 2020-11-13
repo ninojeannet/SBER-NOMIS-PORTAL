@@ -1,13 +1,12 @@
 ## Regroup all helpers R functions
 
-getStats <- function(columnData, columnName) {
 # Function that create a data frame of one column with some summary statistics of a given data
 # Parameters:
 #  - columnData: Vector, data of a given column to get stats from
 #  - columnName: String, the name of the data column
 # 
 # Returns a one column data frame containing the statistics values
-  
+getStats <- function(columnData, columnName) {
   # Create an empty data.frame with adequate row names
   newColumn <- data.frame(row.names = c(
     'Time Points',
@@ -35,8 +34,6 @@ getStats <- function(columnData, columnName) {
 }
 
 
-
-createStatsTable <- function(df) {
 # Function that create a data frame of multiple column with some summary statistics of a given data
 # Parameters:
 #  - df: Data.frame, data to get stats from, must have the following columns:
@@ -44,7 +41,8 @@ createStatsTable <- function(df) {
 #        + value: Numeric, the data values to summarise
 # 
 # Returns a data frame containing the statistics values for each parameter as a column
-  
+createStatsTable <- function(df) {
+
   # Create a vector with the parameter data column name references
   columns <- df$parameter %>% unique()
   
@@ -70,8 +68,6 @@ createStatsTable <- function(df) {
 }
 
 
-
-parseOptionsWithSections <- function(optionsInfo, valueColumn, sectionColumn = 'section_name', optionColumn = 'option_name') {
 # Function to parse options for select input with section
 # Parameters:
 #  - optionsInfo: Data.frame, containing the info to create the select input options. Columns format:
@@ -84,7 +80,8 @@ parseOptionsWithSections <- function(optionsInfo, valueColumn, sectionColumn = '
 #  - optionColumn: String, name of the column containing the options names, default 'option_name'
 # 
 # Returns a named list of named lists to be used as choices parameter for shiny selectInput()
-  
+parseOptionsWithSections <- function(optionsInfo, valueColumn, sectionColumn = 'section_name', optionColumn = 'option_name') {
+
   # Create an empty list
   optionsList <- list()
   
@@ -109,8 +106,6 @@ parseOptionsWithSections <- function(optionsInfo, valueColumn, sectionColumn = '
 }
 
 
-
-parseOptions <- function(optionsInfo, optionsColumn) {
 # Function that create a simple options list for select input
 # Parameters:
 #  - optionsInfo: Data.frame, containing the info to create the select input options. Columns format:
@@ -119,6 +114,8 @@ parseOptions <- function(optionsInfo, optionsColumn) {
 #  - optionsColumn: String, name of the column containing the options value (and name)
 # 
 # Returns a named list to be used as choices parameter for shiny selectInput()
+parseOptions <- function(optionsInfo, optionsColumn) {
+
   return(
     optionsInfo[[optionsColumn]] %>% unique()
   )
@@ -126,8 +123,6 @@ parseOptions <- function(optionsInfo, optionsColumn) {
 
 
 
-
-lm_eqn <- function(df, x, y){
 # Function that compute the linear regression equation and r2 of a given dataset and variables
 # Parameters:
 #  - df: Data.frame, the data to perform the linear regression with
@@ -135,6 +130,7 @@ lm_eqn <- function(df, x, y){
 #  - y: String, the column containing the y values
 # 
 # Returns a sgtring containg the formated linear regression equation and r2
+lm_eqn <- function(df, x, y){
   
   # If either x or y contains only NAs return an empty string
   if (all(is.na(pull(df, all_of(x)))) | all(is.na(pull(df, all_of(y))))) return('')
@@ -151,8 +147,6 @@ lm_eqn <- function(df, x, y){
 }
 
 
-
-js_parser <- function(inputDir = 'assets/js', outputDir = 'www', wd = getwd()) {
 # Parse and combine all JavaScript files present referenced in the assets/js/manifest.json file
 # Minify it and saves it in the www/ folder as metalpdataportal.js
 # Parameters:
@@ -161,6 +155,7 @@ js_parser <- function(inputDir = 'assets/js', outputDir = 'www', wd = getwd()) {
 #  - wd: String, the the full path to the working directory, default: getwd()
 # 
 # Returns NULL
+js_parser <- function(inputDir = 'assets/js', outputDir = 'www', wd = getwd()) {
   
   # Create full path using the wd
   inputDir <- file.path(wd, inputDir)
@@ -193,13 +188,12 @@ js_parser <- function(inputDir = 'assets/js', outputDir = 'www', wd = getwd()) {
 }
 
 
-
-isValidEmail <- function(x) {
 # Check if string is valid email format
 # Parameters:
 #  - x: String, email to verify
 # 
 # Return a boolean value
+isValidEmail <- function(x) {
   
   grepl("\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>", as.character(x), ignore.case=TRUE)
 }

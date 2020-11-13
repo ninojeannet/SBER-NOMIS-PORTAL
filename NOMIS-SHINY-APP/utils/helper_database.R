@@ -1,6 +1,10 @@
 source('./utils/template_config.R')
 
-
+# Retrieve the progress table from the database
+# The query retrieve data from expedition and glacier_range table
+# Parameter :
+# - pool : the connection pool to access the database
+# Return the result of the query
 getProgressTable <- function(pool){
   query <- "SELECT a.*,b.min,b.max
   FROM expedition as a,glacier_range as b 
@@ -13,7 +17,6 @@ getProgressTable <- function(pool){
 # pool : the connection pool to access the database
 # tablename : the name of the table to query in the database
 # ids : list of glacier's id to query the data from
-# isRange : specify if there is multiple glacier to query
 # Return the query result as dataframe
 getTableFromGlacier <- function(pool,tableName,ids){
   pk <- tableOptions[[tableName]][["primary"]]
@@ -34,12 +37,17 @@ getTableFromGlacier <- function(pool,tableName,ids){
     }
   }
   query <- substr(query,1,nchar(query)-4)
-
   dataframe <- sendQuery(query,pool,FALSE)
-  
   return(dataframe)
 }
 
+# Retrieve specifics fields and their Foreign Key for one table 
+# Parameters :
+# pool : the connection pool to access the database
+# tablename : the name of the table to query in the database
+# Fields : List of field from the same table to query
+# ids : list of glacier's id to query the data from
+# Return the query result as dataframe
 getFieldsWithFKFromGlacier <- function(pool,tablename,fields,ids){
   if(tableOptions[[tablename]][["FK"]] != "")
   {
@@ -57,8 +65,6 @@ getFieldsWithFKFromGlacier <- function(pool,tablename,fields,ids){
 # - ids : list of ids to retrieve the field from
 # Return the query result as dataframe
 getFieldsFromGlacier <- function(pool,tableName,fields,ids){
-
-
   fieldnames <- ""
   for (field in fields) {
     fieldnames <- paste0(fieldnames,field,",")
@@ -80,11 +86,8 @@ getFieldsFromGlacier <- function(pool,tableName,fields,ids){
       query <- paste0(query," OR ")
     }
   }
-  
   query <- substr(query,1,nchar(query)-4)
-  # print(query)
   dataframe <- sendQuery(query,pool,FALSE)
-  # 
   return(dataframe)
 }
 
@@ -109,9 +112,7 @@ saveData <- function(data,tableName,pool){
 # return the query result
 sendQuery <- function(query,pool,flag){
   check <- tryCatch({
-    # print(query)
     dataframe <-dbGetQuery(pool,query)
-    
     if(flag)
       showNotification("Data successfully inserted into database",type = "message")
     return(dataframe)
@@ -130,11 +131,11 @@ sendQuery <- function(query,pool,flag){
   return(FALSE)
 }
 
-
 # Build an insert sql query
 # Params :
 # - data : dataframe of data to insert into the database
 # - tableName : name of the table in which the data will be inserted
+# - pool : the database connection pool
 # Return the built request in a string
 buildInsertQuery <- function(data,tableName,pool){
   request <- paste0(c('INSERT INTO ',tableName,' ('))
@@ -190,9 +191,6 @@ saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool
   sendQuery(query,pool,FALSE)
 }
 
-
-
-
 # Save a new expedition row in the database
 # Parameters :
 # - name : name of the expedition
@@ -221,7 +219,15 @@ saveRangeInDB <- function(exp_name,min,max,pool)
   sendQuery(query,pool,FALSE)
 }
 
-
+# Return the number of complete entry for specific glaciers id in a table.
+# An entry is considered complete if each of the specified fields are not null
+# Parameters : 
+# - table : name of the table to query
+# - fields : List of fields to check the values from
+# - ids : list of glacier ids to retrieve the data from
+# - nbOfEntry : the number of entry per Glacier that should be complete to consider the glacier done for those fields
+# - pool : the database connection pool
+# Return the number of complete entry for specific glaciers in a table.
 getNbOfNotNULLEntries <- function(table,fields,ids,nbOfEntry,pool){
   result <- 0
   for (id in ids) {
@@ -230,10 +236,16 @@ getNbOfNotNULLEntries <- function(table,fields,ids,nbOfEntry,pool){
     result <- result + nb 
     
   }
-  # print(result)
   return(result)
 }
 
+# Build a count query that count the number of non-null entry according to sepcific fields for one glacier
+# Parameters :
+# - table : name of the table to query
+# - fields : List of fields to check the values from
+# - id : id of the glacier to query
+# - nbOfEntry : number of entry that should be complete to consider the glacier done.
+# Return 1 if all the entries are complete for the given fields and a given glacier. Else return 0
 buildCountQuery <- function(table,fields,id,nbOfEntry){
   query <- 'SELECT if( COUNT(  IF('
   for (field in fields) {
@@ -267,8 +279,6 @@ loginUser <- function(pool, username) {
   pool %>% tbl('user') %>% filter(name == username, active == 1) %>% select(name, password, role) %>% head(1) %>% collect()
 }
 
-
-
 # Get all users
 getUsers <- function(pool, columns = NULL) {
   # Initiate query with users table
@@ -284,8 +294,6 @@ getUsers <- function(pool, columns = NULL) {
   # Perform query
   query %>% collect()
 }
-
-
 
 # Create a new user
 createUser <- function(pool, username, password, role = 'sber', active = TRUE) {
@@ -311,8 +319,6 @@ createUser <- function(pool, username, password, role = 'sber', active = TRUE) {
   # Send Query and catch errors
   sendQuery(query,pool,TRUE)
 }
-
-
 
 updateUser <- function(pool, user, username = '', password = '', role = '', active = TRUE) {
   # Check for valid input string

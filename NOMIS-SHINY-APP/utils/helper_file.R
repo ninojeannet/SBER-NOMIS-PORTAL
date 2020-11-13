@@ -24,6 +24,8 @@ generateFilenames <- function(ids,tablename){
 # Parameters : 
 # - filenames : vector of all the valid filenames. Used to check the validity of each files
 # - files : vector of files to check
+# - existingFiles : 
+# - isUploadOnly : 
 # Return a list containing the three vectors
 generateFileTables <- function(filenames,files,existingFiles,isUploadOnly){
   tables <- list()
@@ -49,7 +51,12 @@ generateFileTables <- function(filenames,files,existingFiles,isUploadOnly){
   return(tables)
 }
 
-
+# Return a list of existing filenames in the database
+# Parameters :
+# - pool : the database connection pool
+# - table : name of the table to query
+# - field : name of the field to check its files
+# - ids : list of glacier ids
 getExistingFilenamesInDB <- function(pool,table,field,ids){
   filenames <- getFieldFromGlacier(pool,table,paste0("filename_",field),ids)[[paste0("filename_",field)]]
   filenames <- filenames[!is.na(filenames)]
@@ -63,7 +70,6 @@ getExistingFilenamesInDB <- function(pool,table,field,ids){
 # - path : path of the file to save
 # - tablename : name of the type of the file to save
 saveFile <- function(name,path,tablename){
-  # destPath <- paste0("data\\",tablename,"\\",name)
   tryCatch({
     destPath <- paste0("data/",tablename,"/",name)
     if (!dir.exists(paste0("data/",tablename,"/")))
@@ -73,7 +79,6 @@ saveFile <- function(name,path,tablename){
   },
   warning = function(war){
     print(war)
-    # showNotification(war$message, type = "warning")
   },
   error = function(err){
     print(err)

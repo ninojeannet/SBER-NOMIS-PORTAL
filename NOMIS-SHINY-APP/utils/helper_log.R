@@ -1,5 +1,9 @@
 
-
+# Save a log value in the log file on the server
+# Parameters : 
+# - type : the type of log (UPDATE, CREATE,..)
+# - user: user that made the action
+# - text : additional text
 saveLog <- function(type,user,text){
   log <- paste0(now(),", ",type," by ",user," : ",text)
   

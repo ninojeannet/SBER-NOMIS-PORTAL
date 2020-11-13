@@ -53,18 +53,12 @@ generateGlacierDF <- function(dataf,glacierID){
   # Add new rows to the df if necessary
   if(nbRow < 1)
   {
-    # print("add rows")
     newdataf <- addRows(newdataf,-1,1,nbCol)
   }
-  
-  # newdataf <- addRows(newdataf,-1,1,nbCol)
-  
 
   newdataf[[primary]] <- id
   if(nrow(dataf) != 0)
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
-  # Fill the df with generated columns
-  # newdataf <- set_units(newdataf,fieldsUnit[["glacier"]])
 
   return(newdataf)
 
@@ -99,13 +93,11 @@ generateLocationDF <- function(dataf,glacierID){
   newdataf[[primary]] <- ids
   if(nrow(dataf) != 0)
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
-  # Fill the df with generated columns
-  
+
   newdataf[[fk_column]] <- fk
   newdataf[["type"]] <- c("Down","Up")
   
   return(newdataf)
-  
 }
 
 # Generate a specific dataframe from Patch data
@@ -137,7 +129,6 @@ generatePatchDF <- function(dataf,glacierID){
   if (nrow(dataf) != 0)
     newdataf[,]=matrix(ncol=ncol(newdataf), rep(NA, prod(dim(newdataf))))
   
-  
   # Add new rows to the df if necessary
   if(nbRow < length(ids))
   {
@@ -147,8 +138,7 @@ generatePatchDF <- function(dataf,glacierID){
   newdataf[[primary]] <- ids
   if(nrow(dataf) != 0)
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
-  # Fill the df with generated columns
-  
+
   newdataf[[fk]] <- idsFk
   newdataf[["name"]] <- patches
   return(newdataf)
@@ -198,8 +188,7 @@ generateParametersDF <- function(dataf,tablename,glacierID){
   newdataf[[primary]] <- ids
   if(nrow(dataf) != 0)
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
-  # Fill the df with generated columns
-  
+
   newdataf[[fk]] <- idsFk
   newdataf[["replicate"]] <- replicates
   return(newdataf)
@@ -267,7 +256,6 @@ generateBiogeoDF <- function(dataf,tablename,glacierID){
 setDefaultColumnName <- function(dataframe,tablename){
   if(tablename %in% names(templateFieldNames))
     colnames(dataframe) <- templateFieldNames[[tablename]]
-
   return(dataframe)
 }
 
