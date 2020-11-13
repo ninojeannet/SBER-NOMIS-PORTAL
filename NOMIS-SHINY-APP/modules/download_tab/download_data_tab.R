@@ -48,8 +48,8 @@ downloadDataTabUI <- function(id){
       ),
      mainPanel(
        id = ns('main'),
-       hidden(
-       verbatimTextOutput(ns('preview'))),
+      
+       verbatimTextOutput(ns('preview')),
        hidden(downloadButton(ns("downloadFile"),"Download file"))
        ,
        width=5
@@ -141,7 +141,7 @@ downloadDataTab <- function(input,output,session,pool){
       selectedOnlyType(newType[1])
       updateTextInput(session,"onlyType",value = selectedOnlyType())
     }
-
+    print(selectedTypes())
   })
   
   # ObserveEvent that reacts to "remove" input button
@@ -157,27 +157,38 @@ downloadDataTab <- function(input,output,session,pool){
       selectedOnlyType("")
       updateTextInput(session,"onlyType",value = selectedOnlyType())
     }
+    print(selectedTypes())
   })
   
   # ObserveEvent that reacts to the "generate" input button
   # Generate a file according to the given parameters and glacier ids
   observeEvent(input$generate,{
-    if(isMultiple()){
-      fields <- convertFieldNames(selectedTypes())
-      df <- generateMergedDownloadDF(fields,ids(),pool)
-    }
-    else{
-      field <- convertFieldNames(selectedOnlyType())
-      print(field)
-      df <- generateSimpleDownloadDF(field,ids(),pool)
-      print(df)
+    # Render a small summary of the generated file
+    output$preview <- renderPrint({
+      validateDownloadInput(input,isMultiple(),isolate(selectedTypes()))
+
+      if(isMultiple()){
+        fields <- convertFieldNames(isolate(selectedTypes()))
+        df <- generateMergedDownloadDF(fields,ids(),pool)
+      }
+      else{
+        field <- convertFieldNames(isolate(selectedOnlyType()))
+        print(field)
+        df <- generateSimpleDownloadDF(field,ids(),pool)
+      }
       
-    }
-    
-    dfToDownload(df)
-    nbOfGlacier(length(ids()))
-    fields(names(df))
-    showElement("preview")
+      dfToDownload(df)
+      nbOfGlacier(length(ids()))
+      fields(names(df))
+      isMerged <- TRUE
+      cat("# File summary",'\n')
+      cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
+      cat('# Number of glacier : ',nbOfGlacier(),'\n')
+      cat('# Selected fields','\n',fields(),'\n')
+      if(isMultiple())
+        cat('Some of these data have been average when they have replicates.','\n')
+    })
+
     showElement("downloadFile")
   })
   
@@ -191,16 +202,29 @@ downloadDataTab <- function(input,output,session,pool){
     }
   )
   
-  # Render a small summary of the generated file
-  output$preview <- renderPrint({
-    isMerged <- TRUE
-    cat("# File summary",'\n')
-    cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
-    cat('# Number of glacier : ',nbOfGlacier(),'\n')
-    cat('# Selected fields','\n',fields(),'\n')
-    if(isMerged)
-      cat('Some of these data have been average when they have replicates.','\n')
-  })
+}
+
+# Check if the input format are valid and if not display a message
+# Parameters :
+# - input : input of the shiny app
+# - isMultiple : boolean. Indicate whether it's a multiple parameters selection
+# - selectedTypes : give the list of selected parameters
+validateDownloadInput <- function(input,isMultiple,selectedTypes){
+  shiny::validate(
+    if(isMultiple)
+      need(length(selectedTypes) != 0L, 'Please select at least one ')
+    else
+      need(isolate(input$onlyType), 'Please select a parameter'),
+    
+    switch (isolate(input$selectRange),
+            "simple" = {need(grep('GL(\\d){1,3}',isolate(input$glacier)), 'Please insert a valid ID ( ex : GL23 )')},
+            "range" = {
+              range <- isolate(input$glacierRange)
+              need(range[2] > range[1] & range[2] > 0 & range[1] > 0, 'Please insert a valid range of id')},
+            "list" = {need(grep('^[0-9]+(,[0-9]+)*$',isolate(input$glacierList)), 'Please insert a valid list of ID ( ex : 23,45,56 )')}
+    )
+    
+  )
 }
 
 # Convert a list of displayed field names to their database names
@@ -246,7 +270,7 @@ generateSimpleDownloadDF <- function(field,ids,pool){
 # Return the generated data frame
 generateMergedDownloadDF <- function(fields,ids,pool){
   tables <- unlist(lapply(fields,getTableNameFromValue))
-  print(tables)
+  # print(tables)
   nbEntries <- max(levels[tables])
   nbRow <- nbEntries*length(ids)
 
@@ -271,7 +295,7 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     {
       values <-getFieldsFromGlacier(pool,tableName = table ,fields = fieldsToRetrieve,ids = ids)
     }
-    print(values)
+    # print(values)
     column <- scale(values,table,nbEntries)
 
     if(field=="date")
@@ -285,12 +309,12 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     else{
       for(i in 1:ncol(column)){
         name <- str_replace_all(convertColnames(names(column[i])),"\n"," ")
-        print(column[i])
+        # print(column[i])
         df[[name]] <- unlist(column[i])
       }
     }
   }
-  print(df)
+  # print(df)
   return(df)
 }
 
@@ -299,7 +323,7 @@ generateMergedDownloadDF <- function(fields,ids,pool){
 # - field : field to convert 
 # Return the converted name
 convertColnames <- function(field){
-  print(field)
+  # print(field)
   category <- getCategoryFromValue(field)
   print(category)
   index <- which(templateFieldNames[[category]] == field)[[1]]
@@ -347,31 +371,4 @@ scale <- function(values,tablename,nbFinalEntries){
   newdf <- as.data.frame(newdf)
   colnames(newdf) <- names(values)
   return(newdf)
-}
-
-# Check if the input format are valid and if not display a message
-# Parameters :
-# input : input of the shiny app
-validateInput <- function(input){
-  shiny::validate(
-    switch (isolate(input$selectRange),
-            "simple" = {need(grep('GL(\\d){1,3}',isolate(input$glacier)), 'Please insert a valid ID ( ex : GL23 )')},
-            "range" = {
-              range <- isolate(input$glacierRange)
-              need(range[2] > range[1] & range[2] > 0 & range[1] > 0, 'Please insert a valid range of id')},
-            "list" = {need(grep('^[0-9]+(,[0-9]+)*$',isolate(input$glacierList)), 'Please insert a valid list of ID ( ex : 23,45,56 )')}
-    )
-  )
-}
-
-validateInputEmpty <- function(input){
-  shiny::validate(
-    switch (isolate(input$selectRange),
-            "simple" = {need(grep('GL(\\d){1,3}',isolate(input$glacier)), '')},
-            "range" = {
-              range <- isolate(input$glacierRange)
-              need(range[2] > range[1] & range[2] > 0 & range[1] > 0, '')},
-            "list" = {need(grep('^[0-9]+(,[0-9]+)*$',isolate(input$glacierList)), '')}
-    )
-  )
 }
