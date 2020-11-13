@@ -37,7 +37,8 @@ managementProgressTab <- function(input, output, session,pool){
   # Render the data table of the overall project progress
   output$progress_table <- renderFormattable({
     dff <- dfFormatted()
-    formattable(dff,align =c(rep("c",ncol(dff))), list(area(col = 1:ncol(dff)) ~ color_tile_valid()))
+    formattable(dff,align =c("l",rep("c",ncol(dff)-1)), list(
+      area(col = 1) ~ formatRowNames(),area(col = 2:ncol(dff)) ~ color_tile_valid()))
   })
   
   # ObserveEvent that reacts to the refresh button click
@@ -70,7 +71,12 @@ color_tile_valid <- function (...) {
     style( padding = "0 4px", 
           `border-radius` = "4px", 
           `background-color` = ifelse(param_validator(x), "lightgreen", "white"))
-  })}
+  },x ~ icontext(ifelse(param_validator(x), "ok", ""),x))}
+
+formatRowNames <- function(...){
+  formatter("span", style = function(x) {
+    style(`font-weight` = "bold") })
+}
 
 # Validator that checks if the cell should be colored or not
 # Retunr boolean

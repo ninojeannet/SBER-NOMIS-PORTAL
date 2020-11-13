@@ -22,3 +22,8 @@
   white-space: pre-line;
 }
 
+#management-progress-progress_table td:nth-child(1) {  
+  /* your stuff here */
+  border-right:2px solid #ddd;
+  
+}

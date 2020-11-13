@@ -26,7 +26,6 @@ updateExpedition <- function(row,expedRanges,params_list,newdf,pool){
     param <- params_list[i]
     table <- getTableNameFromValue(param)
     fields <- getFieldsFromValue(param)
-    print(getFieldsFromValue("dom"))
 
     nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]] 
     nbOfValidGlacier <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
@@ -51,13 +50,22 @@ buildProgressTable <- function(pool){
   headers <- dataframe[["name"]]
   dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
   df <- dataframe %>% select(-min) %>% select(-max) %>% select(-name) %>% select(-id_expedition)
+  rowTypes <- colnames(df)
   df[is.na(df)] <- ""
   df <- aggregate(df["range"], by=list(abreviation=df$abreviation,doc=df$doc,dom=df$dom,
                                        ion=df$ion,nutrient=df$nutrient,eps=df$eps,ba=df$ba
                                        ,bp=df$bp,respiration=df$respiration,chla=df$chla,enzyme =df$enzyme), paste)
   df <- df[order(df$abreviation),]
+  print(df)
   df <- as.data.frame(t(df))
-  colnames(df) <- unique(headers)
+  print(df)
+  df <- cbind(summaryFullNameFields,df)
+  
+  colnames(df) <- c(" ",unique(headers))
+  df <- df[c(1,nrow(df),2:(nrow(df)-1)),]
+  rownames(df) <- NULL
+  
+  print(df)
   return(df)
 }
 

@@ -172,4 +172,5 @@ colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "YYYY-MM-D
               #                   list(col= 8, validator = "function (value, callback) {
               # if (/(\\d+)|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}")
                                 )
-# colConfig[["enzyme"]] <- list(list(col=c(4,5,6,7,8), type = "numeric"))
+summaryFullNameFields <- c("Abreviation","Range","DOC","DOM","Ions","Nutrients","EPS","Ba","Bp","Respiration","Chlorophyll-A","Enzymes")
+
