@@ -153,7 +153,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # observeEvent that react to type input's update
   # Hide / show html elements
   observeEvent(input$type,{
-    if (input$type == "biogeo" & input$domtype %in% c("eem","abs1","abs10")){
+    if (input$type == "biogeo_3" & input$domtype %in% c("eem","abs1","abs10")){
       isFileUpload(TRUE)
       showElement("domtype")
       showElement("files")
