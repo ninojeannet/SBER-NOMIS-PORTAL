@@ -10,10 +10,10 @@ source('./utils/helper_dataframe.R')
 # Return the updated table
 updateExpeditionTable <- function(df,ranges,pool){
   
-  newdf <- df %>% select(-min) %>% select(-max) %>% select(-abreviation)
+  newdf <- df %>% select(-min) %>% select(-max) %>% select(-abbreviation)
   for (i in 1:nrow(df)) {
     row <- df[i,]
-    expedRanges <- ranges[[row[["abreviation"]]]]
+    expedRanges <- ranges[[row[["abbreviation"]]]]
     newdf <- updateExpedition(row,expedRanges,colnames(newdf),newdf,pool)
   }
   saveData(newdf,"expedition",pool)
@@ -55,17 +55,17 @@ generateGlacierIDs <- function(ranges){
 # the function retrieve the basic progress tabée then adapt / transform it to have a user firendly table to display
 buildProgressTable <- function(pool){
   dataframe <- getProgressTable(pool)
-  dataframe <- dataframe[order(dataframe$abreviation),]
+  dataframe <- dataframe[order(dataframe$abbreviation),]
   
   dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
   df <- dataframe %>% select(-min) %>% select(-max) %>% select(-id_expedition)
   rowTypes <- colnames(df)
   df[is.na(df)] <- ""
-  df <- aggregate(df["range"], by=list(name=df$name,abreviation=df$abreviation,doc=df$doc,dom=df$dom,
+  df <- aggregate(df["range"], by=list(name=df$name,abbreviation=df$abbreviation,doc=df$doc,dom=df$dom,
                                        ion=df$ion,nutrient=df$nutrient,eps=df$eps,ba=df$ba
                                        ,bp=df$bp,respiration=df$respiration,chla=df$chla,enzyme =df$enzyme), function(x){ paste(unlist(x),collapse = ', ')})
   # df <- df[order(df$range),]
-  print(df)
+  # print(df)
   # sOrder <- as.numeric(str_split(df$range," - ")[[1]])
   # df <- df[order(sOrder),]
   df <- df[order(nchar(substring(df$range,1,3)),df$range),]
@@ -73,12 +73,12 @@ buildProgressTable <- function(pool){
   df <- df %>% select(-name)
   df <- as.data.frame(t(df))
   
-  print(df)
+  # print(df)
   df <- df[c(1,nrow(df),2:(nrow(df)-1)),]
   df <- cbind(summaryFullNameFields,df)
   colnames(df) <- c(" ",unique(headers))
   
-  print(df)
+  # print(df)
   rownames(df) <- NULL
   
   return(df)
@@ -89,6 +89,6 @@ buildExpeditionTable <- function(pool){
   dataframe <- getProgressTable(pool)
   dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
   df <- dataframe %>% select(-min) %>% select(-max)
-  df <- aggregate(df["range"], by=list(id_expedition=df$id_expedition,name=df$name,abreviation=df$abreviation), paste)
+  df <- aggregate(df["range"], by=list(id_expedition=df$id_expedition,name=df$name,abbreviation=df$abbreviation), paste)
   return(df)
 }

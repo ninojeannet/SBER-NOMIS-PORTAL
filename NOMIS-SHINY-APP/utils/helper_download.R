@@ -58,13 +58,13 @@ generateMergedDownloadDF <- function(fields,ids,pool){
       column <- format(as.Date(unlist(column)),"%d.%m.%Y")
     
     if(is.null(ncol(column))){
-      name <- str_replace_all(convertColnames(field),"\n"," ")
+      name <- convertToDLName(field)
       df[[name]] <- unlist(column)
       
     }
     else{
       for(i in 1:ncol(column)){
-        name <- str_replace_all(convertColnames(names(column[i])),"\n"," ")
+        name <- convertToDLName(names(column[i]))
         df[[name]] <- unlist(column[i])
       }
     }
@@ -119,9 +119,12 @@ scale <- function(values,tablename,nbFinalEntries){
 # Parameter :
 # - field : field to convert 
 # Return the converted name
-convertColnames <- function(field){
+convertToDLName <- function(field){
   category <- getCategoryFromValue(field)
   index <- which(templateFieldNames[[category]] == field)[[1]]
-  return(fullnameFields[[category]][[index]])
+  displayField <- fullnameFields[[category]][[index]]
+  unit <-str_extract(displayField,"\\[.+\\]")
+  # print(paste(field,unit))
+  return(paste(field,unit))
 }
 

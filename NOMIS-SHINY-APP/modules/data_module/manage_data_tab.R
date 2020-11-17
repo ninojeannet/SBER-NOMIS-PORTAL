@@ -11,12 +11,13 @@ source('./modules/data_module/data_validation_popup.R')
 # UI function of the uploadDataTab module
 # Parameters : 
 # id : id of the module
-manageDataTabUI <- function(id){
+manageDataTabUI <- function(id,title){
   ns <- NS(id)
   
   div(
     div(
       class= 'main-inputs',
+      h1(title),
       div(
         class = 'main-actions',
         actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary')

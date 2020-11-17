@@ -172,5 +172,5 @@ colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "YYYY-MM-D
               #                   list(col= 8, validator = "function (value, callback) {
               # if (/(\\d+)|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}")
                                 )
-summaryFullNameFields <- c("Abreviation","Range","DOC","DOM","Ions","Nutrients","EPS","Ba","Bp","Respiration","Chlorophyll-A","Enzymes")
+summaryFullNameFields <- c("Abbreviation","Range","DOC","DOM","Ions","Nutrients","EPS","Ba","Bp","Respiration","Chlorophyll-A","Enzymes")
 

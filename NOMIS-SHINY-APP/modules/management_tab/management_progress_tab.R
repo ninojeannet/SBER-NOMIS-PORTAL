@@ -9,7 +9,7 @@ managementProgressTabUI <- function(id) {
   div(
     div(
       class= 'main-inputs',
-      h2("test"),
+      h1("Project progression"),
       div(
         class = 'main-actions',
         actionButton(ns('refresh'), 'Refresh', class = 'help custom-style custom-style--primary')

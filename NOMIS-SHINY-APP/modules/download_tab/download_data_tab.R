@@ -13,6 +13,7 @@ downloadDataTabUI <- function(id){
   div(
     div(
       class= 'main-inputs',
+      h1("Download data"),
       div(
         class = 'main-actions',
         actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary')

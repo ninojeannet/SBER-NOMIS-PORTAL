@@ -13,7 +13,7 @@ managementTabUI <- function(id) {
   tabsetPanel(
     tabPanel(
       'Manage data',
-      manageDataTabUI(ns("data"))
+      manageDataTabUI(ns("data"),"Manage data")
       
     ),
     tabPanel(

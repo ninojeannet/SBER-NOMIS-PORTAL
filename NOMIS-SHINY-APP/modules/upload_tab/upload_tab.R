@@ -9,7 +9,7 @@ uploadTabUI <- function(id){
   tabsetPanel(
     tabPanel(
       'Upload data',
-      manageDataTabUI(ns("data"))
+      manageDataTabUI(ns("data"),"Upload data")
       
     )
   )
