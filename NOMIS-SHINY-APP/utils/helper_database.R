@@ -325,9 +325,7 @@ updateUser <- function(pool, user, username = '', password = '', role = '', acti
   username <- validInputString(username)
   password <- validInputString(password)
   role <- validInputString(role)
-  print("ww")
-  print(user)
-  print("ici")
+
   # Use previous values if not defined
   if (username == SQL('NULL')) username <- user$name
   if (role == SQL('NULL')) role <- user$role
@@ -433,7 +431,6 @@ sqlInterpolateList <- function(conn, sql, vars=list(), list_vars=list()) {
 
 updateExpeditionInDB <- function(pool, expedition, name = '', abreviation = '', ranges = list()) {
   # Check for valid input string
-  print("yess")
   name <- validInputString(name)
   abreviation <- validInputString(abreviation)
   # print(expedition)
@@ -469,7 +466,6 @@ updateRanges <- function(pool,id_expedition,name_expedition,rangesToCreate,range
       id_expedition = id_expedition,min=range[[1]][1],max=range[[1]][2])
     sendQuery(query,pool,FALSE)
   }
-  print(rangesToCreate)
   for (range in rangesToCreate) {
     range <- str_split(range," - ")
     saveRangeInDB(name_expedition,as.numeric(range[[1]][1]),as.numeric(range[[1]][2]),pool)

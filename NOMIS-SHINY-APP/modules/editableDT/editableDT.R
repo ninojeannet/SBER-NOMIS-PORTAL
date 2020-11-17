@@ -115,7 +115,8 @@ editableDT <- function(input, output, session, pool, tableName, element,
   
   # Create an observeEvent that react to the modal cancel button
   observeEvent(input$cancel, ignoreInit = TRUE, {
-    
+    iv_create()$disable()
+    iv_update()$disable()
     # Close modal
     removeModal()
   })
@@ -147,19 +148,22 @@ editableDT <- function(input, output, session, pool, tableName, element,
     )
   })
   
-  iv_create <- validatorCreateFunction()
-  if(is.function(extraValidatorFunction))
-    iv_range <- extraValidatorFunction()
+  iv_create <- reactiveVal(validatorCreateFunction())
+  
   # Create an observeEvent that react to the modal create button
   observeEvent(input$create, ignoreInit = TRUE, {
+    expeditions <- str_to_lower(loadTable()$name)
+    iv_create(validatorCreateFunction(expeditions))
+    if(is.function(extraValidatorFunction))
+      iv_range <- extraValidatorFunction()
     
-    if(iv_create$is_valid()){
-      iv_create$disable()
+    if(iv_create()$is_valid()){
+      iv_create()$disable()
       res <-eval(creationExpr)
       handleModalResult(res, 'create')
     }
     else{
-      iv_create$enable()
+      iv_create()$enable()
     }
   })
   
@@ -201,18 +205,21 @@ editableDT <- function(input, output, session, pool, tableName, element,
     }
   })
   
-  iv_update <- validatorUpdateFunction()
+  iv_update <- reactiveVal(validatorUpdateFunction())
+  
   
   # Create an observeEvent that react to the modal edit button
   observeEvent(input$edit, ignoreInit = TRUE, {
-    if(iv_update$is_valid()){
-      iv_update$disable()
+    selectedName <- loadTable()[input$table_rows_selected,]$name
+    expeditions <- str_to_lower(setdiff(loadTable()$name,selectedName))
+    iv_update(validatorUpdateFunction(expeditions))
+    if(iv_update()$is_valid()){
+      iv_update()$disable()
       res <- eval(updateExpr)
       handleModalResult(res, 'edit')
     }
     else{
-      iv_update$enable()
-      print("wrong")
+      iv_update()$enable()
     }
   })
   

@@ -90,7 +90,7 @@ reduce <- function(values,tablename){
   if(!is.null(isOnlyUP[[tablename]]) && isOnlyUP[[tablename]]){
     values <- values %>% mutate(rownum = row_number()) %>% 
       bind_rows(., filter(., !is.na(fk)) %>% 
-                  mutate(across(colToSummarise,function(.){NA}), rownum = rownum-.5)) %>% 
+                  mutate(across(all_of(colToSummarise),function(.){NA}), rownum = rownum-.5)) %>% 
       arrange(rownum) %>%
       select(-rownum)
   }

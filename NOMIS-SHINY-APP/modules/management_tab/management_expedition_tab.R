@@ -60,16 +60,18 @@ managementExpeditionTab <- function(input, output, session, pool) {
                  ids = selectedRowIds
                )
              ),
-             validatorCreateFunction = function(){
+             validatorCreateFunction = function(expeditions){
                iv <- InputValidator$new()
                iv$add_rule("name", sv_required())
+               iv$add_rule("name", ~ if (str_to_lower(.) %in% expeditions) "Expedition's name already exists")
                iv$add_rule("abreviation", sv_required())
                iv$add_rule("ranges", sv_required())
                 return(iv)
              },
-             validatorUpdateFunction = function(){
+             validatorUpdateFunction = function(expeditions){
                iv <- InputValidator$new()
                iv$add_rule("name", sv_required())
+               iv$add_rule("name", ~ if (str_to_lower(.) %in% expeditions) "Expedition's name already exists")
                iv$add_rule("abreviation", sv_required())
                iv$add_rule("ranges", sv_required())
                return(iv)
