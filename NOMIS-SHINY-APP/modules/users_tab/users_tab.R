@@ -76,16 +76,18 @@ usersTab <- function(input, output, session, pool) {
                  ids = selectedRowIds
                )
              ),
-             validatorCreateFunction = function(){
+             validatorCreateFunction = function(names){
                iv <- InputValidator$new()
                iv$add_rule("name", sv_required())
+               iv$add_rule("name", ~ if (str_to_lower(.) %in% names) "Username already exists")
                iv$add_rule("role", sv_required())
                iv$add_rule("password", sv_required())
                return(iv)
              },
-             validatorUpdateFunction = function(){
+             validatorUpdateFunction = function(names){
                iv <- InputValidator$new()
                iv$add_rule("name", sv_required())
+               iv$add_rule("name", ~ if (str_to_lower(.) %in% names) "Username already exists")
                iv$add_rule("role", sv_required())
                return(iv)
              })
