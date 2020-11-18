@@ -33,7 +33,7 @@ templateFieldNames[["doc"]] <- c("id_biogeo_3","id_location","replicate","doc")
 
 subCategoriesOfTable <- list()
 subCategoriesOfTable[["glacier"]] <- c('gl_global','gl_point','gl_line','gl_area','gl_invent','gl_source','gl_other')
-subCategoriesOfTable[["biogeo_3"]] <- c("dom","coble","indices","doc")
+subCategoriesOfTable[["biogeo_3"]] <- c("dom","coble","indices","doc", "eem","abs1","abs10")
 subCategoriesOfTable[["biogeo_1"]] <- c("ion","nutrient")
 subCategoriesOfTable[["microbial_1"]] <- c("ba","eps")
 subCategoriesOfTable[["microbial_2"]] <- c("respiration","bp")
@@ -127,6 +127,8 @@ uploadDataTypes <- list("Field metrics"="location","Patch"="patch",
                                                      "Coble peak" = "coble",
                                                      "Ions" = "ion",
                                                      "Nutrients"="nutrient"))
+
+downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")
 
 # The sublist of all the "DOM type" that can be uploaded
 uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")

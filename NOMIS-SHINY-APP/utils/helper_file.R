@@ -68,12 +68,12 @@ getExistingFilenamesInDB <- function(pool,table,field,ids){
 # Parameters :
 # - name : name of the file to save
 # - path : path of the file to save
-# - tablename : name of the type of the file to save
-saveFile <- function(name,path,tablename){
+# - type : name of the type of the file to save
+saveFile <- function(name,path,type){
   tryCatch({
-    destPath <- paste0("data/",tablename,"/",name)
-    if (!dir.exists(paste0("data/",tablename,"/")))
-      dir.create(paste0("data/",tablename,"/"),recursive = TRUE)
+    destPath <- paste0("data/",type,"/",name)
+    if (!dir.exists(paste0("data/",type,"/")))
+      dir.create(paste0("data/",type,"/"),recursive = TRUE)
     file.copy(path,destPath,overwrite = TRUE)
     saveLog("upload","Nino",paste0("Upload file ",name," on the server"))
   },
@@ -88,6 +88,11 @@ saveFile <- function(name,path,tablename){
     print(f) 
   })
 
+}
+
+
+getFilePath <- function(type,filename){
+  return(paste0("data/",type,"/",filename))
 }
 
 # Given a set of filename and validfiles, process and store them in the server with a specific hierarchy

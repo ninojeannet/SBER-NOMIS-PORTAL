@@ -14,11 +14,11 @@ downloadTabUI <- function(id){
       'Download data',
       downloadDataTabUI(ns("data"))
     )
-    # ,
-    # tabPanel(
-    #   'Download file',
-    #   downloadFileTabUI(ns("file"))
-    # )
+    ,
+    tabPanel(
+      'Download file',
+      downloadFileTabUI(ns("file"))
+    )
   )
   
 }
@@ -27,6 +27,6 @@ downloadTabUI <- function(id){
 downloadTab <- function(input,output,session,pool){
   
   callModule(downloadDataTab,"data",pool)
-  # callModule(downloadFileTab,"file",pool)
+  callModule(downloadFileTab,"file",pool)
   
 }

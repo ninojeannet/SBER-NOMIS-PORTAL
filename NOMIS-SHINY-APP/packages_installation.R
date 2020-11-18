@@ -28,8 +28,8 @@ install.packages(
            "formattable",
            "DataCombine",
            "staRdom",
-           "kableExtra"
-           ,
+           "kableExtra",
+           "zip",
            "xlsx"
   ),
   repos = 'https://cran.rstudio.com/'

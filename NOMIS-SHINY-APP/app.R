@@ -34,6 +34,7 @@ library(DataCombine)
 library(shinyvalidate)
 library(formattable)
 library(sodium)
+library(zip)
 
 
 # update.packages(ask = FALSE, checkBuilt = TRUE)
