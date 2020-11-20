@@ -11,7 +11,7 @@ generateSimpleDownloadDF <- function(field,ids,pool){
   df <- getFieldsFromGlacier(pool,table,fields,ids)
   newnames <- c()
   for (field in fields) {
-    newName <- str_replace_all(convertColnames(field),"\n"," ")
+    newName <- str_replace_all(convertToDLName(field),"\n"," ")
     newnames <- c(newnames,newName)
   }
   colnames(df) <- newnames
@@ -124,7 +124,11 @@ convertToDLName <- function(field){
   index <- which(templateFieldNames[[category]] == field)[[1]]
   displayField <- fullnameFields[[category]][[index]]
   unit <-str_extract(displayField,"\\[.+\\]")
+  if(!is.na(unit))
+    name <- paste(field,unit)
+  else
+    name <-field
   # print(paste(field,unit))
-  return(paste(field,unit))
+  return(name)
 }
 

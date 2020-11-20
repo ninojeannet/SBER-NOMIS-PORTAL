@@ -6,9 +6,9 @@
 generateFilenames <- function(ids,tablename){
   filenames <- vector()
   for (id in ids) {
-    f1 <- paste0(id,"_UP_1_",tablename,".dat")
-    f2 <- paste0(id,"_UP_2_",tablename,".dat")
-    f3 <- paste0(id,"_UP_3_",tablename,".dat")
+    f1 <- paste0(id,"_UP_A_",tablename,".dat")
+    f2 <- paste0(id,"_UP_B_",tablename,".dat")
+    f3 <- paste0(id,"_UP_C_",tablename,".dat")
     
     filenames<-c(filenames,f1)
     filenames<-c(filenames,f2)
@@ -113,7 +113,7 @@ processFiles <- function(validFilename,validFiles,tablename,type,pool){
         saveFile(name,validFiles[row,"datapath"],type)
         pkValue <- str_remove(name,"_[^_]+\\..+")
         fkValue <- str_remove(name,"_[^_]+_[^_]+\\..+")
-        replicate <- str_extract(str_extract(name,"_\\d_"),"\\d")
+        replicate <- str_extract(str_extract(name,"_[ABC]_"),"[ABC]")
         saveFieldInDB(tablename,paste0("filename_",type),pkValue,fkValue,replicate,name,pool)
         incProgress(1/nbOfFiles, detail = paste("Saving ", name))
       }

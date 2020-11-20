@@ -34,7 +34,10 @@ updateExpedition <- function(row,expedRanges,params_list,newdf,pool){
   for (i in 3:length(params_list)){
     param <- params_list[i]
     table <- getTableNameFromValue(param)
-    fields <- getFieldsFromValue(param)
+    if(table=="glacier")
+      fields <- unique(unlist(templateFieldNames[subCategoriesOfTable[["glacier"]]]))
+    else
+      fields <- getFieldsFromValue(param)
     nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]] 
     nbOfValidGlacier <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
     newdf[[rownames(row),i]] <- paste0(nbOfValidGlacier," / ",nbOfGlacier)
@@ -61,7 +64,8 @@ buildProgressTable <- function(pool){
   df <- dataframe %>% select(-min) %>% select(-max) %>% select(-id_expedition)
   rowTypes <- colnames(df)
   df[is.na(df)] <- ""
-  df <- aggregate(df["range"], by=list(name=df$name,abbreviation=df$abbreviation,doc=df$doc,dom=df$dom,
+  df <- aggregate(df["range"], by=list(name=df$name,abbreviation=df$abbreviation,location=df$location,glacier=df$glacier,
+                                       doc=df$doc,dom=df$dom,
                                        ion=df$ion,nutrient=df$nutrient,eps=df$eps,ba=df$ba
                                        ,bp=df$bp,respiration=df$respiration,chla=df$chla,enzyme =df$enzyme), function(x){ paste(unlist(x),collapse = ', ')})
   # df <- df[order(df$range),]

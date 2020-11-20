@@ -120,24 +120,30 @@ getFieldsFromValue <- function(value){
 # - tablename : name of the database table (can be the same as table)
 # Return the generated handsontable
 generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
-  if(name == "location")
+  if(name == "location"){
     df[["rdna"]] <- as.logical(df[["rdna"]])
+    df[["date"]] <- format(as.Date(df[["date"]]),"%d.%m.%y")
+  }
   df <- setCompleteColumnName(df,name)
   
   handsonTable <- rhandsontable(df,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
     hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
     hot_cols(fixedColumnsLeft = length(mandatoryFields[[tablename]]),renderer = 
     "function(instance, td, row, col, prop, value, cellProperties) {
-          if(value =='na' || value == 'NA')
+          Handsontable.renderers.getRenderer('text')(instance, td, row, col, prop, value, cellProperties);
+
+          if(value =='na' || value == 'NA' || value == 'nan' || value == 'NAN')
           {
             value = '';
+            Handsontable.renderers.getRenderer('text')(instance, td, row, col, prop, value, cellProperties);
+
           }
-          Handsontable.renderers.TextRenderer.apply(this, arguments);
           return td;}") %>%
     hot_col(col = mandatoryColumns[[tablename]], readOnly = TRUE) %>%
     hot_row(readOnlyRows, readOnly = TRUE)
-
+  
   if (name %in% names(colConfig)){
+    print(name)
     for (params in colConfig[[name]]) {
       handsonTable <-  do.call(hot_col,c(list(hot=handsonTable),params))
     }

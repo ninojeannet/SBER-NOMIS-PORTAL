@@ -237,13 +237,14 @@ generateBiogeoDF <- function(dataf,tablename,glacierID){
   {
     newdataf <- addRows(newdataf,nbRow,length(ids))
   }
-  
+
   newdataf[[primary]] <- ids
   if(nrow(dataf) != 0)
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
 
   newdataf[[fk]] <- idsFk
   newdataf[["replicate"]] <- replicates
+  
   return(newdataf)
 }
 

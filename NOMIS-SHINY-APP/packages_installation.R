@@ -30,6 +30,8 @@ install.packages(
            "staRdom",
            "kableExtra",
            "zip",
+           "promises",
+           "future",
            "xlsx"
   ),
   repos = 'https://cran.rstudio.com/'

@@ -105,7 +105,7 @@ setRanges <- function(dataframe){
   tmp <- list()
   for (i in 1:nrow(dataframe)) {
     row <- dataframe[i,]
-    abr <- row[["abreviation"]]
+    abr <- row[["abbreviation"]]
     tmp[[abr]] <- append(tmp[[abr]],list(c(row[["min"]],row[["max"]]))) 
   }
   return(tmp)

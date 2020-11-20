@@ -194,13 +194,13 @@ saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool
 # Save a new expedition row in the database
 # Parameters :
 # - name : name of the expedition
-# - abr : expedition's abreviation
+# - abr : expedition's abbreviation
 # - pool: the database connection pool
 saveExpeditionInDB <- function(name,abr,pool)
 {
-  request <- 'INSERT INTO expedition (`name`,`abreviation`) VALUES (?name,?abr)'
+  request <- 'INSERT INTO expedition (`name`,`abbreviation`) VALUES (?name,?abr)'
   query <- sqlInterpolate(pool,request,name=name,abr=abr)
-  sendQuery(query,pool,TRUE)
+  sendQuery(query,pool,FALSE)
 }
 
 # Save a new range row in the database
@@ -317,7 +317,7 @@ createUser <- function(pool, username, password, role = 'sber', active = TRUE) {
   )
   
   # Send Query and catch errors
-  sendQuery(query,pool,TRUE)
+  sendQuery(query,pool,FALSE)
 }
 
 updateUser <- function(pool, user, username = '', password = '', role = '', active = TRUE) {
@@ -352,7 +352,7 @@ updateUser <- function(pool, user, username = '', password = '', role = '', acti
   }
   
   # Send Query and catch errors
-  sendQuery(query,pool,TRUE)
+  sendQuery(query,pool,FALSE)
 }
 
 ## General queries ##############################################################
@@ -429,23 +429,23 @@ sqlInterpolateList <- function(conn, sql, vars=list(), list_vars=list()) {
 }
 
 
-updateExpeditionInDB <- function(pool, expedition, name = '', abreviation = '', ranges = list()) {
+updateExpeditionInDB <- function(pool, expedition, name = '', abbreviation = '', ranges = list()) {
   # Check for valid input string
   name <- validInputString(name)
-  abreviation <- validInputString(abreviation)
+  abbreviation <- validInputString(abbreviation)
   # print(expedition)
   # Use previous values if not defined
   if (name == SQL('NULL')) name <- expedition$name
-  if (abreviation == SQL('NULL')) abreviation <- expedition$abreviation
+  if (abbreviation == SQL('NULL')) abbreviation <- expedition$abbreviation
   if (length(ranges) ==0) ranges <- expedition$range
 
   # Create query 
   query <- sqlInterpolate(
     pool,
-    "UPDATE expedition SET name = ?name, abreviation = ?abreviation WHERE id_expedition = ?id_expedition;",
-    id_expedition = expedition$id_expedition, name = name, abreviation = abreviation)
+    "UPDATE expedition SET name = ?name, abbreviation = ?abbreviation WHERE id_expedition = ?id_expedition;",
+    id_expedition = expedition$id_expedition, name = name, abbreviation = abbreviation)
   # Send Query and catch errors
-  sendQuery(query,pool,TRUE)
+  sendQuery(query,pool,FALSE)
   
   oldRanges <- unlist(expedition$range)
   newRanges <- unlist(ranges)

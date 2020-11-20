@@ -38,20 +38,20 @@ managementExpeditionTab <- function(input, output, session, pool) {
                  range = as.list(range))
              ),
              templateInputsCreate = expression(
-               inputsTemplate %>% select(name, abreviation, range)
+               inputsTemplate %>% select(name, abbreviation, range)
              ),
              templateInputsEdit = expression(
-               selectedRow %>% select(id_expedition,name, abreviation, range)
+               selectedRow %>% select(id_expedition,name, abbreviation, range)
              ),
              creationExpr = expression(
-               saveExpeditionInDB(input$name,input$abreviation,pool),
+               saveExpeditionInDB(input$name,input$abbreviation,pool),
                for (range in input$ranges) {
                  range <- str_split(range," - ")
                  saveRangeInDB(input$name,as.numeric(range[[1]][1]),as.numeric(range[[1]][2]),pool)
                }
              ),
              updateExpr = expression(
-               updateExpeditionInDB(pool,editedRow(),input$name,input$abreviation,input$ranges)
+               updateExpeditionInDB(pool,editedRow(),input$name,input$abbreviation,input$ranges)
              ),
              deleteExpr = expression(
                deleteRows(
@@ -64,7 +64,7 @@ managementExpeditionTab <- function(input, output, session, pool) {
                iv <- InputValidator$new()
                iv$add_rule("name", sv_required())
                iv$add_rule("name", ~ if (str_to_lower(.) %in% expeditions) "Expedition's name already exists")
-               iv$add_rule("abreviation", sv_required())
+               iv$add_rule("abbreviation", sv_required())
                iv$add_rule("ranges", sv_required())
                 return(iv)
              },
@@ -72,7 +72,7 @@ managementExpeditionTab <- function(input, output, session, pool) {
                iv <- InputValidator$new()
                iv$add_rule("name", sv_required())
                iv$add_rule("name", ~ if (str_to_lower(.) %in% expeditions) "Expedition's name already exists")
-               iv$add_rule("abreviation", sv_required())
+               iv$add_rule("abbreviation", sv_required())
                iv$add_rule("ranges", sv_required())
                return(iv)
              },

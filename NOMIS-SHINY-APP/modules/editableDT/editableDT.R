@@ -126,7 +126,7 @@ editableDT <- function(input, output, session, pool, tableName, element,
   handleModalResult <- function(error, type) {
     removeModal()
     reloadTable(reloadTable() + 1)
-    showNotification(paste0('Row successfully ', type, 'ed!'), type = 'message')
+    # showNotification(paste0('Row successfully ', type, 'ed!'), type = 'message')
   }
   
   ## Element creation #############################################################

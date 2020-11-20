@@ -4,7 +4,7 @@ subtitle: "EEM peak picking, absorbance slope parameters"
 date: "`r format(Sys.time(), '%B %e %Y')`"
 author: "HP"
 knit: (function(inputFile, encoding) {
-      output_dir = '../data/out';
+      output_dir = 'C:/Users/njeannet/Desktop/tmp/';
       rmarkdown::render(inputFile,
                         encoding=encoding, 
                         output_file=file.path(output_dir,paste0('DOM_EEM_analysis_report_',format(Sys.time(), "%Y%m%d_%H%M%S"),'.htm')))
@@ -58,7 +58,7 @@ library(staRdom)
 # Set the directory where all output files are put in.
 # The directory is automatically created if it does not exist.
 # Folder delimiters can be / or \\. \ , as it is usually used in Windows, will not work!
-output_dir = "/out" # e.g. output_dir = "C:/some_folder/output/"
+output_dir = "../data/out/" # e.g. output_dir = "C:/some_folder/output/"
 
 ```
 
@@ -75,7 +75,7 @@ output_dir = "/out" # e.g. output_dir = "C:/some_folder/output/"
 # Import is done with eem.read() (package eemR), please see details there.
 # The template refers to data coming with the package. Please use your data
 # by setting the path to your files!
-sample_dir = "../data/EEMs" # e.g. sample_dir = "C:/some_folder/input/fluor/", system.file() accesses the example data coming with the package!
+sample_dir = "../data/EEMs/" # e.g. sample_dir = "C:/some_folder/input/fluor/", system.file() accesses the example data coming with the package!
 # Set the used instrument (with hyphens!):
 # Cary Eclipse: "cary" 
 # Aqualog: "aqualog"
@@ -295,7 +295,6 @@ interpolation <- TRUE # e.g. TRUE
 # or "meta" if the raman areas should be taken from the meta data table.
 raman_normalisation = "blank" # e.g. "blank", FALSE, 160, "meta"
 
-
 #### Smooth data for peak picking ####
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Moving window size in nm for smoothing data along excitation wavelengths.
@@ -513,40 +512,40 @@ if(data_file != FALSE){
 ```
 # Sample overview
 
-# ```{r, echo=FALSE, message=FALSE, warning=TRUE}
-#  ##################################################### -->
-# #### Summary of your EEM data as table in report ####
-#  #####################################################
-# 
-#  if(class(try(library(kableExtra),silent=TRUE)) != "try-error" & class(try(library(knitr),silent=TRUE)) != "try-error") {
-#    eem_list %>%
-#      summary() %>%
-#      kable(format = "html", booktabs = T) %>%
-#      kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) #%>%
-#    #kable_styling(font_size = 5) %>%
-#    #row_spec(0, angle = -45) #%>%
-#    #landscape()
-#  } else {
-#    eem_list %>%
-#      summary()
-#  }
-#  if (exists("dc")){
-# 
-#  asis_output("# Dilution correction")
-# 
-#  ###################################################################
-#  #### Summary of corrections that were done for dilution issues ####
-#  ###################################################################
-# 
-#    if(class(try(library(kableExtra),silent=TRUE)) != "try-error" & class(try(library(knitr),silent=TRUE)) != "try-error") {
-#      dc %>%
-#        kable(format = "html", booktabs = T) %>%
-#        kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
-#    } else {
-#      dc
-#    }
-#  }
-# ```
+```{r, echo=FALSE, message=FALSE, warning=TRUE}
+  ##################################################### -->
+ #### Summary of your EEM data as table in report ####
+  #####################################################
+ 
+  if(class(try(library(kableExtra),silent=TRUE)) != "try-error" & class(try(library(knitr),silent=TRUE)) != "try-error") {
+    eem_list %>%
+      summary() %>%
+      kable(format = "html", booktabs = T) %>%
+      kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) #%>%
+    #kable_styling(font_size = 5) %>%
+    #row_spec(0, angle = -45) #%>%
+    #landscape()
+  } else {
+    eem_list %>%
+      summary()
+  }
+  if (exists("dc")){
+ 
+  asis_output("# Dilution correction")
+ 
+  ###################################################################
+  #### Summary of corrections that were done for dilution issues ####
+  ###################################################################
+ 
+    if(class(try(library(kableExtra),silent=TRUE)) != "try-error" & class(try(library(knitr),silent=TRUE)) != "try-error") {
+      dc %>%
+        kable(format = "html", booktabs = T) %>%
+        kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+    } else {
+      dc
+    }
+  }
+```
 
 # Results from peak picking
 ```{r, echo=FALSE, message=FALSE, warning=TRUE}
@@ -564,73 +563,72 @@ if(class(try(library(kableExtra),silent=TRUE)) != "try-error" & class(try(librar
   indices_peaks %>%
     mutate_if(is.numeric,prettyNum,digits = 2,format="fg")
 }
-print(indices_peaks)
 ```
 
 # Plots of EEM spectra
-# ```{r, echo=FALSE, message=FALSE, warning=TRUE}
-# ######################
-# #### Overview plots ####
-# ######################
-# # 
-# # Overview plots are generated and printed into report
-# 
-# if(overview | output_overview_png) {
-#   ov_plots <- eem_list %>%
-#     eem_overview_plot(spp = overview_number, contour = contour)
-# }
-# 
-# if(overview){
-#   lapply(ov_plots,print) %>%
-#     invisible()
-# }
-# 
-# ```
+```{r, echo=FALSE, message=FALSE, warning=TRUE}
+ ######################
+ #### Overview plots ####
+ ######################
+ # 
+ # Overview plots are generated and printed into report
+ 
+ if(overview | output_overview_png) {
+   ov_plots <- eem_list %>%
+     eem_overview_plot(spp = overview_number, contour = contour)
+ }
+ 
+ if(overview){
+   lapply(ov_plots,print) %>%
+     invisible()
+ }
+ 
+```
 
-# ```{r, echo=FALSE, message=FALSE, warning=TRUE}
-# ####################
-# #### Single plots ####
-# ###################
-# # 
-# # Single plots are generated and printed into report
-# 
-# if(scale_col) fill_max <- eem_list %>% eem_scale_ext() %>% .[2] else fill_max <- FALSE
-# 
-# if(output_single_png | single_plots){
-#   sing_plots <- lapply(eem_list, ggeem, fill_max = fill_max, contour = contour)
-# }
-# 
-# if(single_plots){
-#   lapply(sing_plots,print) %>%
-#     invisible()
-# }
-# ```
+```{r, echo=FALSE, message=FALSE, warning=TRUE}
+ ####################
+ #### Single plots ####
+ ###################
+ # 
+ # Single plots are generated and printed into report
+ 
+ if(scale_col) fill_max <- eem_list %>% eem_scale_ext() %>% .[2] else fill_max <- FALSE
+ 
+ if(output_single_png | single_plots){
+   sing_plots <- lapply(eem_list, ggeem, fill_max = fill_max, contour = contour)
+ }
+ 
+ if(single_plots){
+   lapply(sing_plots,print) %>%
+     invisible()
+ }
+```
 
-# ```{r, message=TRUE, warning=TRUE, include=FALSE, paged.print=FALSE}
-# #################
-# #### PNG plots ####
-# #################
-# # 
-# # PNGs of plots are written to output directory
-# 
-# if(output_overview_png){
-#   lapply(ov_plots, function(pl){
-#     png(paste0(output_dir,"/EEM_overview_",format(Sys.time(), "%Y%m%d_%H%M%S"),'.png',sep=""),width=1000,height=1000,units = "px", pointsize = 25)
-#     plotp <- pl + theme(text = element_text(size=35))
-#     print(plotp)
-#     dev.off()
-#   })
-# }
-# 
-# if(output_single_png){
-#   lapply(1:length(sing_plots), function(n){
-#     pl <- sing_plots[[n]]
-#     name <- eem_names(eem_list)[n]
-#     png(paste0(output_dir,"/EEM_single_",name,"_",format(Sys.time(), "%Y%m%d_%H%M%S"),'.png',sep=""),width=1000,height=1000,units = "px", pointsize = 25)
-#     plotp <- pl + theme(text = element_text(size=35))
-#     print(plotp)
-#     dev.off()
-#   })
-# }
-# ```
+```{r, message=TRUE, warning=TRUE, include=FALSE, paged.print=FALSE}
+ #################
+ #### PNG plots ####
+ #################
+ # 
+ # PNGs of plots are written to output directory
+ 
+ if(output_overview_png){
+   lapply(ov_plots, function(pl){
+     png(paste0(output_dir,"/EEM_overview_",format(Sys.time(), "%Y%m%d_%H%M%S"),'.png',sep=""),width=1000,height=1000,units = "px", pointsize = 25)
+     plotp <- pl + theme(text = element_text(size=35))
+     print(plotp)
+     dev.off()
+   })
+ }
+ 
+ if(output_single_png){
+   lapply(1:length(sing_plots), function(n){
+     pl <- sing_plots[[n]]
+     name <- eem_names(eem_list)[n]
+     png(paste0(output_dir,"/EEM_single_",name,"_",format(Sys.time(), "%Y%m%d_%H%M%S"),'.png',sep=""),width=1000,height=1000,units = "px", pointsize = 25)
+     plotp <- pl + theme(text = element_text(size=35))
+     print(plotp)
+     dev.off()
+   })
+ }
+```
 
