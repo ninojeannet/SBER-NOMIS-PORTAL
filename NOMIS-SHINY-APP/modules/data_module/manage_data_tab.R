@@ -289,6 +289,10 @@ uploadData <- function(df,tablename,listName,pool){
     saveLog("upload","Nino",paste0("FAILED Upload data ",tablename," in the database"))
 }
 
+# preSaveFormatting <- function(dataframe){
+#   if
+# }
+
 # Return the dataframe updated ids as list
 # Parameters : 
 # - data : the dataframe to retrieve the updated ids from

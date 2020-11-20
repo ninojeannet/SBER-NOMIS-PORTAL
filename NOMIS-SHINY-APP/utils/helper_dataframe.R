@@ -122,6 +122,7 @@ getFieldsFromValue <- function(value){
 generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
   if(name == "location"){
     df[["rdna"]] <- as.logical(df[["rdna"]])
+    df$rdna[is.na(df$rdna)] <- FALSE
     df[["date"]] <- format(as.Date(df[["date"]]),"%d.%m.%y")
   }
   df <- setCompleteColumnName(df,name)

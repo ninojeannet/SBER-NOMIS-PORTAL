@@ -38,7 +38,7 @@ updateExpedition <- function(row,expedRanges,params_list,newdf,pool){
       fields <- unique(unlist(templateFieldNames[subCategoriesOfTable[["glacier"]]]))
     else
       fields <- getFieldsFromValue(param)
-    nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]] 
+    nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]]
     nbOfValidGlacier <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
     newdf[[rownames(row),i]] <- paste0(nbOfValidGlacier," / ",nbOfGlacier)
   }

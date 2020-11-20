@@ -146,7 +146,7 @@ server <- function(input, output, session) {
     
     observeEvent(user$role, {
         
-        if (user$role %in% c('sber', 'admin')) {
+        # if (user$role %in% c('sber', 'admin')) {
             ## Generate dataManagementTab #################################################
             # Create the data management tab
             appendTab(
@@ -160,9 +160,9 @@ server <- function(input, output, session) {
             )
             # Load data management server logic
             callModule(managementTab,"management",pool,dimension)
-        }
+        # }
         
-        if (user$role == 'admin') {
+        # if (user$role == 'admin') {
             ## Generate usersTab ##########################################################
             # Create users tab
             appendTab(
@@ -176,7 +176,7 @@ server <- function(input, output, session) {
             )
             # Load users tab server logic
             callModule(usersTab, 'users', pool)
-        }
+        # }
     })
 }
 
