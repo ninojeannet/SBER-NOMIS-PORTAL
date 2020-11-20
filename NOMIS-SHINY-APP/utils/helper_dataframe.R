@@ -137,7 +137,6 @@ generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
           {
             value = '';
             Handsontable.renderers.getRenderer('text')(instance, td, row, col, prop, value, cellProperties);
-
           }
           return td;}") %>%
     hot_col(col = mandatoryColumns[[tablename]], readOnly = TRUE) %>%

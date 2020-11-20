@@ -282,6 +282,9 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
 # - pool : the database connection pool
 uploadData <- function(df,tablename,listName,pool){
   out <- setDefaultColumnName(df,listName)
+  print(out)
+  out <- removeFalseNA(out)
+  print(out)
   status <- saveData(out,tablename,pool)
   if (status)
     saveLog("upload","Nino",paste0("Upload data ",tablename," in the database"))
@@ -289,9 +292,11 @@ uploadData <- function(df,tablename,listName,pool){
     saveLog("upload","Nino",paste0("FAILED Upload data ",tablename," in the database"))
 }
 
-# preSaveFormatting <- function(dataframe){
-#   if
-# }
+removeFalseNA <- function(dataframe){
+  dataframe[dataframe=="na" | dataframe=="NA"] <- NA
+  if("time" %in% colnames(dataframe)) dataframe$time[!str_detect(dataframe$time,"(^\\d{1,2}:\\d{2}($|:\\d{2}$))")]<- NA
+  return(dataframe)
+}
 
 # Return the dataframe updated ids as list
 # Parameters : 

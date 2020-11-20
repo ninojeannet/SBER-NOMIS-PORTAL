@@ -161,19 +161,35 @@ typeList <- function(){
 colConfig <- list()
 colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "DD.MM.YYYY"),
                                 list(col= 5, validator = "function (value, callback) {
-              if (/(^\\d{1,2}:\\d{2}($|:\\d{2}$))|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}"),
+              if (/(^\\d{1,2}:\\d{2}($|:\\d{2}$))|(^(?![\\s\\S]))|^NA$|^na$/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= c(6,7,8,9,10,11,12,13), validator = "function (value, callback) {
-              if (/(^[-]?\\d*\\.?\\d*$)|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}"),
+              if (/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$|(^(?![\\s\\S]))|^NA$|^na$/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= 14, type = "checkbox",default = FALSE, renderer = "function(instance, td, row, col, prop, value, cellProperties) {
               td.style.textAlign = 'center';
               Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
               return td;}")
-              #                   ,
-              #                   list(col= c(6,7), validator = "function (value, callback) {
-              # if (/((\\-?|\\+?)?\\d+(\\.\\d+)?)|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}"),
-              #                   list(col= 8, validator = "function (value, callback) {
-              # if (/(\\d+)|(^(?![\\s\\S]))/.test(value)) {callback(true)} else {callback(false)}}")
-                                )
+          )
+colConfig[["gl_global"]] <- list()
+# 'id_glacier','lat_sn','lon_sn','ele_sn','lat_up','lon_up','ele_up','lat_dn','lon_dn','ele_dn','max_el','mean_el'
+colConfig[["gl_point"]] <- list(list(col= 2:11, validator = "function (value, callback) {
+              if (/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$|^NA$|^na$/.test(value)) {callback(true)} else {callback(false)}}"))
+colConfig[["gl_line"]] <- list(list(col= 2:6, validator = "function (value, callback) {
+              if (/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$|^NA$|^na$/.test(value)) {callback(true)} else {callback(false)}}"))
+colConfig[["gl_area"]] <- list(list(col= 2:4, validator = "function (value, callback) {
+              if (/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$|^NA$|^na$/.test(value)) {callback(true)} else {callback(false)}}"))
+colConfig[["gl_invent"]] <- list()
+colConfig[["gl_source"]] <- list()
+colConfig[["indices"]] <- list()
+colConfig[["ion"]] <- list()
+colConfig[["nutrient"]] <- list()
+colConfig[["enzyme"]] <- list()
+colConfig[["eps"]] <- list()
+colConfig[["bp"]] <- list()
+colConfig[["ba"]] <- list()
 colConfig[["chla"]] <- list(list(col=4,type="numeric", format="0.00"))
+colConfig[["respiration"]] <- list()
+colConfig[["doc"]] <- list()
+
+
 summaryFullNameFields <- c("Abbreviation","Range","Field metrics","Glaciological metrics","DOC","DOM","Ions","Nutrients","EPS","Ba","Bp","Respiration","Chlorophyll-A","Enzymes")
 
