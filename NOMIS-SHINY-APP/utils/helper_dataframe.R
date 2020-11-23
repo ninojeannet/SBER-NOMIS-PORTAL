@@ -120,14 +120,20 @@ getFieldsFromValue <- function(value){
 # - tablename : name of the database table (can be the same as table)
 # Return the generated handsontable
 generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
+  specificTypeColumns <- c()
   if(name == "location"){
     df[["rdna"]] <- as.logical(df[["rdna"]])
     df$rdna[is.na(df$rdna)] <- FALSE
     df[["date"]] <- format(as.Date(df[["date"]]),"%d.%m.%y")
+    specificTypeColumns <- c("rdna","date")
   }
+  # df <- data.frame(chla=c(1,2,3),tmp = c(1,2,3),t=c("1","2","3"))
+  # specificTypeColumns <- c("rdna","date","chla")
+  df[!(colnames(df) %in% specificTypeColumns)] <- lapply(df[!(colnames(df) %in% specificTypeColumns)], as.character)
   df <- setCompleteColumnName(df,name)
   
-  handsonTable <- rhandsontable(df,overflow='visible',stretchH = "all", height = dimension()[2]/100*70)%>%
+  
+  handsonTable <- rhandsontable(df,overflow='visible',stretchH = "all",height = dimension()[2]/100*70)%>%
     hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
     hot_cols(fixedColumnsLeft = length(mandatoryFields[[tablename]]),renderer = 
     "function(instance, td, row, col, prop, value, cellProperties) {

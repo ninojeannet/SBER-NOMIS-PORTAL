@@ -298,6 +298,7 @@ removeFalseNA <- function(dataframe){
   return(dataframe)
 }
 
+
 # Return the dataframe updated ids as list
 # Parameters : 
 # - data : the dataframe to retrieve the updated ids from
