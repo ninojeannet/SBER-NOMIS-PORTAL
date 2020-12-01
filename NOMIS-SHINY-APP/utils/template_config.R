@@ -12,10 +12,6 @@ templateFieldNames[["gl_source"]] <- c('id_glacier','data_s','data_ts','sn_data'
 templateFieldNames[["gl_other"]] <- c('id_glacier','','','','')
 templateFieldNames[["location"]] <- c('id_location','id_glacier','type','date','time','water_temp','ph','potential','do','do_sat','w_co2','conductivity','turb','rdna')
 templateFieldNames[["patch"]] <- c("id_patch","id_location","name")
-# templateFieldNames[["biogeo_3"]] <- c("id_biogeo_3","id_location","replicate","filename_eem","filename_abs1","filename_abs10",
-#                                     "doc","abs254","abs300","suva","e2e3","e4e6","s275295","s350400","s300700",
-#                                     "sr","bix","fi","hix","coble_b","coble_t","coble_a","coble_m","coble_c","coble_r")
-# templateFieldNames[["coble"]] <- c("id_biogeo_3","id_location","replicate","coble_b","coble_t","coble_a","coble_m","coble_c","coble_r")
 templateFieldNames[["indices"]] <- c("id_biogeo_3u","id_location","replicate","abs254","abs300",
                                         "suva","e2e3","e4e6","s275295","s350400","s300700","sr","bix","fi","hix",
                                      "coble_b","coble_t","coble_a","coble_m","coble_c","coble_r")
@@ -23,9 +19,6 @@ templateFieldNames[["ion"]] <- c("id_biogeo_3","id_location","replicate","i1_na"
 templateFieldNames[["mineral"]] <- c("id_biogeo_1u","id_location","replicate","tss_1","tss_2","tss_3","tss_4","tss_5","tss_5a","tss_5b","tss_5c","tss_5d")
 templateFieldNames[["nutrient"]] <- c("id_biogeo_1","id_location","replicate","n1_tn","n2_tp","n3_srp","n4_nh4","n5_no3","n6_no2")
 templateFieldNames[["isotope"]] <- c("id_biogeo_1","id_location","replicate","hydro_isotope","oxy_isotope")
-# templateFieldNames[["microbial_1"]] <- c('id_microbial_1',"id_patch",'replicate',"eps","wba","sba")
-# templateFieldNames[["microbial_2"]] <- c('id_microbial_2',"id_patch",'replicate',"bp","respiration")
-# templateFieldNames[["microbial_3"]] <- c('id_microbial_3',"id_patch",'replicate',"chla","ag","ap","bg","lap","nag")
 templateFieldNames[["enzyme"]] <- c("id_microbial_3","id_patch","replicate","ag","ap","bg","lap","nag")
 templateFieldNames[["chla"]] <- c("id_microbial_3","id_patch","replicate","chla")
 templateFieldNames[["eps"]] <- c("id_microbial_1","id_patch","replicate","eps")
@@ -85,7 +78,6 @@ fullnameFields[["location"]] <- c('ID','Glacier','Type','Date\n[DD.MM.YYYY]','Ti
                                   'Water Temp\n[\u00B0C]','pH\n[pH]','Potential\n[mV]','Dissolved Oxygen\n[mg l-1]','Dissolved Oxygen\n[saturation]','Water Co2\n[mATM]',
                                   'Conductivity\n[uS cm -1]','Turbidity\n[NTU]','Rock DNA\npresent\n[boolean]')
 fullnameFields[["patch"]] <- c("ID","Location",'name')
-# fullnameFields[["coble"]] <- c("ID","Location","Replicate","Coble peak B\n[RU]","Coble peak T\n[RU]","Coble peak A\n[RU]","Coble peak M\n[RU]","Coble peak C\n[RU]","Coble peak R\n[RU]")
 fullnameFields[["indices"]] <- c("ID","Location","Replicate","Absorbance\nat 254nm\n[m-1]","Absorbance\nat 300nm\n[m-1]",
                                     "Specific UV\nAbsorbance\n[mg C l-1 m-1]","E2:E3\n(Abs 250:365nm)\n[proportion]","E4:E6\n(Abs 465:665nm)\n[proportion]",
                                     "Slope Absorbance\nrange 275-295nm\n[nm-1]","Slope Absorbance\nrange 350-400nm\n[nm-1]",
@@ -102,7 +94,6 @@ fullnameFields[["nutrient"]] <- c("ID","Location","Replicate","Nutrients 1\nTota
                                   "Nutrients 5\nNitrate\n[ug l-1]","Nutrients 6\nNitrite\n[ug l-1]")
 fullnameFields[["isotope"]] <- c("ID","Location","Replicate","Hydrogen stable\nisotope\n[per_mil]","Oxygen stable\nisotope\n[per_mil]")
 fullnameFields[["doc"]] <- c("ID","Location","Replicate","Dissolved organic carbon")
-
 fullnameFields[["chla"]] <- c("ID","Patch","Replicate","CHLA\n[ug g-1]")
 fullnameFields[["enzyme"]] <- c("ID","Patch","Replicate","AG\n[nmol g-1 h-1]","AP\n[nmol g-1 h-1]","BG\n[nmol g-1 h-1]","LAP\n[nmol g-1 h-1]","NAG\n[nmol g-1 h-1]")
 fullnameFields[["eps"]] <- c("ID","Patch","Replicate","EPS\n[ugC g-1]")
@@ -123,7 +114,6 @@ tableOptions[["biogeo_1u"]] <- c("primary"="id_biogeo_1u", "FK"="id_location", "
 tableOptions[["microbial_1"]] <- c("primary"="id_microbial_1", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A')))
 tableOptions[["microbial_2"]] <- c("primary"="id_microbial_2", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A','B')))
 tableOptions[["microbial_3"]] <- c("primary"="id_microbial_3", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A','B','C')))
-
 
 # List of table that are only on UP location
 isOnlyUP <- list()
@@ -173,16 +163,16 @@ typeList <- function(){
   i <- 1
   for (metrics in l) {
     l[[i]] <- names(metrics)
-    # print(metrics)
     i <- i+1
   }
   l   
 }
 
+# Numeric validator
 numValidator <- "function (value, callback) {
   if (/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$|^(?![\\s\\S])|[\\s]+|^NA$|^na$/.test(value)) {return callback(true);} else {return callback(false);}}"
 
-
+# List of column configuration for each groups
 colConfig <- list()
 colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "DD.MM.YYYY",validator = "function (value, callback) {if (/^(?:(?:31(\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\.)(?:0?[13-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\.)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?![\\s\\S])|[\\s]+|^NA$|^na$/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= 5, validator = "function (value, callback) {
@@ -194,7 +184,6 @@ colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "DD.MM.YYY
               return td;}")
           )
 colConfig[["gl_global"]] <- list()
-# 'id_glacier','lat_sn','lon_sn','ele_sn','lat_up','lon_up','ele_up','lat_dn','lon_dn','ele_dn','max_el','mean_el'
 colConfig[["gl_point"]] <- list(list(col= 2:11, validator = numValidator))
 colConfig[["gl_line"]] <- list(list(col= 2:6, validator = numValidator))
 colConfig[["gl_area"]] <- list(list(col= 2:4, validator = numValidator))
@@ -202,7 +191,7 @@ colConfig[["gl_invent"]] <- list()
 colConfig[["gl_source"]] <- list()
 colConfig[["indices"]] <- list(list(col=4:15, validator = numValidator))
 colConfig[["ion"]] <- list(list(col= 4:9, validator = numValidator))
-colConfig[["mineral"]] <- list(list(col= 4:12, validator = numValidator)) # Mettre en %
+colConfig[["mineral"]] <- list(list(col= 4:12, validator = numValidator))
 colConfig[["nutrient"]] <- list(list(col= 4:9, validator = numValidator))
 colConfig[["isotope"]] <- list(list(col= 4:5, validator = numValidator))
 colConfig[["enzyme"]] <- list(list(col= 4:8, validator = numValidator))
@@ -213,6 +202,5 @@ colConfig[["chla"]] <- list(list(col=4,validator=numValidator))
 colConfig[["respiration"]] <- list(list(col= 4, validator = numValidator))
 colConfig[["doc"]] <- list(list(col= 4, validator = numValidator))
 
-
+# Fields to display in the progess table
 summaryFullNameFields <- c("Abbreviation","Range","Field metrics","Glaciological metrics","DOC","DOM","Minerals","Ions","Nutrients","Isotopes","Chlorophyll-A","EPS","Enzymes","Bp","Ba","Respiration")
-

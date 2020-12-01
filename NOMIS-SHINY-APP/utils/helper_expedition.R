@@ -9,14 +9,30 @@ source('./utils/helper_dataframe.R')
 # - pool : the database connection pool
 # Return the updated table
 updateExpeditionTable <- function(df,ranges,pool){
-  
-  newdf <- df %>% select(-min) %>% select(-max) %>% select(-abbreviation)
-  for (i in 1:nrow(df)) {
-    row <- df[i,]
-    expedRanges <- ranges[[row[["abbreviation"]]]]
-    newdf <- updateExpedition(row,expedRanges,colnames(newdf),newdf,pool)
-  }
-  saveData(newdf,"expedition",pool)
+  tryCatch({
+    withProgress(message = "Refreshing progress table",value = 0,{
+      newdf <- df %>% select(-min) %>% select(-max) %>% select(-abbreviation)
+      n <- nrow(df)
+      for (i in 1:n) {
+        row <- df[i,]
+        expedRanges <- ranges[[row[["abbreviation"]]]]
+        newdf <- updateExpedition(row,expedRanges,colnames(newdf),newdf,pool)
+        incProgress(1/n, detail = paste("Processing..."))
+      }
+    })
+    saveData(newdf,"expedition",FALSE,pool)
+    showNotification("Progress table succesfully updated", type = "message")
+  },
+  warning = function(war){
+    print(war)
+    showNotification(war$message, type = "warning")
+  },
+  error = function(err){
+    print(err)
+    showNotification(err$message,type = "error",duration = NULL)
+  },
+  finally = function(f){
+  })
 }
 
 # Update a single expedition' summary.

@@ -205,7 +205,7 @@ downloadDataTab <- function(input,output,session,pool){
 validateDownloadInput <- function(input,isMultiple,selectedTypes){
   shiny::validate(
     if(isMultiple)
-      need(length(selectedTypes) != 0L, 'Please select at least one ')
+      need(length(selectedTypes) != 0L, 'Please select at least one parameter')
     else
       need(isolate(input$onlyType), 'Please select a parameter'),
     
@@ -216,7 +216,6 @@ validateDownloadInput <- function(input,isMultiple,selectedTypes){
               need(range[2] > range[1] & range[2] > 0 & range[1] > 0, 'Please insert a valid range of id')},
             "list" = {need(grep('^[0-9]+(,[0-9]+)*$',isolate(input$glacierList)), 'Please insert a valid list of ID ( ex : 23,45,56 )')}
     )
-    
   )
 }
 

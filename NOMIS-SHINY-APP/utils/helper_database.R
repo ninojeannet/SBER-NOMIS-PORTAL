@@ -96,9 +96,9 @@ getFieldsFromGlacier <- function(pool,tableName,fields,ids){
 # data : the data as dataframe to save into db
 # tablename : the name of the table to save the data into
 # pool : connection pool to access the database
-saveData <- function(data,tableName,pool){
+saveData <- function(data,tableName,displaySuccess,pool){
   query <- buildInsertQuery(data,tableName,pool)
-  if(is.atomic(sendQuery(query,pool,TRUE)))
+  if(is.atomic(sendQuery(query,pool,displaySuccess)))
     return(FALSE)
   else
     return(TRUE)

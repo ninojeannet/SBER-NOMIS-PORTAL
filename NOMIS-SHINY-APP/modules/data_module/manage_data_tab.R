@@ -285,7 +285,7 @@ uploadData <- function(df,tablename,listName,pool){
   # print(out)
   out <- formatDFforUpload(out)
   # print(out)
-  status <- saveData(out,tablename,pool)
+  status <- saveData(out,tablename,TRUE,pool)
   if (status)
     saveLog("upload","Nino",paste0("Upload data ",tablename," in the database"))
   else

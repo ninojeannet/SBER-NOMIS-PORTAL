@@ -40,7 +40,11 @@ show_validation_popup <- function(tablename,updatedValues,output,ns,isFileUpload
     l <- out[updatedValues,1]
     l <- sort(l[!duplicated(l)])
   }
-  # primaryKey <- tableOptions[[tablename]][["primary"]]
   validation_popup(ns("submit"),ns("updated_values"))
+  size <-length(l)
+  if(size > 20){
+    l <- l[1:20]
+    l <- c(l,paste0("\n+ ",size-20," updated rows"))
+  }
   output$updated_values <- renderText({l},sep = "\t")
 }
