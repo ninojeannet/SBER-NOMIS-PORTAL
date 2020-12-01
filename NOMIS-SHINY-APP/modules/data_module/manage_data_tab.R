@@ -154,7 +154,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # observeEvent that react to type input's update
   # Hide / show html elements
   observeEvent(input$type,{
-    if (input$type == "biogeo_3" & input$domtype %in% c("eem","abs1","abs10")){
+    if (input$type == "biogeo_3u" & input$domtype %in% c("eem","abs1","abs10")){
       isFileUpload(TRUE)
       showElement("domtype")
       showElement("files")
@@ -282,9 +282,9 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
 # - pool : the database connection pool
 uploadData <- function(df,tablename,listName,pool){
   out <- setDefaultColumnName(df,listName)
-  print(out)
-  out <- removeFalseNA(out)
-  print(out)
+  # print(out)
+  out <- formatDFforUpload(out)
+  # print(out)
   status <- saveData(out,tablename,pool)
   if (status)
     saveLog("upload","Nino",paste0("Upload data ",tablename," in the database"))
@@ -292,11 +292,7 @@ uploadData <- function(df,tablename,listName,pool){
     saveLog("upload","Nino",paste0("FAILED Upload data ",tablename," in the database"))
 }
 
-removeFalseNA <- function(dataframe){
-  dataframe[dataframe=="na" | dataframe=="NA"] <- NA
-  if("time" %in% colnames(dataframe)) dataframe$time[!str_detect(dataframe$time,"(^\\d{1,2}:\\d{2}($|:\\d{2}$))")]<- NA
-  return(dataframe)
-}
+
 
 
 # Return the dataframe updated ids as list

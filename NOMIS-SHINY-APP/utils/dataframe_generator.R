@@ -26,6 +26,8 @@ generateFilledDF <- function(dataf,tablename,ids){
                   'patch' = generatePatchDF(subsetdataf,glacierID),
                   'biogeo_3' = generateBiogeoDF(subsetdataf,tablename,glacierID),
                   'biogeo_1' = generateBiogeoDF(subsetdataf,tablename,glacierID),
+                  'biogeo_3u' = generateBiogeoDF(subsetdataf,tablename,glacierID),
+                  'biogeo_1u' = generateBiogeoDF(subsetdataf,tablename,glacierID),
                   generateParametersDF(subsetdataf,tablename,glacierID)
     )
     finaldf <- rbind(finaldf,df)

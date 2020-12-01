@@ -124,11 +124,12 @@ generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
   if(name == "location"){
     df[["rdna"]] <- as.logical(df[["rdna"]])
     df$rdna[is.na(df$rdna)] <- FALSE
-    df[["date"]] <- format(as.Date(df[["date"]]),"%d.%m.%y")
-    specificTypeColumns <- c("rdna","date")
+    # df <- data.frame(date=c(NA,"-9999","2020-02-08"))
+    # df[["date"]] <- format(as.Date(df[["date"]],optional = TRUE),"%d.%m.%y")
+    # print(df)
+    specificTypeColumns <- c("rdna")
   }
-  # df <- data.frame(chla=c(1,2,3),tmp = c(1,2,3),t=c("1","2","3"))
-  # specificTypeColumns <- c("rdna","date","chla")
+  df[df=="-9999"] <- "NA"
   df[!(colnames(df) %in% specificTypeColumns)] <- lapply(df[!(colnames(df) %in% specificTypeColumns)], as.character)
   df <- setCompleteColumnName(df,name)
   
@@ -139,9 +140,9 @@ generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
     "function(instance, td, row, col, prop, value, cellProperties) {
           Handsontable.renderers.getRenderer('text')(instance, td, row, col, prop, value, cellProperties);
 
-          if(value =='na' || value == 'NA' || value == 'nan' || value == 'NAN')
+          if(value =='na' || value == 'NA')
           {
-            value = '';
+            value = 'NA';
             Handsontable.renderers.getRenderer('text')(instance, td, row, col, prop, value, cellProperties);
           }
           return td;}") %>%
@@ -156,4 +157,30 @@ generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
   }
   
   return(handsonTable)
+}
+
+formatDFforUpload <- function(df){
+  df[df==""] <- NA
+  df[df==" "] <- NA
+  df[df=="na" | df=="NA" | df=="nan"] <- "-9999"
+  df <- data.frame(lapply(df, function(x){
+    if(is.character(x))
+      gsub("^\\s",NA,x)
+    else
+      x
+  }))
+  return(df)
+}
+
+formatDFforDownload <- function(df){
+  df[is.na(df)] <- NA
+  df[df == -9999 | df =="-9999"] <- NA
+  return(df)
+}
+
+removeFK <- function(df){
+  fk <- tableOptions[[tablename]][["FK"]]
+  df <- df %>%
+    select(-all_of(fk))
+  return(df)
 }

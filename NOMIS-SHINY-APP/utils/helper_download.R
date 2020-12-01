@@ -9,6 +9,7 @@ generateSimpleDownloadDF <- function(field,ids,pool){
   table <- getTableNameFromValue(field)
   fields <- unique(c(mandatoryFields[[table]], getFieldsFromValue(field)))
   df <- getFieldsFromGlacier(pool,table,fields,ids)
+  df <- formatDFforDownload(df)
   newnames <- c()
   for (field in fields) {
     newName <- str_replace_all(convertToDLName(field),"\n"," ")
@@ -44,18 +45,20 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     fieldsToRetrieve <- setdiff(getFieldsFromValue(field),mandatoryFields[[table]])
     nbReplicates <- length(tableOptions[[table]][["replicates"]])
     
-    if(nbReplicates > 1){
-      values <-getFieldsWithFKFromGlacier(pool,tablename = table ,fields = fieldsToRetrieve,ids = ids)
-      values <- reduce(values,table)
-    }
-    else
-    {
-      values <-getFieldsFromGlacier(pool,tableName = table ,fields = fieldsToRetrieve,ids = ids)
-    }
-    column <- scale(values,table,nbEntries)
+    values <-getFieldsWithFKFromGlacier(pool,tablename = table ,fields = fieldsToRetrieve,ids = ids)
+    fk <- tableOptions[[table]][["FK"]]
+    colToSummarise <-names(values %>% select(-all_of(fk)))
     
-    if(field=="date")
-      column <- format(as.Date(unlist(column)),"%d.%m.%Y")
+    if(nbReplicates > 1)
+      values <- reduce(values,table,fk)
+    else
+      values <- formatDFforDownload(values)
+    
+    if(isUpOnly(table))
+      values <- insertEmptyDownEntries(values,fk)
+    values <- removeFK(values)
+
+    column <- scale(values,table,nbEntries)
     
     if(is.null(ncol(column))){
       name <- convertToDLName(field)
@@ -78,24 +81,20 @@ generateMergedDownloadDF <- function(fields,ids,pool){
 # - values : the data frame to reduce 
 # - tablename : the table name of the input values
 # Return the reduced data frame
-reduce <- function(values,tablename){
-  
-  fk <- tableOptions[[tablename]][["FK"]]
+reduce <- function(values,tablename,fk){
+  # values <- data.frame(id_patch=c(1,1,1,1),chla=c(-9999,NA,0.42,0.43))
+  # tablename <- "microbial_3"
   colToSummarise <-names(values %>% select(-all_of(fk)))
-  values <- values %>%                                        
+  values <- formatDFforDownload(values)
+  # complex complex
+  # print(values)
+  values <- values %>% 
     group_by(.dots=fk) %>%                         
     summarise_at(vars(colToSummarise),mean,na.rm = TRUE) 
   values[is.na(values)] <- NA
   
-  if(!is.null(isOnlyUP[[tablename]]) && isOnlyUP[[tablename]]){
-    values <- values %>% mutate(rownum = row_number()) %>% 
-      bind_rows(., filter(., !is.na(fk)) %>% 
-                  mutate(across(all_of(colToSummarise),function(.){NA}), rownum = rownum-.5)) %>% 
-      arrange(rownum) %>%
-      select(-rownum)
-  }
-  values <- values %>%
-    select(-all_of(fk))
+
+  # print(values)
   return(values)
 }
 
@@ -130,5 +129,18 @@ convertToDLName <- function(field){
     name <-field
   # print(paste(field,unit))
   return(name)
+}
+
+isUpOnly <- function(table){
+  return(!is.null(isOnlyUP[[table]]) && isOnlyUP[[table]])
+}
+
+insertEmptyDownEntries <- function(df,fk){
+  df <- df %>% mutate(rownum = row_number()) %>% 
+    bind_rows(., filter(., !is.na(fk)) %>% 
+                mutate(across(all_of(colToSummarise),function(.){NA}), rownum = rownum-.5)) %>% 
+    arrange(rownum) %>%
+    select(-rownum)
+  return(df)
 }
 

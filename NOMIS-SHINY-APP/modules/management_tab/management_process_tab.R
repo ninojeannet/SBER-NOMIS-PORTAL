@@ -27,8 +27,8 @@ managementProcessTabUI <- function(id) {
         id = ns('main'),
         verbatimTextOutput(ns('status')),
         uiOutput("report"),
-        hidden(downloadButton(ns("show"),"Show process result")),
-        hidden(downloadButton(ns("save"),"Save results in database"))
+        actionButton(ns("show"),"Show process result"),
+        hidden(actionButton(ns("save"),"Save results in database"))
         ,
         width=8
       )
@@ -40,18 +40,23 @@ managementProcessTab <- function(input, output, session,pool){
   
   
   observeEvent(input$process,{
-    # rmarkdown::render("processing/dom_processing.Rmd")
+   
     switch (input$type,
       "dom" = {
-        print("test")
-        output$report <- renderUI({
-
-        }) 
+        rmarkdown::render("processing/dom_processing.Rmd",output_file = "dom_processing.html",output_dir = "processing/tmp/")
       }
     )
   })
   
   observeEvent(input$show,{
+    showModal(
+      modalDialog(
+                includeHTML("processing/tmp/dom_processing.html"),
+                easyClose=TRUE,
+                
+            
+        )
+      )
     
   })
   
