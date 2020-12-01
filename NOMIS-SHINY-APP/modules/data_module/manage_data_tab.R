@@ -281,11 +281,11 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
 # - listName : the name of the list to display in the table
 # - pool : the database connection pool
 uploadData <- function(df,tablename,listName,pool){
+
   out <- setDefaultColumnName(df,listName)
-  # print(out)
   out <- formatDFforUpload(out)
-  # print(out)
   status <- saveData(out,tablename,TRUE,pool)
+
   if (status)
     saveLog("upload","Nino",paste0("Upload data ",tablename," in the database"))
   else

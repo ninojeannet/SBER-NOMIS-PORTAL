@@ -103,7 +103,14 @@ ui <- tagList(
             # Create the home tab
             tabPanel(
                 # Create a tab title with an icon
-                tags$span(icon('home'),tags$span('Home', class = 'navbar-menu-name'))
+                tags$span(icon('home'),tags$span('Home', class = 'navbar-menu-name')),
+                # Load the home page template with some icons
+                htmlTemplate(
+                    './html_components/home.html',
+                    dlTabLink = actionLink('aboutDlLink', 'Download tab'),
+                    extLinkIcon = icon('external-link-alt', class = 'ext-link')
+                ),
+                value = 'aboutTab'
             ),
             # Create the visualisation tab
             tabPanel(
