@@ -76,10 +76,11 @@ generateLocationDF <- function(dataf,glacierID){
   fk_column <- tableOptions[["location"]][["FK"]]
   idUP <- paste0(glacierID,"_UP")
   idDN <- paste0(glacierID,"_DN")
-  ids <- c(idDN,idUP)
+  ids <- c(idUP,idDN)
   fk <- glacierID
   nbCol <- ncol(dataf)
   nbRow <- nrow(dataf)
+  
   
   # Create a new empty dataframe
   newdataf <- dataf
@@ -97,7 +98,7 @@ generateLocationDF <- function(dataf,glacierID){
     newdataf <- copyDFValuesTo(dataf,newdataf,primary)
 
   newdataf[[fk_column]] <- fk
-  newdataf[["type"]] <- c("Down","Up")
+  newdataf[["type"]] <- c("Up","Down")
   
   return(newdataf)
 }
@@ -121,8 +122,9 @@ generatePatchDF <- function(dataf,glacierID){
     ids <- c(ids,paste0(idUP,"_",patch))
     ids <- c(ids,paste0(idDN,"_",patch))
   }
-  ids <- sort(ids)
-  idsFk <- sort(idsFk)
+  
+  ids <- reg_sort(ids,"GL[\\d+]_",-"_UP_|_DN_","_\\d")
+  idsFk <- reg_sort(idsFk,"GL[\\d+]_",-"_UP|_DN")
   nbCol <- ncol(dataf)
   nbRow <- nrow(dataf)
   
@@ -144,6 +146,23 @@ generatePatchDF <- function(dataf,glacierID){
   newdataf[[fk]] <- idsFk
   newdataf[["name"]] <- patches
   return(newdataf)
+}
+
+reg_sort <- function(x,...,verbose=F) {
+  ellipsis <-   sapply(as.list(substitute(list(...)))[-1], deparse, simplify="array")
+  reg_list <-   paste0(ellipsis, collapse=',')
+  reg_list %<>% strsplit(",") %>% unlist %>% gsub("\\\\","\\",.,fixed=T)
+  pattern  <-   reg_list %>% map_chr(~sub("^-\\\"","",.) %>% sub("\\\"$","",.) %>% sub("^\\\"","",.) %>% trimws)
+  descInd  <-   reg_list %>% map_lgl(~grepl("^-\\\"",.)%>%as.logical)
+  
+  reg_extr <-   pattern %>% map(~str_extract(x,.)) %>% c(.,list(x)) %>% as.data.table
+  reg_extr[] %<>% lapply(., function(x) type.convert(as.character(x), as.is = TRUE))
+  
+  map(rev(seq_along(pattern)),~{reg_extr<<-reg_extr[order(reg_extr[[.]],decreasing = descInd[.])]})
+  
+  if(verbose) { tmp<-lapply(reg_extr[,.SD,.SDcols=seq_along(pattern)],unique);names(tmp)<-pattern;tmp %>% print }
+  
+  return(reg_extr[[ncol(reg_extr)]])
 }
 
 # Generate a specific dataframe from parameters data
@@ -172,8 +191,8 @@ generateParametersDF <- function(dataf,tablename,glacierID){
     }
   }
   
-  ids <- sort(ids)
-  idsFk <- sort(idsFk)
+  ids <- reg_sort(ids,"GL[\\d+]_",-"_UP_|_DN_","_\\d_","_[ABC]")
+  idsFk <- reg_sort(idsFk,"GL[\\d+]_",-"_UP|_DN","_\\d")
   nbRow <- nrow(dataf)
   
   # Create a new empty dataframe
@@ -225,8 +244,8 @@ generateBiogeoDF <- function(dataf,tablename,glacierID){
     }
   }
   
-  ids <- sort(ids)
-  idsFk <- sort(idsFk)
+  ids <- reg_sort(ids,"GL[\\d+]_",-"_UP_|_DN_","_[ABC]")
+  idsFk <- reg_sort(idsFk,"GL[\\d+]_",-"_UP|_DN")
   nbRow <- nrow(dataf)
   
   # Create a new empty dataframe

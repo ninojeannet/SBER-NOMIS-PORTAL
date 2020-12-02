@@ -12,7 +12,9 @@ managementProgressTabUI <- function(id) {
       h1("Project progression"),
       div(
         class = 'main-actions',
+        actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary'),
         actionButton(ns('refresh'), 'Refresh', class = 'help custom-style custom-style--primary')
+        
       )),
     formattableOutput(ns("progress_table"))
   )

@@ -32,7 +32,8 @@ install.packages(
            "zip",
            "promises",
            "future",
-           "xlsx"
+           "xlsx",
+           "purrr"
   ),
   repos = 'https://cran.rstudio.com/'
 )

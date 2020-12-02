@@ -37,6 +37,7 @@ library(sodium)
 library(zip)
 library(promises)
 library(future)
+library(purrr)
 
 plan(multiprocess)
 

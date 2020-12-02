@@ -12,7 +12,14 @@ managementExpeditionTabUI <- function(id) {
   # Create and return the payout
   tagList(
     # Create a main header
-    h1(class = 'global-header', 'Expeditions Management'),
+    div(
+      class= 'main-inputs',
+      h1("Expeditions Management"),
+      div(
+        class = 'main-actions',
+        actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary')
+        
+      )),
     # htmlTemplate('./html_components/user_tab_info.html'),
     editableDTUI(ns('expedition'))
   )
