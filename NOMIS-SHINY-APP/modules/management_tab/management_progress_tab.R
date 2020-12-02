@@ -16,7 +16,8 @@ managementProgressTabUI <- function(id) {
         actionButton(ns('refresh'), 'Refresh', class = 'help custom-style custom-style--primary')
         
       )),
-    formattableOutput(ns("progress_table"))
+    div(class="progresstable",
+    formattableOutput(ns("progress_table")))
   )
 }
 
@@ -70,14 +71,15 @@ managementProgressTab <- function(input, output, session,pool){
 # Function that color cell according to cell content
 color_tile_valid <- function (...) {
   formatter("span", style = function(x) {
-    style( padding = "0 4px", 
+    style( display = "inline-block",padding = "0 4px",
           `border-radius` = "4px", 
-          `background-color` = ifelse(param_validator(x), "lightgreen", "white"))
+          `background-color` = ifelse(param_validator(x), "lightgreen", "white"),
+          width = "80px")
   },x ~ icontext(ifelse(param_validator(x), "ok", ""),x))}
 
 formatRowNames <- function(...){
   formatter("span", style = function(x) {
-    style(`font-weight` = "bold") })
+    style(display = "inline-block",width = "150px",`font-weight` = "bold") })
 }
 
 # Validator that checks if the cell should be colored or not

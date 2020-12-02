@@ -26,8 +26,26 @@
   white-space: pre-line;
 }
 
-#management-progress-progress_table td:nth-child(1) {  
-  /* your stuff here */
+.progresstable {
+ width: inherit;
+ overflow: auto;
+}
+
+#management-progress-progress_table td:nth-child(1) {
+  background-color: white;
+    /* Stick to the left */
+  left: 0;
+  position: sticky;
   border-right:2px solid #ddd;
-  
+  /* Displayed on top of other rows when scrolling */
+  z-index: 9999;
+}
+#management-progress-progress_table th:first-child {
+  background-color: white;
+    /* Stick to the left */
+  left: 0;
+  position: sticky;
+
+  /* Displayed on top of other rows when scrolling */
+  z-index: 9999;
 }

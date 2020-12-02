@@ -86,7 +86,7 @@ buildProgressTable <- function(pool){
                                        bp=df$bp,ba=df$ba,respiration=df$respiration),
                   function(x){ paste(unlist(x),collapse = ', ')})
 
-  df <- df[order(nchar(substring(df$range,1,3)),df$range),]
+  df <- df[order(as.numeric(gsub(" -.+","", df$range)),df$range),]
   headers <- df[["name"]]
   df <- df %>% select(-name)
   df <- as.data.frame(t(df))
