@@ -19,3 +19,10 @@
         @content;
     }
 }
+
+
+@mixin tall-and-wide {
+    @media screen and (min-height: 1041px) and (min-width: 1000px) {
+        @content;
+    }
+}
