@@ -178,8 +178,8 @@ formatDFforDownload <- function(df){
   return(df)
 }
 
-removeFK <- function(df){
-  fk <- tableOptions[[tablename]][["FK"]]
+removeFK <- function(df,table){
+  fk <- tableOptions[[table]][["FK"]]
   df <- df %>%
     select(-all_of(fk))
   return(df)

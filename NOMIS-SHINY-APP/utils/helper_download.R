@@ -47,19 +47,21 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     
     values <-getFieldsWithFKFromGlacier(pool,tablename = table ,fields = fieldsToRetrieve,ids = ids)
     fk <- tableOptions[[table]][["FK"]]
-    colToSummarise <-names(values %>% select(-all_of(fk)))
+    if(table != "glacier")
+      colToSummarise <-names(values %>% select(-all_of(fk)))
+    
     
     if(nbReplicates > 1)
-      values <- reduce(values,table,fk)
+      values <- reduce(values,table,fk,colToSummarise)
     else
       values <- formatDFforDownload(values)
     
     if(isUpOnly(table))
-      values <- insertEmptyDownEntries(values,fk)
-    values <- removeFK(values)
+      values <- insertEmptyDownEntries(values,fk,colToSummarise)
+    if(table != "glacier")
+      values <- removeFK(values,table)
 
     column <- scale(values,table,nbEntries)
-    
     if(is.null(ncol(column))){
       name <- convertToDLName(field)
       df[[name]] <- unlist(column)
@@ -81,10 +83,9 @@ generateMergedDownloadDF <- function(fields,ids,pool){
 # - values : the data frame to reduce 
 # - tablename : the table name of the input values
 # Return the reduced data frame
-reduce <- function(values,tablename,fk){
+reduce <- function(values,tablename,fk,colToSummarise){
   # values <- data.frame(id_patch=c(1,1,1,1),chla=c(-9999,NA,0.42,0.43))
   # tablename <- "microbial_3"
-  colToSummarise <-names(values %>% select(-all_of(fk)))
   values <- formatDFforDownload(values)
   # complex complex
   # print(values)
@@ -135,7 +136,7 @@ isUpOnly <- function(table){
   return(!is.null(isOnlyUP[[table]]) && isOnlyUP[[table]])
 }
 
-insertEmptyDownEntries <- function(df,fk){
+insertEmptyDownEntries <- function(df,fk,colToSummarise){
   df <- df %>% mutate(rownum = row_number()) %>% 
     bind_rows(., filter(., !is.na(fk)) %>% 
                 mutate(across(all_of(colToSummarise),function(.){NA}), rownum = rownum-.5)) %>% 

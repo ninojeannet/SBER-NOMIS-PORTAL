@@ -44,7 +44,7 @@ manageDataTabUI <- function(id,title){
         # Create the main panel
         mainPanel(
           id = ns('main'),
-          div(
+          div(id="main-content",
             hidden(h1(id = ns("title"),"Selected files status")),
             div(class = "file-output",id=ns("tables"),
                 div(class="file-table",tableOutput(ns("fileValid"))),
@@ -53,7 +53,8 @@ manageDataTabUI <- function(id,title){
                 div(class="file-table",tableOutput(ns("fileExisting"))),
                 div(class="file-table",hidden(actionButton(ns("uploadFiles"),"Upload valid files",class="upload-button")))
             ),
-            rHandsontableOutput(ns("table")),
+            use_waiter(),
+            div(id =ns("table-container"),class="table-container",rHandsontableOutput(ns("table"))),
             hidden(actionButton(ns("upload"),"Upload data",class="upload-button"))       
           ),
           width = 9
@@ -75,7 +76,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   sidebarVisible <- reactiveVal(TRUE)
   updatedRows <- reactiveVal(vector())
   isFileUpload <- reactiveVal(FALSE)
-  
+
   # Reactive variable
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectedFields <- reactive(getFieldsFromValue(input$type))
@@ -83,7 +84,6 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   filenames <- reactive({generateFilenames(ids(),input$domtype)})
   existingFiles <- reactive({getExistingFilenamesInDB(pool,tableName(),input$domtype,ids())})
   tablesFile <- reactive({generateFileTables(filenames(),input$files,existingFiles(),isUploadOnly)})
-  
   # Reactive variable which contains the dataframe to display
   dataf <- reactive({
     if(input$type %in% tableList)
@@ -133,10 +133,12 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     )
   })
   
+  w <- Waiter$new(id=session$ns("table-container"),html = spin_throbber(),color = "#FFFFFF80")
+  
   # observeEvent that react to generate input's update
   # Generate and render the data table 
   observeEvent(input$generate,{
-    print(tableName())
+    w$show()
     output$table <- renderRHandsontable({
       validateInput(input)
       table <- isolate(input$type)
@@ -145,10 +147,11 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
         readOnlyRows <- as.numeric(getReadOnlyRows(df,tableName()))
       else
         readOnlyRows <- vector()
-      generateHandsonTable(df,dimension,readOnlyRows,table,isolate(tableName()))
+      table <-generateHandsonTable(df,dimension,readOnlyRows,table,isolate(tableName()))
+      w$hide()
+      table
     })
     showElement("upload")
-    showElement("table")
   })
   
   # observeEvent that react to type input's update
@@ -156,6 +159,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   observeEvent(input$type,{
     if (input$type == "biogeo_3u" & input$domtype %in% c("eem","abs1","abs10")){
       isFileUpload(TRUE)
+      hideElement("spinner")
       showElement("domtype")
       showElement("files")
       hideElement("generate")
@@ -206,8 +210,22 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     out <- hot_to_r(input$table)
     if(!isUploadOnly)
       show_validation_popup(tableName(),updatedRows(),output,session$ns,FALSE,out)
-    else
-      uploadData(out,isolate(tableName()),isolate(input$type),pool)
+    else{
+      w$show()
+      output$table <- renderRHandsontable({
+        uploadData(out,isolate(tableName()),isolate(input$type),pool)
+        table <- isolate(input$type)
+        df <- isolate(dataf())
+        if(isUploadOnly)
+          readOnlyRows <- as.numeric(getReadOnlyRows(df,tableName()))
+        else
+          readOnlyRows <- vector()
+        table <- generateHandsonTable(df,dimension,readOnlyRows,table,isolate(tableName()))
+        w$hide()
+        table
+      })
+      
+    }
   })
   
   # observeEvent that react to uplooadFiles button click
@@ -225,6 +243,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # submit button is located in the validation popup window
   # Save updated data once validated
   observeEvent(input$submit, priority = 20,{
+    shinyjs::reset("entry_form")
+    removeModal()
     if(isFileUpload()){
       validFilename <- tablesFile()[["valid"]]
       validFiles <- input$files[input$files$name %in% validFilename,]
@@ -233,10 +253,20 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     else
     {
       out <- hot_to_r(input$table)
-      uploadData(out,isolate(tableName()),isolate(input$type),pool)  
+      w$show()
+      output$table <- renderRHandsontable({
+        uploadData(out,isolate(tableName()),isolate(input$type),pool)
+        table <- isolate(input$type)
+        df <- isolate(dataf())
+        if(isUploadOnly)
+          readOnlyRows <- as.numeric(getReadOnlyRows(df,tableName()))
+        else
+          readOnlyRows <- vector()
+        table <- generateHandsonTable(df,dimension,readOnlyRows,table,isolate(tableName()))
+        w$hide()
+        table
+        })
     }
-    shinyjs::reset("entry_form")
-    removeModal()
   })
   
   # observeEvent that react to each update on the data table

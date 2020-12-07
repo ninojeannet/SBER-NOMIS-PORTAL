@@ -38,6 +38,7 @@ library(zip)
 library(promises)
 library(future)
 library(purrr)
+library(waiter)
 
 plan(multiprocess)
 

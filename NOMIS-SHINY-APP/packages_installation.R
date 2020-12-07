@@ -33,7 +33,8 @@ install.packages(
            "promises",
            "future",
            "xlsx",
-           "purrr"
+           "purrr",
+           "waiter"
   ),
   repos = 'https://cran.rstudio.com/'
 )

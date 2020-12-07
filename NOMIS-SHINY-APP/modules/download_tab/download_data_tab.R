@@ -65,7 +65,7 @@ downloadDataTab <- function(input,output,session,pool){
   selectedTypes <- reactiveVal()
   selectedOnlyType <- reactiveVal()
   dfToDownload <- reactiveVal()
-  fields <- reactiveVal()
+  nbOfEntry <- reactiveVal()
   nbOfGlacier <- reactiveVal()
   isMultiple <- reactiveVal(FALSE)
   
@@ -172,12 +172,12 @@ downloadDataTab <- function(input,output,session,pool){
       
       dfToDownload(df)
       nbOfGlacier(length(ids()))
-      fields(names(df))
+      nbOfEntry(nrow(df))
       isMerged <- TRUE
       cat("# File summary",'\n')
       cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
       cat('# Number of glacier : ',nbOfGlacier(),'\n')
-      cat('# Selected fields','\n',fields(),'\n')
+      cat('# Total number of rows : ',nbOfEntry(),'\n')
       if(isMultiple())
         cat('Some of these data have been average when they have replicates.','\n')
     })
