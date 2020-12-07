@@ -76,7 +76,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   sidebarVisible <- reactiveVal(TRUE)
   updatedRows <- reactiveVal(vector())
   isFileUpload <- reactiveVal(FALSE)
-
+  update <- reactiveVal(FALSE)
   # Reactive variable
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectedFields <- reactive(getFieldsFromValue(input$type))
@@ -86,6 +86,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   tablesFile <- reactive({generateFileTables(filenames(),input$files,existingFiles(),isUploadOnly)})
   # Reactive variable which contains the dataframe to display
   dataf <- reactive({
+    update()
     if(input$type %in% tableList)
       tmp <- getTableFromGlacier(pool,tableName(),ids())
     else
@@ -138,11 +139,11 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # observeEvent that react to generate input's update
   # Generate and render the data table 
   observeEvent(input$generate,{
-    w$show()
+    # w$show()
     output$table <- renderRHandsontable({
       validateInput(input)
       table <- isolate(input$type)
-      df <- isolate(dataf())
+      df <- dataf()
       if(isUploadOnly)
         readOnlyRows <- as.numeric(getReadOnlyRows(df,tableName()))
       else
@@ -212,19 +213,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       show_validation_popup(tableName(),updatedRows(),output,session$ns,FALSE,out)
     else{
       w$show()
-      output$table <- renderRHandsontable({
-        uploadData(out,isolate(tableName()),isolate(input$type),pool)
-        table <- isolate(input$type)
-        df <- isolate(dataf())
-        if(isUploadOnly)
-          readOnlyRows <- as.numeric(getReadOnlyRows(df,tableName()))
-        else
-          readOnlyRows <- vector()
-        table <- generateHandsonTable(df,dimension,readOnlyRows,table,isolate(tableName()))
-        w$hide()
-        table
-      })
-      
+      uploadData(out,isolate(tableName()),isolate(input$type),pool)
+      update(!update())
     }
   })
   
@@ -254,18 +244,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     {
       out <- hot_to_r(input$table)
       w$show()
-      output$table <- renderRHandsontable({
-        uploadData(out,isolate(tableName()),isolate(input$type),pool)
-        table <- isolate(input$type)
-        df <- isolate(dataf())
-        if(isUploadOnly)
-          readOnlyRows <- as.numeric(getReadOnlyRows(df,tableName()))
-        else
-          readOnlyRows <- vector()
-        table <- generateHandsonTable(df,dimension,readOnlyRows,table,isolate(tableName()))
-        w$hide()
-        table
-        })
+      uploadData(out,isolate(tableName()),isolate(input$type),pool)
+      update(!update())
     }
   })
   
