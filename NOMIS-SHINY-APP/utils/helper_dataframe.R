@@ -124,9 +124,6 @@ generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
   if(name == "location"){
     df[["rdna"]] <- as.logical(df[["rdna"]])
     df$rdna[is.na(df$rdna)] <- FALSE
-    # df <- data.frame(date=c(NA,"-9999","2020-02-08"))
-    # df[["date"]] <- format(as.Date(df[["date"]],optional = TRUE),"%d.%m.%y")
-    # print(df)
     specificTypeColumns <- c("rdna")
   }
   df[df=="-9999"] <- "NA"

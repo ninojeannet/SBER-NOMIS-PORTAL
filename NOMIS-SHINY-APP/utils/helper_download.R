@@ -34,11 +34,11 @@ generateMergedDownloadDF <- function(fields,ids,pool){
   
   df <- data.frame(matrix(ncol = 0, nrow = nbRow))
   if(nbEntries == 6)
-    df[["patch"]] <- unlist(getFieldsFromGlacier(pool,tableName = "patch" ,fields = c("id_patch"),ids = ids))
+    df[["patch"]] <- reg_sort(unlist(getFieldsFromGlacier(pool,tableName = "patch" ,fields = c("id_patch"),ids = ids)),"GL[\\d+]_",-"_UP_|_DN_","_\\d")
   else if(nbEntries == 2)
-    df[["location"]] <- unlist(getFieldsFromGlacier(pool,tableName = "location" ,fields = c("id_location"),ids = ids))
+    df[["location"]] <- reg_sort(unlist(getFieldsFromGlacier(pool,tableName = "location" ,fields = c("id_location"),ids = ids)),"GL[\\d+]_",-"_UP|_DN")
   else
-    df[["glacier"]] <-  unlist(ids)
+    df[["glacier"]] <-  reg_sort(unlist(ids),"GL[\\d+]")
   
   for (field in fields) {
     table <- getTableNameFromValue(field)
@@ -46,6 +46,8 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     nbReplicates <- length(tableOptions[[table]][["replicates"]])
     
     values <-getFieldsWithFKFromGlacier(pool,tablename = table ,fields = fieldsToRetrieve,ids = ids)
+    values <- values[order(reg_sort(values[[1]],"GL[\\d+]_",-"_UP_|_DN_","_\\d"),values[[1]]),]
+
     fk <- tableOptions[[table]][["FK"]]
     if(table != "glacier")
       colToSummarise <-names(values %>% select(-all_of(fk)))
@@ -58,6 +60,7 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     
     if(isUpOnly(table))
       values <- insertEmptyDownEntries(values,fk,colToSummarise)
+    
     if(table != "glacier")
       values <- removeFK(values,table)
 
@@ -139,7 +142,7 @@ isUpOnly <- function(table){
 insertEmptyDownEntries <- function(df,fk,colToSummarise){
   df <- df %>% mutate(rownum = row_number()) %>% 
     bind_rows(., filter(., !is.na(fk)) %>% 
-                mutate(across(all_of(colToSummarise),function(.){NA}), rownum = rownum-.5)) %>% 
+                mutate(across(all_of(colToSummarise),function(.){NA}), rownum = rownum+.5)) %>% 
     arrange(rownum) %>%
     select(-rownum)
   return(df)

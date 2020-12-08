@@ -90,7 +90,7 @@ fullnameFields[["nutrient"]] <- c("ID","Location","Replicate","Nutrients 1\nTota
                                   "Nutrients 3\nSoluble reactive\nphosphorus\n[ug l-1]","Nutrients 4\nAmmonium\n[ug l-1]",
                                   "Nutrients 5\nNitrate\n[ug l-1]","Nutrients 6\nNitrite\n[ug l-1]")
 fullnameFields[["isotope"]] <- c("ID","Location","Replicate","Hydrogen stable\nisotope\n[per_mil]","Oxygen stable\nisotope\n[per_mil]")
-fullnameFields[["doc"]] <- c("ID","Location","Replicate","Dissolved organic carbon")
+fullnameFields[["doc"]] <- c("ID","Location","Replicate","Dissolved organic carbon\n[ug l-1]")
 fullnameFields[["chla"]] <- c("ID","Patch","Replicate","CHLA\n[ug g-1]")
 fullnameFields[["enzyme"]] <- c("ID","Patch","Replicate","AG\n[nmol g-1 h-1]","AP\n[nmol g-1 h-1]","BG\n[nmol g-1 h-1]","LAP\n[nmol g-1 h-1]","NAG\n[nmol g-1 h-1]")
 fullnameFields[["eps"]] <- c("ID","Patch","Replicate","EPS\n[ugC g-1]")
