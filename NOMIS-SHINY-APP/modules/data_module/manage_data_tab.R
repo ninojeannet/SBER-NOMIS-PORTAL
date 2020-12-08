@@ -139,7 +139,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # observeEvent that react to generate input's update
   # Generate and render the data table 
   observeEvent(input$generate,{
-    # w$show()
+    w$show()
     output$table <- renderRHandsontable({
       validateInput(input)
       table <- isolate(input$type)

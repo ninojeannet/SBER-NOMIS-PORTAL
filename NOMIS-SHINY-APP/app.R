@@ -35,12 +35,12 @@ library(shinyvalidate)
 library(formattable)
 library(sodium)
 library(zip)
-library(promises)
+# library(promises)
 library(future)
 library(purrr)
 library(waiter)
 
-plan(multiprocess)
+# plan(multiprocess)
 
 ## Compile CSS from Sass ##########################################################
 sass(
@@ -118,22 +118,7 @@ ui <- tagList(
             tabPanel(
                 # Create a tab title with an icon
                 tags$span(icon('chart-bar'),tags$span('Visualisation', class = 'navbar-menu-name')),
-               ),
-            # Create the upload tab
-            tabPanel(
-                # Create a tab title with an icon
-                tags$span(icon('upload'),tags$span('Upload', class = 'navbar-menu-name')),
-                # Load the uploadTab module UI elements
-                uploadTabUI('upload')
-            ),
-            # Create the download tab
-            tabPanel(
-                # Create a tab title with an icon
-                tags$span(icon('download'),tags$span('Download', class = 'navbar-menu-name')),
-                # Load the visualisationTab module UI elements
-                downloadTabUI('download')
-                #visualisationTabUI('1', grabSampleDf, hfDf, sites, grabSampleParameters, hfParameters)
-            )
+               )
         ),
         # Add the login module UI
         loginUI('login')
@@ -148,14 +133,24 @@ ui <- tagList(
 server <- function(input, output, session) {
     user <- callModule(login, 'login', pool)
     dimension <- reactive({input$dimension})
-    callModule(uploadTab,"upload",pool,dimension)
-    callModule(downloadTab,"download",pool)
     
-    onStop(function() poolClose(pool))
+    # onStop(function() poolClose(pool))
     
     observeEvent(user$role, {
         
-        # if (user$role %in% c('sber', 'admin')) {
+        if (user$role %in% c('sber', 'admin')) {
+            appendTab(
+                'main-nav',
+                # Create the upload tab
+                tabPanel(
+                    # Create a tab title with an icon
+                    tags$span(icon('upload'),tags$span('Upload', class = 'navbar-menu-name')),
+                    # Load the uploadTab module UI elements
+                    uploadTabUI('upload')
+                )
+            )
+            
+            callModule(uploadTab,"upload",pool,dimension)
             ## Generate dataManagementTab #################################################
             # Create the data management tab
             appendTab(
@@ -169,9 +164,24 @@ server <- function(input, output, session) {
             )
             # Load data management server logic
             callModule(managementTab,"management",pool,dimension)
-        # }
+            
+        }
+        if (user$role %in% c('sber', 'admin','intern')) {
+            appendTab(
+                'main-nav',
+                # Create the download tab
+                tabPanel(
+                    # Create a tab title with an icon
+                    tags$span(icon('download'),tags$span('Download', class = 'navbar-menu-name')),
+                    # Load the visualisationTab module UI elements
+                    downloadTabUI('download')
+                    #visualisationTabUI('1', grabSampleDf, hfDf, sites, grabSampleParameters, hfParameters)
+                )
+            )
+            callModule(downloadTab,"download",pool)
+        }
         
-        # if (user$role == 'admin') {
+        if (user$role == 'admin') {
             ## Generate usersTab ##########################################################
             # Create users tab
             appendTab(
@@ -185,9 +195,15 @@ server <- function(input, output, session) {
             )
             # Load users tab server logic
             callModule(usersTab, 'users', pool)
-        # }
+        }
     })
 }
 
-# Run the application 
-shinyApp(ui = ui, server = server)
+shinyApp(ui, server, onStart = function() {
+    cat("Doing application setup\n")
+    
+    onStop(function() {
+        cat("Doing application cleanup\n")
+        poolClose(pool)
+    })
+})
