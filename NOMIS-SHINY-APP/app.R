@@ -42,18 +42,17 @@ library(waiter)
 
 # plan(multiprocess)
 
-## Compile CSS from Sass ##########################################################
-sass(
-    sass_file('assets/sass/main.scss'), 
-    output = 'www/main.css',
-    options = sass_options(output_style = 'compressed')
-)
-
-## Load helper functions ##########################################################
-source('./utils/helper_functions.R')
-
-## Compile and minify JavaScript ##################################################
-js_parser()
+if (ENV == 'development') {
+    # Compile CSS from Sass
+    sass::sass(
+        sass::sass_file('assets/sass/main.scss'), 
+        output = 'www/main.css',
+        options = sass::sass_options(output_style = 'compressed')
+    )
+    
+    # Compile and minify JavaScript
+    js_parser()
+}
 
 ## Load Shiny extensions functions ################################################
 source('./utils/shiny_extensions.R')
@@ -64,7 +63,7 @@ source('./modules/management_tab/management_tab.R')
 source('./modules/upload_tab/upload_tab.R')
 source('./modules/download_tab/download_tab.R')
 source('./modules/login/login.R')
-source('./modules/users_tab/users_tab.R')
+source('./modules/portal_tab/portal_tab.R')
 source('./modules/editableDT/editableDT.R')
 
 
@@ -72,10 +71,10 @@ options(shiny.maxRequestSize=100*1024^2)
 
 pool <- dbPool(
     drv = RMySQL::MySQL(),
-    dbname = DBName,
-    host = hostname,
-    username = username,
-    password = password)
+    dbname = DB_NAME,
+    host = HOSTNAME,
+    username = USERNAME,
+    password = PASSWORD)
 
 # Define UI for application that draws a histogram
 ui <- tagList(
@@ -188,13 +187,13 @@ server <- function(input, output, session) {
                 'main-nav',
                 tabPanel(
                     # Create a tab title with an icon
-                    tags$span(icon('user'), tags$span('Users', class = 'navbar-menu-name')),
-                    usersTabUI('users'),
-                    value = 'users'
+                    tags$span(icon('user'), tags$span('Portal', class = 'navbar-menu-name')),
+                    portalTabUI('portal'),
+                    value = 'portal'
                 )
             )
             # Load users tab server logic
-            callModule(usersTab, 'users', pool)
+            callModule(portalTab, 'portal', pool)
         }
     })
 }

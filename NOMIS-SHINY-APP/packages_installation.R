@@ -4,6 +4,7 @@ install.packages(
            "shinyWidgets", 
            "shinybusy", 
            "shinycssloaders", 
+           "remotes",
            "sass", 
            "jsonlite", 
            "readr", 

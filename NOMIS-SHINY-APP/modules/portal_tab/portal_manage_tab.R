@@ -41,32 +41,6 @@ portalManageUI <- function(id) {
         ),
         actionButton(ns('delete'), 'Delete', icon = icon('trash-alt'), class = 'custom-style custom-style--primary'),
       )
-    ),
-    div(
-      class = 'action',
-      h2('Upload and download sensor data'),
-      p('The four requiered files',
-        tags$code('10min_data.csv'), ', ',
-        tags$code('6H_data.csv'), ', ',
-        tags$code('12H_data.csv'), ' and ',
-        tags$code('24H_data.csv'),
-        ' need to be in a diretory named ',
-        tags$code('HF_data'),
-        ' and zipped into a single archive file. It is advised to use the best compression method (e.g. ', tags$code(-9), ' option in UNIX command).'
-      ),
-      p('Upload the zip archive (max size 100MB) to update the data files. The archive will be automatically unzipped and the existing files will be overwritten.'),
-      p('The latest uploaded archive can be downloaded via the Download button.'),
-      div(
-        class = 'file-input-and-download',
-        downloadButton(ns('sensorDownload'), class = 'custom-style custom-style--primary'),
-        fileInputWithClass(
-          inputId = ns('upload'),
-          label = NULL,
-          accept = 'application/zip',
-          buttonLabel = span(icon('upload'), 'Upload'),
-          class = 'custom-style custom-style--primary'
-        )
-      )
     )
   )
 }
@@ -94,13 +68,14 @@ portalManage <- function(input, output, session) {
   observeEvent(input$restart, ignoreInit = TRUE, {
     # Save action to confirm
     actionToConfirm('restart')
-    
+    # print("ici")
     # Show confirmation modal
     confirmationModal('Force restart the App?', noAction = TRUE)
   })
   
   # Restart function
   restartApp <- function() {
+    print("ici")
     tryCatch(
       {
         # Create a new restart.txt in the app root directory
@@ -146,7 +121,7 @@ portalManage <- function(input, output, session) {
     # port=<port>
     
     # Create file name
-    backupFile <- paste0('./db_backups/', gsub('[ :-]', '', Sys.time()), '_', MY_DB_NAME, '_dump.sql')
+    backupFile <- paste0('./db_backups/', gsub('[ :-]', '', Sys.time()), '_', DB_NAME, '_dump.sql')
     errorFile <- tempfile()
     
     # Create command
@@ -154,7 +129,7 @@ portalManage <- function(input, output, session) {
     if (Sys.info()["sysname"] == 'Darwin') command <- paste0('/usr/local/mysql/bin/', command)
     
     # Create The backup
-    system2(command, args = c('--databases', MY_DB_NAME, '--add-drop-database', '-y'),
+    system2(command, args = c('--databases', DB_NAME, '--add-drop-database', '-y'),
             stdout = backupFile, stderr = errorFile)
     
     # If error
@@ -279,6 +254,7 @@ portalManage <- function(input, output, session) {
   
   # YES button
   observeEvent(input$YES, ignoreInit = TRUE, {
+    print("ici")
     req(actionToConfirm() != '')
     if (actionToConfirm() == 'restart') {
       restartApp()
