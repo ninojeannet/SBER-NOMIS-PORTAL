@@ -1,5 +1,5 @@
 # Script to compile the CSS and JavaScript for deployment
-
+library(jsonlite)
 # Load the js_parser function
 source('./utils/helper_functions.R')
 
