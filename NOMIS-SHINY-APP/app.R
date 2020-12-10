@@ -73,6 +73,7 @@ pool <- dbPool(
     drv = RMySQL::MySQL(),
     dbname = DB_NAME,
     host = HOSTNAME,
+    port = DB_PORT,
     username = USERNAME,
     password = PASSWORD)
 
