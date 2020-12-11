@@ -35,12 +35,21 @@ library(shinyvalidate)
 library(formattable)
 library(sodium)
 library(zip)
-# library(promises)
 library(future)
 library(purrr)
 library(waiter)
 
-# plan(multiprocess)
+## Load Shiny extensions functions ################################################
+source('./utils/shiny_extensions.R')
+## Load tabs modules ##############################################################
+source('./modules/management_tab/management_tab.R')
+source('./modules/upload_tab/upload_tab.R')
+source('./modules/download_tab/download_tab.R')
+source('./modules/login/login.R')
+source('./modules/portal_tab/portal_tab.R')
+source('./modules/editableDT/editableDT.R')
+
+source('app_config.R')
 
 if (ENV == 'development') {
     # Compile CSS from Sass
@@ -53,19 +62,6 @@ if (ENV == 'development') {
     # Compile and minify JavaScript
     js_parser()
 }
-
-## Load Shiny extensions functions ################################################
-source('./utils/shiny_extensions.R')
-source('app_config.R')
-
-## Load tabs modules ##############################################################
-source('./modules/management_tab/management_tab.R')
-source('./modules/upload_tab/upload_tab.R')
-source('./modules/download_tab/download_tab.R')
-source('./modules/login/login.R')
-source('./modules/portal_tab/portal_tab.R')
-source('./modules/editableDT/editableDT.R')
-
 
 options(shiny.maxRequestSize=100*1024^2)
 
