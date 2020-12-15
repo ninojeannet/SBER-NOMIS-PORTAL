@@ -13,14 +13,34 @@ navbarPageWithWrapper <- function(navbarPageOutput, wrapperClass = 'content-wrap
 #
 # Returns an updated shiny navbarPage UI element
   
+  # # Add wrapperClass to navabar
+  # navbarPageOutput[[3]][[1]]$children[[1]]$attribs$class <- str_interp('${navbarPageOutput[[3]][[1]]$children[[1]]$attribs$class} ${wrapperClass}')
+  # # Add wrapperClass and beforeFooterClass to the content
+  # navbarPageOutput[[3]][[2]]$attribs$class <- str_interp('${navbarPageOutput[[3]][[2]]$attribs$class} ${wrapperClass} ${beforeFooterClass}')
+  # 
+  # # If footer is defined, add it after the content
+  # if(!is.null(footer)) {
+  #   navbarPageOutput[[3]][[length(navbarPageOutput[[3]]) + 1]] <- footer
+  # }
   # Add wrapperClass to navabar
-  navbarPageOutput[[3]][[1]]$children[[1]]$attribs$class <- str_interp('${navbarPageOutput[[3]][[1]]$children[[1]]$attribs$class} ${wrapperClass}')
+  navbarPageOutput[[3]][[1]]$children[[1]]$attribs$class <- paste(
+    navbarPageOutput[[3]][[1]]$children[[1]]$attribs$class, wrapperClass,
+    sep = ' '
+  )
   # Add wrapperClass and beforeFooterClass to the content
-  navbarPageOutput[[3]][[2]]$attribs$class <- str_interp('${navbarPageOutput[[3]][[2]]$attribs$class} ${wrapperClass} ${beforeFooterClass}')
+  navbarPageOutput[[3]][[2]]$attribs$class <- paste(
+    navbarPageOutput[[3]][[2]]$attribs$class, wrapperClass, beforeFooterClass,
+    sep = ' '
+  )
   
   # If footer is defined, add it after the content
+  # And wrap all the body in a div with a CSS class used to send the footer to the bottom of the page
   if(!is.null(footer)) {
     navbarPageOutput[[3]][[length(navbarPageOutput[[3]]) + 1]] <- footer
+    navbarPageOutput <- div(
+      class = 'footer-to-bottom-container',
+      navbarPageOutput
+    )
   }
   
   return(navbarPageOutput)
@@ -290,6 +310,8 @@ createInputs <- function(df, pool, table, session = getDefaultReactiveDomain()) 
     # Get the type and the column name
     type <- columnTypes[i]
     column <- names(type)
+    if(column=="range")
+      type<-"range"
     
     # If the df is empty, set the value to NULL
     # Otherwise, set it to the column value unless it is an NA, then set it to NULL
@@ -364,8 +386,8 @@ createInput <- function(type, label, value = NULL, table, pool, session = getDef
       ),
       div(selectizeInput(
         inputId =  session$ns('ranges'),
-        choices=value[[1]],
-        selected = value[[1]],
+        choices=unlist(str_split(value[[1]],",")),
+        selected = unlist(str_split(value[[1]],",")),
         label = 'Ranges',
         multiple = TRUE,
         options = list(

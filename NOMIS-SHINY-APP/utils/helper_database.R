@@ -437,7 +437,7 @@ updateExpeditionInDB <- function(pool, expedition, name = '', abbreviation = '',
   # Use previous values if not defined
   if (name == SQL('NULL')) name <- expedition$name
   if (abbreviation == SQL('NULL')) abbreviation <- expedition$abbreviation
-  if (length(ranges) ==0) ranges <- expedition$range
+  if (length(ranges) ==0) ranges <- strsplit(expedition$range,",")
 
   # Create query 
   query <- sqlInterpolate(
@@ -446,8 +446,8 @@ updateExpeditionInDB <- function(pool, expedition, name = '', abbreviation = '',
     id_expedition = expedition$id_expedition, name = name, abbreviation = abbreviation)
   # Send Query and catch errors
   sendQuery(query,pool,FALSE)
-  
-  oldRanges <- unlist(expedition$range)
+  str(expedition$range)
+  oldRanges <- unlist(lapply(expedition$range,function(x){strsplit(x,",")}))
   newRanges <- unlist(ranges)
   rangesToCreate <- setdiff(newRanges,oldRanges)
   rangesToDelete <- setdiff(oldRanges,newRanges)

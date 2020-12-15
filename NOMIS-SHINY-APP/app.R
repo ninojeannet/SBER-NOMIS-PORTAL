@@ -127,11 +127,11 @@ ui <- tagList(
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-    user <- callModule(login, 'login', pool)
+
+     user <- callModule(login, 'login', pool)
     dimension <- reactive({input$dimension})
     
-    # onStop(function() poolClose(pool))
-    
+
     observeEvent(user$role, {
         
         if (user$role %in% c('sber', 'admin')) {

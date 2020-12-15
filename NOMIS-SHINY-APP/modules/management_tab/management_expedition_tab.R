@@ -40,9 +40,7 @@ managementExpeditionTab <- function(input, output, session, pool) {
   # Call editableDT module
   callModule(editableDT, 'expedition', pool = pool, tableName = 'expedition', element = 'expedition',
              tableLoading = expression(
-               buildExpeditionTable(pool)%>%
-                 mutate(
-                 range = as.list(range))
+               buildExpeditionTable(pool)
              ),
              templateInputsCreate = expression(
                inputsTemplate %>% select(name, abbreviation, range)
@@ -53,6 +51,7 @@ managementExpeditionTab <- function(input, output, session, pool) {
              creationExpr = expression(
                saveExpeditionInDB(input$name,input$abbreviation,pool),
                for (range in input$ranges) {
+                 print(range)
                  range <- str_split(range," - ")
                  saveRangeInDB(input$name,as.numeric(range[[1]][1]),as.numeric(range[[1]][2]),pool)
                }

@@ -40,8 +40,12 @@ managementProgressTab <- function(input, output, session,pool){
   # Render the data table of the overall project progress
   output$progress_table <- renderFormattable({
     dff <- dfFormatted()
-    formattable(dff,align =c("l",rep("c",ncol(dff)-1)), list(
-      area(col = 1) ~ formatRowNames(),area(col = 2:ncol(dff)) ~ color_tile_valid()))
+    nbCol <- ncol(dff)
+    if(nrow(dff)==0){
+      dff <- data.frame()
+      nbCol<- 10}
+    formattable(data.frame(),align =c("l",rep("c",nbCol-1)), list(
+      area(col = 1) ~ formatRowNames(),area(col = 2:nbCol) ~ color_tile_valid()))
   })
   
   # ObserveEvent that reacts to the refresh button click
