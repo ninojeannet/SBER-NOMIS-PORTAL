@@ -44,7 +44,7 @@ managementProgressTab <- function(input, output, session,pool){
     if(nrow(dff)==0){
       dff <- data.frame()
       nbCol<- 10}
-    formattable(data.frame(),align =c("l",rep("c",nbCol-1)), list(
+    formattable(dff,align =c("l",rep("c",nbCol-1)), list(
       area(col = 1) ~ formatRowNames(),area(col = 2:nbCol) ~ color_tile_valid()))
   })
   
