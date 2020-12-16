@@ -30,10 +30,17 @@ managementProgressTabUI <- function(id) {
 managementProgressTab <- function(input, output, session,pool){
   # Reactive value
   rangeList <- reactiveVal(list())
-  dfFormatted <- reactiveVal(buildProgressTable(pool))
+  dfFormatted <- reactive({    
+    refreshTable()
+    print("ici")
+    buildProgressTable(pool)})
+  
+  refreshTable <- reactiveVal(FALSE)
+  refreshDF <- reactiveVal(FALSE)
   
   # Reactive variable
   df <- reactive({
+    refreshDF()
     dataframe <- getProgressTable(pool)
   })
   
@@ -51,10 +58,12 @@ managementProgressTab <- function(input, output, session,pool){
   # ObserveEvent that reacts to the refresh button click
   # Refresh the data table progress by fetching the database
   observeEvent(input$refresh,{
+    refreshDF(!refreshDF())
     dataframe <- df()
+    print(dataframe)
     rangeList(setRanges(dataframe))
     updateExpeditionTable(dataframe,rangeList(),pool)
-    dfFormatted(buildProgressTable(pool))
+    refreshTable(!refreshTable())
   })
   
   # Create an observeEvent that react to the help button
