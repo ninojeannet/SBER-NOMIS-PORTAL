@@ -32,17 +32,14 @@ managementProgressTab <- function(input, output, session,pool){
   rangeList <- reactiveVal(list())
   dfFormatted <- reactive({    
     refreshTable()
-    print("ici")
     buildProgressTable(pool)})
   
   refreshTable <- reactiveVal(FALSE)
-  refreshDF <- reactiveVal(FALSE)
-  
+
   # Reactive variable
-  df <- reactive({
-    refreshDF()
-    dataframe <- getProgressTable(pool)
-  })
+  getDF <- function(){
+    return(getProgressTable(pool))
+  }
   
   # Render the data table of the overall project progress
   output$progress_table <- renderFormattable({
@@ -58,8 +55,7 @@ managementProgressTab <- function(input, output, session,pool){
   # ObserveEvent that reacts to the refresh button click
   # Refresh the data table progress by fetching the database
   observeEvent(input$refresh,{
-    refreshDF(!refreshDF())
-    dataframe <- df()
+    dataframe <- getDF()
     print(dataframe)
     rangeList(setRanges(dataframe))
     updateExpeditionTable(dataframe,rangeList(),pool)
