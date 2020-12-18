@@ -28,43 +28,65 @@ generateSimpleDownloadDF <- function(field,ids,pool){
 # Return the generated data frame
 generateMergedDownloadDF <- function(fields,ids,pool){
   tables <- unlist(lapply(fields,getTableNameFromValue))
-  # print(tables)
   nbEntries <- max(levels[tables])
   nbRow <- nbEntries*length(ids)
   
   df <- data.frame(matrix(ncol = 0, nrow = nbRow))
-  if(nbEntries == 6)
-    df[["patch"]] <- reg_sort(unlist(getFieldsFromGlacier(pool,tableName = "patch" ,fields = c("id_patch"),ids = ids)),"GL[\\d+]_",-"_UP_|_DN_","_\\d")
-  else if(nbEntries == 2)
-    df[["location"]] <- reg_sort(unlist(getFieldsFromGlacier(pool,tableName = "location" ,fields = c("id_location"),ids = ids)),"GL[\\d+]_",-"_UP|_DN")
-  else
-    df[["glacier"]] <-  reg_sort(unlist(ids),"GL[\\d+]")
-  
+  if(nbEntries == 6){
+      lis <- getFieldsFromGlacier(pool,tableName = "patch" ,fields = c("id_patch"),ids = ids)
+      df[["patch"]] <- reg_sort(lis[[1]],"^GL\\d+",-"UP|DN","_\\d")
+  }
+  else if(nbEntries == 2){
+    lis <- getFieldsFromGlacier(pool,tableName = "location" ,fields = c("id_location"),ids = ids)
+    df[["location"]] <- reg_sort(lis[[1]],"^GL\\d+",-"UP|DN")
+  }
+  else{
+    lis <- unlist(ids)
+    df[["glacier"]] <-  reg_sort(lis,"^GL\\d+")
+  }
+
   for (field in fields) {
     table <- getTableNameFromValue(field)
     fieldsToRetrieve <- setdiff(getFieldsFromValue(field),mandatoryFields[[table]])
     nbReplicates <- length(tableOptions[[table]][["replicates"]])
     
     values <-getFieldsWithFKFromGlacier(pool,tablename = table ,fields = fieldsToRetrieve,ids = ids)
-    values <- values[order(reg_sort(values[[1]],"GL[\\d+]_",-"_UP_|_DN_","_\\d"),values[[1]]),]
-
+    print(values)
     fk <- tableOptions[[table]][["FK"]]
     if(table != "glacier")
       colToSummarise <-names(values %>% select(-all_of(fk)))
-    
-    
+
     if(nbReplicates > 1)
       values <- reduce(values,table,fk,colToSummarise)
     else
       values <- formatDFforDownload(values)
     
+    if(levels[table] == 6){
+      values <- values %>% arrange(as.numeric(gsub("\\D+", "\\1", gsub("_.+","\\1",values[[1]]))),
+                                   desc(gsub("[^(UP|DN)]", "\\1", values[[1]])), gsub("^.+_", "\\1", values[[1]]))
+    }
+    else if(levels[table] == 2){
+      for (i in 1:length(values[[1]])) {
+        if(i %% 2 == 1)
+          values[i,1] <- paste0(values[i,1],"_DN")
+        else
+          values[i,1] <- paste0(values[i,1],"_UP")
+      }
+      values <- values %>% arrange(as.numeric(gsub("\\D+", "\\1", gsub("_.+","\\1",values[[1]]))),
+                                   desc(gsub("[^(UP|DN)]", "\\1", values[[1]])))
+      values[[1]] <- unlist(lapply(values[[1]],function(x){str_remove(x,"_UP|_DN")}))
+    }
+    else{
+      values <- values %>% arrange(as.numeric(gsub("\\D+", "\\1", gsub("_.+","\\1",values[[1]]))))
+    }
+
     if(isUpOnly(table))
       values <- insertEmptyDownEntries(values,fk,colToSummarise)
     
     if(table != "glacier")
       values <- removeFK(values,table)
-
     column <- scale(values,table,nbEntries)
+
     if(is.null(ncol(column))){
       name <- convertToDLName(field)
       df[[name]] <- unlist(column)
@@ -94,7 +116,7 @@ reduce <- function(values,tablename,fk,colToSummarise){
   # print(values)
   values <- values %>% 
     group_by(.dots=fk) %>%                         
-    summarise_at(vars(colToSummarise),mean,na.rm = TRUE) 
+    summarise_at(vars(all_of(colToSummarise)),mean,na.rm = TRUE) 
   values[is.na(values)] <- NA
   
 

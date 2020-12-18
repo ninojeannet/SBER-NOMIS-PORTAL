@@ -449,7 +449,6 @@ clearReactiveValues <- function(rv) {
   )
 }
 
-
 reg_sort <- function(x,...,verbose=F) {
   ellipsis <-   sapply(as.list(substitute(list(...)))[-1], deparse, simplify="array")
   reg_list <-   paste0(ellipsis, collapse=',')
@@ -458,11 +457,12 @@ reg_sort <- function(x,...,verbose=F) {
   descInd  <-   reg_list %>% map_lgl(~grepl("^-\\\"",.)%>%as.logical)
   
   reg_extr <-   pattern %>% map(~str_extract(x,.)) %>% c(.,list(x)) %>% as.data.table
+  reg_extr[] %<>% lapply(., function(x) str_remove(x,"GL"))
   reg_extr[] %<>% lapply(., function(x) type.convert(as.character(x), as.is = TRUE))
-  
   map(rev(seq_along(pattern)),~{reg_extr<<-reg_extr[order(reg_extr[[.]],decreasing = descInd[.])]})
-  
+  reg_extr[] %<>% lapply(., function(x) { paste0("GL",x)})
   if(verbose) { tmp<-lapply(reg_extr[,.SD,.SDcols=seq_along(pattern)],unique);names(tmp)<-pattern;tmp %>% print }
   
   return(reg_extr[[ncol(reg_extr)]])
 }
+

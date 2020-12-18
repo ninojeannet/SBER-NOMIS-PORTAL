@@ -125,16 +125,22 @@ downloadDataTab <- function(input,output,session,pool){
   # ObserveEvent that reacts to "add" input button
   # Add selected parameters from params list to the selected parameters input 
   observeEvent(input$add,{
-    newType <- isolate(input$type)
-    if(grepl("All", newType, fixed = TRUE))
-      newType <- unlist(unname(list.search(typeList(),newType %in% .)))[-1]
+    newTypes <- isolate(input$type)
+    types <- vector()
+    for (newType in newTypes) {
+      if(grepl("All", newType, fixed = TRUE))
+        types <- c(types,unlist(unname(list.search(typeList(),newType %in% .)))[-1])
+      else
+        types <- c(types,newType)
+    }
+    
     if(isMultiple()){
-      tmp <- c(selectedTypes(),newType)
+      tmp <- c(selectedTypes(),types)
       selectedTypes(unique(tmp))
       updateSelectizeInput(session,"selectedTypes",choices = selectedTypes())
     }
     else{
-      selectedOnlyType(newType[1])
+      selectedOnlyType(types[1])
       updateTextInput(session,"onlyType",value = selectedOnlyType())
     }
   })
@@ -158,8 +164,8 @@ downloadDataTab <- function(input,output,session,pool){
   # Generate a file according to the given parameters and glacier ids
   observeEvent(input$generate,{
     # Render a small summary of the generated file
-    output$preview <- renderPrint({
-      validateDownloadInput(input,isMultiple(),isolate(selectedTypes()))
+    # output$preview <- renderPrint({
+    #   validateDownloadInput(input,isMultiple(),isolate(selectedTypes()))
 
       if(isMultiple()){
         fields <- convertFieldNames(isolate(selectedTypes()))
@@ -171,16 +177,16 @@ downloadDataTab <- function(input,output,session,pool){
       }
       
       dfToDownload(df)
-      nbOfGlacier(length(ids()))
-      nbOfEntry(nrow(df))
-      isMerged <- TRUE
-      cat("# File summary",'\n')
-      cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
-      cat('# Number of glacier : ',nbOfGlacier(),'\n')
-      cat('# Total number of rows : ',nbOfEntry(),'\n')
-      if(isMultiple())
-        cat('Some of these data have been average when they have replicates.','\n')
-    })
+    #   nbOfGlacier(length(ids()))
+    #   nbOfEntry(nrow(df))
+    #   isMerged <- TRUE
+    #   cat("# File summary",'\n')
+    #   cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
+    #   cat('# Number of glacier : ',nbOfGlacier(),'\n')
+    #   cat('# Total number of rows : ',nbOfEntry(),'\n')
+    #   if(isMultiple())
+    #     cat('Some of these data have been average when they have replicates.','\n')
+    # })
 
     showElement("downloadFile")
   })

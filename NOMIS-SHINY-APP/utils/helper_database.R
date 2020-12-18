@@ -87,6 +87,7 @@ getFieldsFromGlacier <- function(pool,tableName,fields,ids){
     }
   }
   query <- substr(query,1,nchar(query)-4)
+  print(query)
   dataframe <- sendQuery(query,pool,FALSE)
   return(dataframe)
 }
