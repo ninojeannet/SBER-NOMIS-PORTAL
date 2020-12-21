@@ -87,7 +87,7 @@ getFieldsFromGlacier <- function(pool,tableName,fields,ids){
     }
   }
   query <- substr(query,1,nchar(query)-4)
-  print(query)
+  # print(query)
   dataframe <- sendQuery(query,pool,FALSE)
   return(dataframe)
 }
@@ -165,7 +165,7 @@ buildInsertQuery <- function(data,tableName,pool){
   request <- paste0(request," ON DUPLICATE KEY UPDATE ")
   for(x in headers[-1]){request <- paste0(request,x,"=values(",x,"), ")}
   request <- substr(request,1,nchar(request)-2)
-  print(request)
+  # print(request)
   return(request)
 }
 

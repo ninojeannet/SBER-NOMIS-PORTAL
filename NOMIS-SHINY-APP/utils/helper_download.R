@@ -51,7 +51,6 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     nbReplicates <- length(tableOptions[[table]][["replicates"]])
     
     values <-getFieldsWithFKFromGlacier(pool,tablename = table ,fields = fieldsToRetrieve,ids = ids)
-    print(values)
     fk <- tableOptions[[table]][["FK"]]
     if(table != "glacier")
       colToSummarise <-names(values %>% select(-all_of(fk)))
@@ -86,7 +85,6 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     if(table != "glacier")
       values <- removeFK(values,table)
     column <- scale(values,table,nbEntries)
-
     if(is.null(ncol(column))){
       name <- convertToDLName(field)
       df[[name]] <- unlist(column)
@@ -109,19 +107,13 @@ generateMergedDownloadDF <- function(fields,ids,pool){
 # - tablename : the table name of the input values
 # Return the reduced data frame
 reduce <- function(values,tablename,fk,colToSummarise){
-  # values <- data.frame(id_patch=c(1,1,1,1),chla=c(-9999,NA,0.42,0.43))
-  # tablename <- "microbial_3"
   values <- formatDFforDownload(values)
   # complex complex
-  # print(values)
   values <- values %>% 
     group_by(.dots=fk) %>%                         
     summarise_at(vars(all_of(colToSummarise)),mean,na.rm = TRUE) 
   values[is.na(values)] <- NA
-  
-
-  # print(values)
-  return(values)
+    return(values)
 }
 
 # This function scale the given data frame to the desired final size.
@@ -153,7 +145,6 @@ convertToDLName <- function(field){
     name <- paste(field,unit)
   else
     name <-field
-  # print(paste(field,unit))
   return(name)
 }
 

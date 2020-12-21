@@ -21,6 +21,7 @@ downloadDataTabUI <- function(id){
     sidebarLayout(
       sidebarPanel(
         id = ns('sidebar'),
+        use_waiter(),
         div(
           prettySwitch(ns("multiple"),"Allow multiple parameters selection",value = TRUE,fill = TRUE),
           div(class="lists",
@@ -72,6 +73,12 @@ downloadDataTab <- function(input,output,session,pool){
   # Reactive variable
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectedFields <- reactive(getFieldsFromValue(input$type))
+  
+  waiting_screen <- tagList(
+    spin_throbber(),
+    h4(style="color: #4db8ff;","Generating download file...")
+  )
+  w <- Waiter$new(html = waiting_screen,color = "#FFFFFF80")
   
   # Reactive variable which contains the list of all chosen glacier's id
   ids <- reactive({
@@ -164,8 +171,9 @@ downloadDataTab <- function(input,output,session,pool){
   # Generate a file according to the given parameters and glacier ids
   observeEvent(input$generate,{
     # Render a small summary of the generated file
-    # output$preview <- renderPrint({
-    #   validateDownloadInput(input,isMultiple(),isolate(selectedTypes()))
+    output$preview <- renderPrint({
+      w$show()
+      validateDownloadInput(input,isMultiple(),isolate(selectedTypes()))
 
       if(isMultiple()){
         fields <- convertFieldNames(isolate(selectedTypes()))
@@ -177,16 +185,17 @@ downloadDataTab <- function(input,output,session,pool){
       }
       
       dfToDownload(df)
-    #   nbOfGlacier(length(ids()))
-    #   nbOfEntry(nrow(df))
-    #   isMerged <- TRUE
-    #   cat("# File summary",'\n')
-    #   cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
-    #   cat('# Number of glacier : ',nbOfGlacier(),'\n')
-    #   cat('# Total number of rows : ',nbOfEntry(),'\n')
-    #   if(isMultiple())
-    #     cat('Some of these data have been average when they have replicates.','\n')
-    # })
+      nbOfGlacier(length(ids()))
+      nbOfEntry(nrow(df))
+      isMerged <- TRUE
+      cat("# File summary",'\n')
+      cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
+      cat('# Number of glacier : ',nbOfGlacier(),'\n')
+      cat('# Total number of rows : ',nbOfEntry(),'\n')
+      if(isMultiple())
+        cat('Some of these data have been average when they have replicates.','\n')
+      w$hide()
+    })
 
     showElement("downloadFile")
   })

@@ -134,6 +134,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     )
   })
   
+  
   w <- Waiter$new(id=session$ns("table-container"),html = spin_throbber(),color = "#FFFFFF80")
   
   # observeEvent that react to generate input's update
