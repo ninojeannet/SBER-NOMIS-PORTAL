@@ -68,14 +68,12 @@ portalManage <- function(input, output, session) {
   observeEvent(input$restart, ignoreInit = TRUE, {
     # Save action to confirm
     actionToConfirm('restart')
-    # print("ici")
     # Show confirmation modal
     confirmationModal('Force restart the App?', noAction = TRUE)
   })
   
   # Restart function
   restartApp <- function() {
-    print("ici")
     tryCatch(
       {
         # Create a new restart.txt in the app root directory
@@ -127,6 +125,8 @@ portalManage <- function(input, output, session) {
     # Create command
     command <- 'mysqldump'
     if (Sys.info()["sysname"] == 'Darwin') command <- paste0('/usr/local/mysql/bin/', command)
+    
+    if (Sys.info()["sysname"] == 'Windows') command <- paste0('C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\', command)
     
     # Create The backup
     system2(command, args = c('--databases', DB_NAME, '--add-drop-database', '-y'),
@@ -217,10 +217,9 @@ portalManage <- function(input, output, session) {
     
     # Convert the list message to JSON
     messageJSON <- toJSON(messageList, auto_unbox = TRUE)
-    
     # Send the shiny custom message to toggle downloadButton state
     # Linked to some JavaScript defined in './assets/js/download_button_state.js'
-    session$sendCustomMessage('toggleDownloadButton', messageJSON)
+    session$sendCustomMessage('toggledlbutton', messageJSON)
   })
   
   # Create download handler
@@ -231,7 +230,6 @@ portalManage <- function(input, output, session) {
     content = function(file) {
       # Get file path
       filePath <- list.files('./db_backups', pattern = input$backupFile, full.names = TRUE)
-      
       # If a file is found
       if (length(filePath) == 1) {
         # Get content
@@ -254,7 +252,6 @@ portalManage <- function(input, output, session) {
   
   # YES button
   observeEvent(input$YES, ignoreInit = TRUE, {
-    print("ici")
     req(actionToConfirm() != '')
     if (actionToConfirm() == 'restart') {
       restartApp()

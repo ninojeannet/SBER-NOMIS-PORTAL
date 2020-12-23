@@ -41,6 +41,8 @@ library(waiter)
 
 ## Load Shiny extensions functions ################################################
 source('./utils/shiny_extensions.R')
+source('./utils/helper_functions.R')
+
 ## Load tabs modules ##############################################################
 source('./modules/management_tab/management_tab.R')
 source('./modules/upload_tab/upload_tab.R')
@@ -48,7 +50,6 @@ source('./modules/download_tab/download_tab.R')
 source('./modules/login/login.R')
 source('./modules/portal_tab/portal_tab.R')
 source('./modules/editableDT/editableDT.R')
-
 source('app_config.R')
 
 if (ENV == 'development') {
@@ -58,7 +59,6 @@ if (ENV == 'development') {
         output = 'www/main.css',
         options = sass::sass_options(output_style = 'compressed')
     )
-    
     # Compile and minify JavaScript
     js_parser()
 }

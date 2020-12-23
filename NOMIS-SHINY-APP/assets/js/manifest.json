@@ -1,4 +1,5 @@
 [
-"shiny_custom_message_handler.js",
-"get_screen_size.js"
+"get_screen_size.js",
+"download_button_state.js",
+"shiny_custom_message_handler.js"
 ]
