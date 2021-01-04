@@ -76,6 +76,7 @@ buildProgressTable <- function(pool){
   dataframe <- getProgressTable(pool)
   if (nrow(dataframe)==0)
     return(dataframe)
+
   dataframe <- dataframe[order(dataframe$abbreviation),]
   
   dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
@@ -92,15 +93,11 @@ buildProgressTable <- function(pool){
   headers <- df[["name"]]
   df <- df %>% select(-name)
   df <- as.data.frame(t(df))
-  
-  # print(df)
-  df <- df[c(1,nrow(df),2:(nrow(df)-1)),]
+  df <- as.data.frame(df[c(1,nrow(df),2:(nrow(df)-1)),])
   df <- cbind(summaryFullNameFields,df)
   colnames(df) <- c(" ",unique(headers))
   
-  # print(df)
   rownames(df) <- NULL
-  
   return(df)
 }
 
