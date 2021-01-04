@@ -129,7 +129,7 @@ portalManage <- function(input, output, session) {
     if (Sys.info()["sysname"] == 'Windows') command <- paste0('C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\', command)
     
     # Create The backup
-    system2(command, args = c('--databases', DB_NAME, '--add-drop-database', '-y'),
+    system2(command, args = c('--databases', DB_NAME, '--add-drop-database','--set-gtid-purged=OFF', '-y'),
             stdout = backupFile, stderr = errorFile)
     
     # If error
