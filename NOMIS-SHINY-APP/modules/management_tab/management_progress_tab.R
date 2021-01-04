@@ -45,9 +45,10 @@ managementProgressTab <- function(input, output, session,pool){
   output$progress_table <- renderFormattable({
     dff <- dfFormatted()
     nbCol <- ncol(dff)
-    if(nrow(dff)==0){
-      dff <- data.frame()
-      nbCol<- 10}
+    # if(nrow(dff)==0){
+    #   dff <- data.frame()
+    #   nbCol<- 10}
+    shiny::validate(need(nrow(dff)!= 0, 'No expedition available'))
     formattable(dff,align =c("l",rep("c",nbCol-1)), list(
       area(col = 1) ~ formatRowNames(),area(col = 2:nbCol) ~ color_tile_valid()))
   })
@@ -56,9 +57,10 @@ managementProgressTab <- function(input, output, session,pool){
   # Refresh the data table progress by fetching the database
   observeEvent(input$refresh,{
     dataframe <- getDF()
-    print(dataframe)
-    rangeList(setRanges(dataframe))
-    updateExpeditionTable(dataframe,rangeList(),pool)
+    if(nrow(dataframe) > 0){
+      rangeList(setRanges(dataframe))
+      updateExpeditionTable(dataframe,rangeList(),pool)
+    }
     refreshTable(!refreshTable())
   })
   
