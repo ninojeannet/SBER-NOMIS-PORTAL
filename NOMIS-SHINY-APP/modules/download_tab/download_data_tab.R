@@ -172,9 +172,9 @@ downloadDataTab <- function(input,output,session,pool){
   observeEvent(input$generate,{
     # Render a small summary of the generated file
     output$preview <- renderPrint({
-      w$show()
+      
       validateDownloadInput(input,isMultiple(),isolate(selectedTypes()))
-
+      w$show()
       if(isMultiple()){
         fields <- convertFieldNames(isolate(selectedTypes()))
         df <- generateMergedDownloadDF(fields,ids(),pool)
