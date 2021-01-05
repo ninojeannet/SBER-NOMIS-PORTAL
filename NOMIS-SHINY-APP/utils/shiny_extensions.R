@@ -353,8 +353,9 @@ createInput <- function(type, label, value = NULL, table, pool, session = getDef
   #  - pool: Pool connection, the connection to an SQL Database
   #  - session: Shiny session, the session in which to create the inputs, default: getDefaultReactiveDomain()
   # 
+  # print(type)
   # Returns the adequate input
-  # print(value)
+  print(type)
   # Choose the input in function of the column type
   if (type == 'dbl' | type == 'int') {
     numericInput(session$ns(label), label = label, value = value)
@@ -378,7 +379,7 @@ createInput <- function(type, label, value = NULL, table, pool, session = getDef
       timepickerOpts = timepickerOptions(timeFormat = 'hh:ii')
     )
   }
-  else{
+  else if (type=='range'){
     div(
       div(
         numericRangeInput(session$ns("range"),"Select a glacier range :",value = c(1,500)),

@@ -50,6 +50,8 @@ source('./modules/download_tab/download_tab.R')
 source('./modules/login/login.R')
 source('./modules/portal_tab/portal_tab.R')
 source('./modules/editableDT/editableDT.R')
+source('./modules/visualisation_tab/visualisation_tab.R')
+
 source('app_config.R')
 
 if (ENV == 'development') {
@@ -114,7 +116,8 @@ ui <- tagList(
             tabPanel(
                 # Create a tab title with an icon
                 tags$span(icon('chart-bar'),tags$span('Visualisation', class = 'navbar-menu-name')),
-               )
+                visualisationTabUI('visualisation')
+            )
         ),
         # Add the login module UI
         loginUI('login')
@@ -130,7 +133,7 @@ server <- function(input, output, session) {
 
      user <- callModule(login, 'login', pool)
     dimension <- reactive({input$dimension})
-    
+    callModule(visualisationTab,"visualisation",pool)
 
     observeEvent(user$role, {
         
