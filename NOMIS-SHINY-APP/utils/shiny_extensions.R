@@ -382,7 +382,7 @@ createInput <- function(type, label, value = NULL, table, pool, session = getDef
   else if (type=='range'){
     div(
       div(
-        numericRangeInput(session$ns("range"),"Select a glacier range :",value = c(1,500)),
+        numericRangeInput(session$ns("range"),"Select a glacier range :",value = c(MIN,MAX)),
         actionButton(session$ns("add"),"Add range")
       ),
       div(selectizeInput(

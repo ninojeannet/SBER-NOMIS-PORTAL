@@ -1,3 +1,5 @@
+MIN <- 1
+MAX <- 250
 
 tableList <- c("glacier","location","patch","microbial_1","microbial_2","microbial_3","biogeo_3u","biogeo_1u","biogeo_1")
 

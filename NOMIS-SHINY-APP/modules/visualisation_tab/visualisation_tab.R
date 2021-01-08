@@ -50,7 +50,7 @@ visualisationTabUI <- function(id) {
                          "Range of glacier" = "range",
                          "List of glacier" = "list")),
           textInput(ns("glacier"),"Enter glacier ID"),
-          hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(1, 500))),
+          hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(MIN,MAX))),
           hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
           actionButton(ns("generate"),"Generate plot"),
         ),
@@ -83,7 +83,7 @@ visualisationTab <- function(input, output, session,pool){
   ids <- reactive({
     switch (input$selectRange,
             "simple" = {
-              ids <- input$glacier
+              ids <- paste0("GL",input$glacier)
             },
             "range" = {
               range <- input$glacierRange

@@ -29,7 +29,7 @@ downloadFileTabUI <- function(id){
                          "Range of glacier" = "range",
                          "List of glacier" = "list")),
           textInput(ns("glacier"),"Enter glacier ID"),
-          hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(1, 500))),
+          hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(MIN,MAX))),
           hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
           actionButton(ns("generate"),"Select files")
         ),
@@ -63,7 +63,7 @@ downloadFileTab <- function(input,output,session,pool){
   ids <- reactive({
     switch (input$selectRange,
             "simple" = {
-              ids <- input$glacier
+              ids <- paste0("GL",input$glacier)
             },
             "range" = {
               range <- input$glacierRange
@@ -143,10 +143,10 @@ downloadFileTab <- function(input,output,session,pool){
 validateInput <- function(input){
   shiny::validate(
     switch (isolate(input$selectRange),
-            "simple" = {need(grep('GL(\\d){1,3}',isolate(input$glacier)), 'Please insert a valid ID ( ex : GL23 )')},
+            "simple" = {need(grep('(\\d){1,3}',isolate(input$glacier)), 'Please insert a valid ID ( ex : 23 )')},
             "range" = {
               range <- isolate(input$glacierRange)
-              need(range[2] > range[1] & range[2] > 0 & range[1] > 0, 'Please insert a valid range of id')},
+              need(range[2] > range[1] & range[1] > MIN-1 & range[2] < MAX+1, paste0('Please insert a valid range of id (between ',MIN,' and ',MAX,')'))},
             "list" = {need(grep('^[0-9]+(,[0-9]+)*$',isolate(input$glacierList)), 'Please insert a valid list of ID ( ex : 23,45,56 )')}
     )
   )
