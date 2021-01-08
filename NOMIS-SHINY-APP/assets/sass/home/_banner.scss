@@ -6,9 +6,9 @@
 .banner {
     background:  url('./images/home.jpg') no-repeat 50% 50% / cover;
     padding: 3em 0;
-    margin: 0 -49vw -1em;
+    margin: 0 -50vw;
     text-align: center;
-    width: 98vw;
+    width: 100vw;
     position: relative;
     left: 50%;
     right: 50%;
@@ -17,7 +17,7 @@
     text-shadow: 1px 1px 1px $black;
     
      @include tall-and-wide {
-        height: calc(100vh - 154px);
+        height: calc(100vh - 390px);
     }
 }
 
@@ -64,13 +64,20 @@
             font-size: 3em;
         }
     }
-    @include tall-and-wide {
-        height: calc(100vh - 154px);
-    }
+
 
 }
 .logos img{
     display:inline-block;
+    @include tall-and-wide {
+        width: 25%;
+    }
+}
+
+.info h1{
+    @include tall-and-wide {
+        font-size: 70px;
+    }
 }
 
 .epfl {
