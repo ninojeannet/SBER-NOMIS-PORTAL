@@ -58,7 +58,7 @@ generateFileTables <- function(filenames,files,existingFiles,isUploadOnly){
 # - field : name of the field to check its files
 # - ids : list of glacier ids
 getExistingFilenamesInDB <- function(pool,table,field,ids){
-  filenames <- getFieldFromGlacier(pool,table,paste0("filename_",field),ids)[[paste0("filename_",field)]]
+  filenames <- getFieldsFromGlacier(pool,table,paste0("filename_",field),ids)[[paste0("filename_",field)]]
   filenames <- filenames[!is.na(filenames)]
   return(filenames)
 }
@@ -106,7 +106,6 @@ getFilePath <- function(type,filename){
 processFiles <- function(validFilename,validFiles,tablename,type,pool){
   tryCatch({
     withProgress(message = "Saving valid files",value = 0,{
-      print(validFiles)
       nbOfFiles <- nrow(validFiles)
       for (row in 1:nrow(validFiles)) {
         name <- validFiles[row,"name"]
