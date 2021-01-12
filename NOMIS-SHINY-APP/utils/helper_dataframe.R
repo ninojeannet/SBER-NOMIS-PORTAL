@@ -37,19 +37,21 @@ addRows <- function(df,start,stop,nbCol){
   return(df)
 }
 
-# Check for rows with existing data in the database and return a list of index of these rows
+# Check for cells with existing data in the database and return a list of index of these cells
 # Parameters : 
-# - dataframe : the dataframe to check for not empty rows
+# - dataframe : the dataframe to check for not empty cells
 # - tablename : the name of the table of the current dataframe
-# Return a list of row indexes of not empty rows
-getReadOnlyRows <- function(dataframe,tablename){
+# Return a dataframe of  indexes of not empty cells
+getReadOnlyCells <- function(dataframe,tablename){
   colNames <- setdiff(colnames(dataframe),unlist(mandatoryFields[tablename]))
   dataframe <- dataframe[colNames]
-  onlyExistingRows <- dataframe[rowSums(is.na(dataframe)) != ncol(dataframe),,drop = FALSE]
-  rows <- rownames(onlyExistingRows)
-  return(rows)
+  if(tablename == "location")
+    dataframe$rdna <- NULL
+  onlyExistingCells <- which(!is.na(dataframe),arr.ind = TRUE)
+  onlyExistingCells[,"col"] <- onlyExistingCells[,"col"]+length(unlist(mandatoryFields[tablename]))
+  rownames(onlyExistingCells) <- NULL
+  return(onlyExistingCells)
 }
-
 # Return the name of the table containing a given field
 # Check in the config file the tablename
 # Parameters :
@@ -119,7 +121,7 @@ getFieldsFromValue <- function(value){
 # - name : name of the data to display
 # - tablename : name of the database table (can be the same as table)
 # Return the generated handsontable
-generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
+generateHandsonTable <- function(df,dimension,readOnlyCells,name,tablename){
   specificTypeColumns <- c()
   if(name == "location"){
     df[["rdna"]] <- as.logical(df[["rdna"]])
@@ -143,11 +145,14 @@ generateHandsonTable <- function(df,dimension,readOnlyRows,name,tablename){
             Handsontable.renderers.getRenderer('text')(instance, td, row, col, prop, value, cellProperties);
           }
           return td;}") %>%
-    hot_col(col = mandatoryColumns[[tablename]], readOnly = TRUE) %>%
-    hot_row(readOnlyRows, readOnly = TRUE)
-  
+    hot_col(col = mandatoryColumns[[tablename]], readOnly = TRUE)
+    # hot_row(readOnlyRows, readOnly = TRUE)
+    # hot_cell(c(5,6),c(5,6),readOnly = TRUE)
+  print(length(readOnlyCells))
+  for (i in 1:length(readOnlyCells)/2) {
+    handsonTable <-  do.call(hot_cell,list(hot=handsonTable,row=readOnlyCells[[i,1]],col=readOnlyCells[[i,2]],readOnly=TRUE))
+  }
   if (name %in% names(colConfig)){
-    print(name)
     for (params in colConfig[[name]]) {
       handsonTable <-  do.call(hot_col,c(list(hot=handsonTable),params))
     }

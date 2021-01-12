@@ -147,10 +147,10 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       table <- isolate(input$type)
       df <- dataf()
       if(isUploadOnly)
-        readOnlyRows <- as.numeric(getReadOnlyRows(df,tableName()))
+        readOnlyCells <- getReadOnlyCells(df,tableName())
       else
-        readOnlyRows <- vector()
-      table <-generateHandsonTable(df,dimension,readOnlyRows,table,isolate(tableName()))
+        readOnlyCells <- vector()
+      table <-generateHandsonTable(df,dimension,readOnlyCells,table,isolate(tableName()))
       w$hide()
       table
     })
