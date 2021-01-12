@@ -148,10 +148,12 @@ generateHandsonTable <- function(df,dimension,readOnlyCells,name,tablename){
     hot_col(col = mandatoryColumns[[tablename]], readOnly = TRUE)
     # hot_row(readOnlyRows, readOnly = TRUE)
     # hot_cell(c(5,6),c(5,6),readOnly = TRUE)
-  print(length(readOnlyCells))
-  for (i in 1:length(readOnlyCells)/2) {
-    handsonTable <-  do.call(hot_cell,list(hot=handsonTable,row=readOnlyCells[[i,1]],col=readOnlyCells[[i,2]],readOnly=TRUE))
-  }
+  print(readOnlyCells)
+  # if(length(readOnlyCells) != 0){
+    for (i in 1:length(readOnlyCells)/2) {
+      handsonTable <-  do.call(hot_cell,list(hot=handsonTable,row=readOnlyCells[[i,1]],col=readOnlyCells[[i,2]],readOnly=TRUE))
+    }
+  # }
   if (name %in% names(colConfig)){
     for (params in colConfig[[name]]) {
       handsonTable <-  do.call(hot_col,c(list(hot=handsonTable),params))
