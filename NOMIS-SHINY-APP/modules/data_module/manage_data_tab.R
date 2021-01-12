@@ -37,7 +37,7 @@ manageDataTabUI <- function(id,title){
             hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(MIN,MAX))),
             hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
             actionButton(ns("generate"),"Generate template"),
-            hidden( fileInput(ns("files"),"Select files",accept=".csv",multiple = TRUE))
+            hidden( fileInput(ns("files"),"Select files",accept=".dat",multiple = TRUE))
           ),
           width = 3
         ),
@@ -161,6 +161,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # Hide / show html elements
   observeEvent(input$type,{
     if (input$type == "biogeo_3u" & input$domtype %in% c("eem","abs1","abs10")){
+      w$hide()
       isFileUpload(TRUE)
       hideElement("spinner")
       showElement("domtype")
@@ -183,6 +184,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # observeEvent that react to files input's update
   # Generate and render lists of files (valid, missing, wrong, existing)
   observeEvent(input$files,{
+    w$show()
     showElement("uploadFiles")
     showElement("title")
     showElement("tables")
@@ -205,6 +207,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       enable("uploadFiles")
     else
       disable("uploadFiles")
+    w$hide()
   })
   
   # observeEvent that react to upload button click
