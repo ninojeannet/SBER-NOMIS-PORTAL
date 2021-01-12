@@ -87,7 +87,7 @@ managementExpeditionTab <- function(input, output, session, pool) {
               iv_range$add_rule("range", ~ if (!is_valid_range(.)) "Please insert a valid range of glacier")
               iv_range$enable()
               is_valid_range <- function(newRange) {
-                b <- newRange[2] > newRange[1] & newRange[2] > MAX+1 & newRange[1] > MIN-1 & !is.na(newRange[1]) & !is.na(newRange[2])
+                b <- newRange[2] > newRange[1] & newRange[2] < MAX+1 & newRange[1] > MIN-1 & !is.na(newRange[1]) & !is.na(newRange[2])
                 if(!b)
                   disable("add")
                 else
