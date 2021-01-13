@@ -96,4 +96,18 @@ managementExpeditionTab <- function(input, output, session, pool) {
               }
               return(iv_range)
           })
+  
+  # Create an observeEvent that react to the help button
+  observeEvent(input$help, {
+    # Create modal with the corresponding htmlOutput
+    title <- 'Expeditions management help'
+    template <-'./html_components/help_manage_expedition.html'
+    
+    showModal(modalDialog(
+      title = title,
+      htmlTemplate(template),
+      footer = modalButtonWithClass('Dismiss', class = 'custom-style'),
+      easyClose = TRUE
+    ))
+  })
 }

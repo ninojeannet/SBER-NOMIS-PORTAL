@@ -210,6 +210,20 @@ downloadDataTab <- function(input,output,session,pool){
     }
   )
   
+  # Create an observeEvent that react to the help button
+  observeEvent(input$help, {
+    # Create modal with the corresponding htmlOutput
+    title <- 'Download data help'
+    template <-'./html_components/help_download_data.html'
+
+    showModal(modalDialog(
+      title = title,
+      htmlTemplate(template),
+      footer = modalButtonWithClass('Dismiss', class = 'custom-style'),
+      easyClose = TRUE
+    ))
+  })
+  
 }
 
 # Check if the input format are valid and if not display a message
