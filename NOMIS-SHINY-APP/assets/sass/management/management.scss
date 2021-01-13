@@ -37,7 +37,7 @@
   position: sticky;
   border-right:2px solid #ddd;
   /* Displayed on top of other rows when scrolling */
-  z-index: 9999;
+  z-index: 1000;
 }
 #management-progress-progress_table th:first-child {
   background-color: white;
@@ -46,5 +46,5 @@
   position: sticky;
 
   /* Displayed on top of other rows when scrolling */
-  z-index: 9999;
+  z-index: 1000;
 }
