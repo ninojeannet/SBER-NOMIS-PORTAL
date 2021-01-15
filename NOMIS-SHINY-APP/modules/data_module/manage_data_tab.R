@@ -178,6 +178,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       hideElement("uploadFiles")
       hideElement("tables")
       showElement("generate")
+      showElement("table")
     }
   })
   
