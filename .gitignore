@@ -1,7 +1,7 @@
 # data files
 data/
 
-db_backups/
+db_backups/*.sql
 
 processing/tmp/
 
