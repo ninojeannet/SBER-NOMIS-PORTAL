@@ -1,6 +1,5 @@
 
 source('./modules/management_tab/management_process_tab.R')
-source('./modules/management_tab/management_progress_tab.R')
 source('./modules/management_tab/management_expedition_tab.R')
 source('./modules/data_module/manage_data_tab.R')
 
@@ -23,10 +22,6 @@ managementTabUI <- function(id) {
     tabPanel(
       'Process data',
       managementProcessTabUI(ns("process"))
-    ),
-    tabPanel(
-      'Project progression',
-      managementProgressTabUI(ns("progress"))
     )
   )
 }

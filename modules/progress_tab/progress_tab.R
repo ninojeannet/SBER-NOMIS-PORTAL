@@ -1,9 +1,9 @@
 source('./utils/helper_expedition.R')
 
-# UI side of the managementProgressTab module
+# UI side of the ProgressTab module
 # Parameters:
 #  - id: String, the module id
-managementProgressTabUI <- function(id) {
+progressTabUI <- function(id) {
 
   ns <- NS(id)
   div(
@@ -21,13 +21,13 @@ managementProgressTabUI <- function(id) {
   )
 }
 
-# Server side of the managementProgressTab module
+# Server side of the ProgressTab module
 # Parameters : 
 # input : input of the shiny app
 # output : output of the shiny app
 # session : session of the shiny app
 # pool : connection pool to access the database
-managementProgressTab <- function(input, output, session,pool){
+progressTab <- function(input, output, session,pool){
   # Reactive value
   rangeList <- reactiveVal(list())
   dfFormatted <- reactive({    

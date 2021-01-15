@@ -51,6 +51,7 @@ source('./modules/login/login.R')
 source('./modules/portal_tab/portal_tab.R')
 source('./modules/editableDT/editableDT.R')
 source('./modules/visualisation_tab/visualisation_tab.R')
+source('./modules/progress_tab/progress_tab.R')
 
 source('app_config.R')
 
@@ -117,6 +118,12 @@ ui <- tagList(
                 # Create a tab title with an icon
                 tags$span(icon('chart-bar'),tags$span('Visualisation', class = 'navbar-menu-name')),
                 visualisationTabUI('visualisation')
+            ),
+            # Create the visualisation tab
+            tabPanel(
+                # Create a tab title with an icon
+                tags$span(icon('tasks'),tags$span('Project progress', class = 'navbar-menu-name')),
+                progressTabUI('progress')
             )
         ),
         # Add the login module UI
@@ -124,7 +131,8 @@ ui <- tagList(
         ),
         
         # Add footer to navbarPageWithWrapper
-        footer = htmlTemplate('html_components/footer.html')
+        footer = htmlTemplate('html_components/footer.html',
+                              creditsLink = actionLink('credits','Credits & Source code'))
     )
 )
 
@@ -134,7 +142,8 @@ server <- function(input, output, session) {
      user <- callModule(login, 'login', pool)
     dimension <- reactive({input$dimension})
     callModule(visualisationTab,"visualisation",pool)
-
+    callModule(progressTab,"progress",pool)
+    
     observeEvent(user$role, {
         
         if (user$role %in% c('sber', 'admin')) {
@@ -195,6 +204,16 @@ server <- function(input, output, session) {
             # Load users tab server logic
             callModule(portalTab, 'portal', pool)
         }
+    })
+    
+    observeEvent(input$credits, ignoreInit = TRUE, {
+        showModal(modalDialog(
+            htmlTemplate(
+                './html_components/credits.html'
+            ),
+            footer = modalButtonWithClass('Close', class = 'custom-style'),
+            easyClose = TRUE
+        ))
     })
 }
 
