@@ -4,6 +4,8 @@ source('./utils/template_config.R')
 source('./utils/dataframe_generator.R')
 source('./utils/helper_file.R')
 source('./utils/helper_log.R')
+source('./utils/helper_visualisation.R')
+
 source('./modules/data_module/data_validation_popup.R')
 
 visualisationVersusTabUI <- function(id) {
@@ -51,6 +53,10 @@ visualisationVersusTabUI <- function(id) {
 
 visualisationVersusTab <- function(input, output, session,pool){
   
+  fields <- reactive({
+    c(input$paramX,input$paramY)
+  })
+  
   # Reactive variable which contains the list of all chosen glacier's id
   ids <- reactive({
     switch (input$selectRange,
@@ -92,25 +98,19 @@ visualisationVersusTab <- function(input, output, session,pool){
   })
   
   data <- reactive({
-    getFieldsFromGlacier(pool,tableName = "microbial_3",fields =c("chla") ,ids = c("GL1","GL2","GL3","GL4","GL5","GL6","GL7"))
+    generateMergedDF(fields(),ids(),pool)
   })
   
   observeEvent(input$generate,{
-    print(data())
+    df <- data()
+    print(df)
     output$plot <- renderPlot({
-      # output$plot1 <- renderPlot({
-      df <- data.frame(ba=c(1,2,4,5,6,7,8),chla=c(12,42,5,43,34,34,3),Glacier=c("GL1","GL2","GL3","GL4","GL5","GL6","GL7"))
-      ggplot(df,aes(x=ba,y=chla,color="red"))+
-        geom_point()+
-        facet_wrap(~Glacier,ncol = 2)+
-        scale_color_manual(values=c('orangered1', 'purple3'), labels=c("Tributary","Glacier-fed"))+
-        guides(color=guide_legend(""))+
-        ylim(-1,3)+
-        scale_x_continuous(trans = 'log10')+
-        scale_y_continuous(trans = 'log10')+
-        theme(legend.position="bottom", legend.box = "horizontal",axis.title.x = element_text(margin=margin(t=15),size=14),axis.title.y =element_text(margin=margin(t=20),size=14))
       
-    })
+      # output$plot1 <- renderPlot({
+      # df <- data.frame(glacier=c("GL1","GL1","GL1","GL2","GL2","GL3","GL3"),location=c("UP","UP","DN","UP","DN","UP","DN"),ba=c(1,2,4,5,6,7,8),chla=c(12,42,5,43,34,34,3))
+      nbCol <- ncol(df)
+      VSPlot(df,colnames(df[2]),colnames(df[3]),colnames(df[nbCol-1]),colnames(df[nbCol]))
+      })
   })
   
   
