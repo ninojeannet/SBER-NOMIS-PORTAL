@@ -52,6 +52,7 @@ source('./modules/portal_tab/portal_tab.R')
 source('./modules/editableDT/editableDT.R')
 source('./modules/visualisation_tab/visualisation_tab.R')
 source('./modules/progress_tab/progress_tab.R')
+source('./modules/protocols_tab/protocols_tab.R')
 
 source('app_config.R')
 
@@ -124,6 +125,12 @@ ui <- tagList(
                 # Create a tab title with an icon
                 tags$span(icon('tasks'),tags$span('Project progress', class = 'navbar-menu-name')),
                 progressTabUI('progress')
+            ),
+            # Create the visualisation tab
+            tabPanel(
+                # Create a tab title with an icon
+                tags$span(icon('dna'),tags$span('Protocols', class = 'navbar-menu-name')),
+                protocolsTabUI('protocols')
             )
         ),
         # Add the login module UI
@@ -143,6 +150,7 @@ server <- function(input, output, session) {
     dimension <- reactive({input$dimension})
     callModule(visualisationTab,"visualisation",pool)
     callModule(progressTab,"progress",pool)
+    callModule(protocolsTab,"protocols",pool)
     
     observeEvent(user$role, {
         

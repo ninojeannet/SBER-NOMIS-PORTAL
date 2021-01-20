@@ -12,6 +12,12 @@ getProgressTable <- function(pool){
   return(sendQuery(query,pool,FALSE))
 }
 
+getTable <- function(tablename,pool){
+  query <- paste0("SELECT * FROM ",tablename)
+  return(sendQuery(query,pool,FALSE))
+}
+
+
 # Retrieve entire table from the database for specific glaciers
 # Parameters :
 # pool : the connection pool to access the database

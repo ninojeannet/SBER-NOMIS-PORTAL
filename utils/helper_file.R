@@ -68,12 +68,13 @@ getExistingFilenamesInDB <- function(pool,table,field,ids){
 # Parameters :
 # - name : name of the file to save
 # - path : path of the file to save
+# - pathTo : path of the destination directory
 # - type : name of the type of the file to save
-saveFile <- function(name,path,type){
+saveFile <- function(name,path,pathTo,type){
   tryCatch({
-    destPath <- paste0("data/",type,"/",name)
-    if (!dir.exists(paste0("data/",type,"/")))
-      dir.create(paste0("data/",type,"/"),recursive = TRUE)
+    destPath <- paste0(pathTo,type,"/",name)
+    if (!dir.exists(paste0(pathTo,type,"/")))
+      dir.create(paste0(pathTo,type,"/"),recursive = TRUE)
     file.copy(path,destPath,overwrite = TRUE)
     saveLog("upload","Nino",paste0("Upload file ",name," on the server"))
   },
@@ -109,7 +110,7 @@ processFiles <- function(validFilename,validFiles,tablename,type,pool){
       nbOfFiles <- nrow(validFiles)
       for (row in 1:nrow(validFiles)) {
         name <- validFiles[row,"name"]
-        saveFile(name,validFiles[row,"datapath"],type)
+        saveFile(name,validFiles[row,"datapath"],"data/",type)
         pkValue <- str_remove(name,"_[^_]+\\..+")
         fkValue <- str_remove(name,"_[^_]+_[^_]+\\..+")
         replicate <- str_extract(str_extract(name,"_[ABC]_"),"[ABC]")

@@ -312,6 +312,8 @@ createInputs <- function(df, pool, table, session = getDefaultReactiveDomain()) 
     column <- names(type)
     if(column=="range")
       type<-"range"
+    if(column=="filename")
+      type<-"filename"
     
     # If the df is empty, set the value to NULL
     # Otherwise, set it to the column value unless it is an NA, then set it to NULL
@@ -397,7 +399,12 @@ createInput <- function(type, label, value = NULL, table, pool, session = getDef
       )
       )
     )
-    
+  }
+  else if (type=='filename'){
+    div(
+      h2("Upload new protocol file"),
+      fileInput(session$ns('filename'),label = "Select a file",multiple = FALSE,accept = ".pdf")
+    )
   }
 }
 
