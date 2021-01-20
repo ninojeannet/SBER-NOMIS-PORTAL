@@ -56,7 +56,11 @@ managementProtocolTab <- function(input, output, session,pool){
                  pool = pool,
                  table = 'protocol',
                  ids = selectedRowIds
-               )
+               ),
+               for (filename in selectedRows[["filename"]]) {
+                 deleteFile("www/protocols/",filename)
+               }
+               # 
              ),
              validatorCreateFunction = function(parameters){
                iv <- InputValidator$new()

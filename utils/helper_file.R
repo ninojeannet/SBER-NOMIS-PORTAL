@@ -91,6 +91,12 @@ saveFile <- function(name,path,pathTo,type){
 
 }
 
+deleteFile <- function(path,filename){
+  if (file.exists(paste0(path,filename))) {
+    #Delete file if it exists
+    file.remove(paste0(path,filename))
+  }
+}
 
 getFilePath <- function(type,filename){
   return(paste0("data/",type,"/",filename))

@@ -240,6 +240,7 @@ editableDT <- function(input, output, session, pool, tableName, element,
       # Get the selected row ids
       id <- paste0("id_",tableName)
       selectedRowIds <- loadTable()[input$table_rows_selected,][[id]]
+      selectedRows <- loadTable()[input$table_rows_selected,]
       # Run the element deletion expression and retrieve the output message
       error <- eval(deleteExpr)
       # Reload table
