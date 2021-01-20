@@ -20,7 +20,7 @@ editableDTUI<- function(id) {
       actionButton(ns('create_top'), 'New', icon = icon('plus'), class = 'custom-style'),
       actionButton(ns('edit_top'), 'Edit', icon = icon('edit'), class = 'custom-style'),
       actionButton(ns('delete_top'), 'Delete', icon = icon('trash-alt'), class = 'custom-style custom-style--primary')
-    ),
+    ),actionButton(ns('refresh'), 'Refresh', class = 'refresh custom-style custom-style--primary'),
     # Create a table of users
     DTOutput(ns('table'))
   )
@@ -112,6 +112,9 @@ editableDT <- function(input, output, session, pool, tableName, element,
   # Create a reactive value to save error happening in the modal
   modalError <- reactiveVal('')
   
+  observeEvent(input$refresh,{
+    reloadTable(reloadTable() + 1)
+  })
   
   # Create an observeEvent that react to the modal cancel button
   observeEvent(input$cancel, ignoreInit = TRUE, {
