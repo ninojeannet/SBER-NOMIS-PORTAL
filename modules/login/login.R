@@ -55,6 +55,12 @@ login <- function(input, output, session, pool) {
       # Username and password inputs
       textInput(session$ns('username'), 'Username'),
       passwordInput(session$ns('password'), 'Password'),
+      hidden(
+        passwordInput(session$ns('new1password'), 'New password'),
+        passwordInput(session$ns('new2password'), 'Confirm new password')
+      ),
+      actionLink(session$ns('changepwd'), 'Change password'),
+      hidden(actionLink(session$ns('showlogin'), 'Login'))
     ),
     # Action buttons
     footer = tagList(
@@ -62,6 +68,26 @@ login <- function(input, output, session, pool) {
       actionButton(session$ns('cancel'), 'Cancel', class = 'custom-style')
     )
   )
+  
+  isLogin <- reactiveVal(TRUE)
+  
+  observeEvent(input$changepwd,{
+    isLogin(!isLogin())
+    hideElement("changepwd")
+    showElement("new1password")
+    showElement("new2password")
+    showElement("showlogin")
+    updateActionButton(session,"login",label = 'Change password & log in')
+  })
+  
+  observeEvent(input$showlogin,{
+    isLogin(!isLogin())
+    showElement("changepwd")
+    hideElement("new1password")
+    hideElement("new2password")
+    hideElement("showlogin")
+    updateActionButton(session,"login",label = 'Log In')
+  })
   
   ## Login modal display ##########################################################
   
@@ -85,17 +111,38 @@ login <- function(input, output, session, pool) {
     if (nrow(userResult) == 1) {
       # Update user reactive values if correct password
       if (sodium::password_verify(userResult$password, input$password)) {
-        user$loggedin <- TRUE
-        user$name <- userResult$name
-        user$role <- userResult$role
-        
-        # Remove login form
-        removeModal()
-        # Show login success notification
-        showNotification('Logged in successfully!', type = 'message')
-        
-        # Stop here
-        return()
+        if(isLogin()){
+          user$loggedin <- TRUE
+          user$name <- userResult$name
+          user$role <- userResult$role
+          
+          # Remove login form
+          removeModal()
+          # Show login success notification
+          showNotification('Logged in successfully!', type = 'message')
+          
+          # Stop here
+          return()
+        }
+        else{
+          if(input$new1password == input$new2password)
+          {
+            user$loggedin <- TRUE
+            user$name <- userResult$name
+            user$role <- userResult$role
+
+            updateUser(pool,userResult,user$name,input$new1password,user$role,active=TRUE)
+            # Remove login form
+            removeModal()
+            # Show login success notification
+            showNotification('Password successfully changed!', type = 'message')
+            
+            # Stop here
+            return()
+          }
+          user$error <- 'New password is different in both field !'
+          return()
+        }
       }
     }
     

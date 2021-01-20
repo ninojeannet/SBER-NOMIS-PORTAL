@@ -283,7 +283,7 @@ validInputString <- function(input) {
 
 # Get user for login
 loginUser <- function(pool, username) {
-  pool %>% tbl('user') %>% filter(name == username, active == 1) %>% select(name, password, role) %>% head(1) %>% collect()
+  pool %>% tbl('user') %>% filter(name == username, active == 1) %>% select(id_user,name, password, role) %>% head(1) %>% collect()
 }
 
 # Get all users
@@ -349,7 +349,6 @@ updateUser <- function(pool, user, username = '', password = '', role = '', acti
   } else {
     # Hash the new password
     hashedPassword <- sodium::password_store(password)
-    
     # Create query with password
     query <- sqlInterpolate(
       pool,
