@@ -110,7 +110,7 @@ getFilePath <- function(type,filename){
 # - tablename : the name of the table to save the filename to
 # - type : the type of file (eem,abs1,abs10,..)
 # - pool : the database connection pool
-processFiles <- function(validFilename,validFiles,tablename,type,pool){
+processDOMFiles <- function(validFilename,validFiles,tablename,type,pool){
   tryCatch({
     withProgress(message = "Saving valid files",value = 0,{
       nbOfFiles <- nrow(validFiles)

@@ -198,6 +198,26 @@ saveFieldInDB <- function(tablename,field,pkValue,fkValue,uniqueValue,value,pool
   sendQuery(query,pool,FALSE)
 }
 
+# Save a specific field from a table in the database
+# Parameters : 
+# - tablename : name of the table to save the field value into
+# - field : the name of the field to save
+# - pkvalue : the primary key of the table
+# - value : the value to insert into the database
+# - pool : the database connection pool
+saveField <- function(tablename,field,pkValue,uniqueValue,value,pool){
+  pk <- tableOptions[[tablename]][["primary"]]
+  unique <- tableOptions[[tablename]][["name"]]
+  df <- setNames(data.frame(matrix(ncol =3, nrow = 1)), c(pk,unique,field))
+  df[[pk]] <- pkValue
+  df[[unique]] <- uniqueValue
+  df[[field]] <- value
+  query <- buildInsertQuery(df,tablename,pool)
+  print(query)
+  
+  sendQuery(query,pool,FALSE)
+}
+
 # Save a new expedition row in the database
 # Parameters :
 # - name : name of the expedition

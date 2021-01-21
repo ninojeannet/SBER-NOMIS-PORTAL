@@ -112,6 +112,7 @@ tableOptions[["biogeo_1u"]] <- c("primary"="id_biogeo_1u", "FK"="id_location", "
 tableOptions[["microbial_1"]] <- c("primary"="id_microbial_1", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A')))
 tableOptions[["microbial_2"]] <- c("primary"="id_microbial_2", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A','B')))
 tableOptions[["microbial_3"]] <- c("primary"="id_microbial_3", "FK"="id_patch", "name"="replicate", "replicates"= list(c('A','B','C')))
+tableOptions[["expedition"]] <- c("primary"="id_expedition", "name"="name")
 
 # List of table that are only on UP location
 isOnlyUP <- list()
@@ -129,6 +130,7 @@ uploadDataTypes <- list("Field metrics"="location","Patch"="patch",
                         `Biogeochemical metrics` = c("Dissolved organic matter"="biogeo_3u",
                                                      "Dissolved organic matter indices"="indices",
                                                      "Dissolved organic carbon"="doc",
+                                                     "DNA"="expedition",
                                                      "Minerals" = "mineral",
                                                      "Ions" = "ion",
                                                      "Nutrients"="nutrient",

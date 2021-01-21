@@ -29,15 +29,17 @@ manageDataTabUI <- function(id,title){
           div(
             selectInput(ns("type"),label = "Select a data type",choices = uploadDataTypes),
             hidden(selectInput(ns("domtype"),label = "Select a DOM parameter",choices = uploadDOMTypes)),
-            radioButtons(ns("selectRange"), "Choose a selection option :",
+            hidden(selectInput(ns("expedition"),label = "Select an expedition",choices = c())),
+            div(id=ns("glacierSelection"),
+                radioButtons(ns("selectRange"), "Choose a selection option :",
                          c("Unique glacier" = "simple",
                            "Range of glaciers" = "range",
                            "List of glaciers" = "list")),
-            textInput(ns("glacier"),"Enter glacier ID"),
-            hidden(numericRangeInput(ns("glacierRange"),label = "Range of glaciers", value = c(MIN,MAX))),
-            hidden(textInput(ns("glacierList"),"List of glaciers (comma separated)")),
+                textInput(ns("glacier"),"Enter glacier ID"),
+                hidden(numericRangeInput(ns("glacierRange"),label = "Range of glaciers", value = c(MIN,MAX))),
+                hidden(textInput(ns("glacierList"),"List of glaciers (comma separated)"))),
             actionButton(ns("generate"),"Generate template"),
-            hidden( fileInput(ns("files"),"Select files",accept=".dat",multiple = TRUE))
+            hidden(uiOutput(ns("fileContainer")))
           ),
           width = 3
         ),
@@ -76,7 +78,9 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   sidebarVisible <- reactiveVal(TRUE)
   updatedRows <- reactiveVal(vector())
   isFileUpload <- reactiveVal(FALSE)
+  isFileExpedUpload <- reactiveVal(FALSE)
   update <- reactiveVal(FALSE)
+  expeditions <- reactiveVal()
   # Reactive variable
   tableName <- reactive(getTableNameFromValue({input$type}))
   selectedFields <- reactive(getFieldsFromValue(input$type))
@@ -132,7 +136,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
               showElement("glacierList")
             }
     )
-  })
+  },ignoreInit = TRUE)
   
   
   w <- Waiter$new(id=session$ns("table-container"),html = spin_throbber(),color = "#FFFFFF80")
@@ -155,32 +159,57 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       table
     })
     showElement("upload")
-  })
+  },ignoreInit = TRUE)
   
   # observeEvent that react to type input's update
   # Hide / show html elements
   observeEvent(input$type,{
-    if (input$type == "biogeo_3u" & input$domtype %in% c("eem","abs1","abs10")){
+    if (input$type == "biogeo_3u"){
+      updateSelectInput(session,"domtype",label = "Select a DOM parameter",choices = uploadDOMTypes)
+      output$fileContainer <- renderUI({fileInput(session$ns("files"),"Select files",accept=".dat",multiple = TRUE)}) 
       w$hide()
       isFileUpload(TRUE)
+      isFileExpedUpload(FALSE)
+      showElement("glacierSelection")
+      hideElement("expedition")
       hideElement("spinner")
       showElement("domtype")
-      showElement("files")
+      showElement("fileContainer")
+      hideElement("generate")
+      hideElement("table")
+      hideElement("upload")
+    }
+    else if(input$type == "expedition"){
+      updateSelectInput(session,"domtype",label = "Select a DNA parameter",choices = c("16s table"="16s"))
+      exped <-getTable("expedition",pool)
+      expeditions(setNames(as.character(exped$id_expedition), exped$name))
+      updateSelectInput(session,"expedition",label = "Select an expedition",choices = expeditions())
+      output$fileContainer <- renderUI({fileInput(session$ns("files"),"Select file",accept=".txt",multiple = FALSE)}) 
+      w$hide()
+      isFileUpload(TRUE)
+      isFileExpedUpload(TRUE)
+      hideElement("glacierSelection")
+      showElement("expedition")
+      hideElement("spinner")
+      showElement("domtype")
+      showElement("fileContainer")
       hideElement("generate")
       hideElement("table")
       hideElement("upload")
     }
     else{
       isFileUpload(FALSE)
+      showElement("glacierSelection")
+      hideElement("expedition")
       hideElement("domtype")
-      hideElement("files")
+      hideElement("fileContainer")
       hideElement("title")
       hideElement("uploadFiles")
       hideElement("tables")
       showElement("generate")
       showElement("table")
     }
-  })
+  },ignoreInit = TRUE)
   
   # observeEvent that react to files input's update
   # Generate and render lists of files (valid, missing, wrong, existing)
@@ -189,27 +218,41 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     showElement("uploadFiles")
     showElement("title")
     showElement("tables")
-    
-    tables <- tablesFile()
-    output$fileValid <- renderTable({ 
-      validateInput(input)
-      data.frame("Valid" =tables[["valid"]])})
-    output$fileWrong <- renderTable({ 
-      validateInputEmpty(input)
-      data.frame("Wrong" =tables[["wrong"]])})
-    output$fileMissing <- renderTable({ 
-      validateInputEmpty(input)
-      data.frame("Missing" =tables[["missing"]])})
-    output$fileExisting <- renderTable({ 
-      validateInputEmpty(input)
-      data.frame("Existing" =tables[["existing"]])})
-    
-    if(nrow(data.frame("Valid" =tables[["valid"]])) > 0)
-      enable("uploadFiles")
+    if(isFileExpedUpload()){
+      if(!is.na(str_match(input$files$name,"\\.txt")[1])){
+        output$fileValid <- renderTable({ 
+          data.frame("Valid" =input$files$name)})
+        enable("uploadFiles")
+      }
+      else{
+        output$fileValid <- renderTable({ 
+          data.frame("Wrong" =input$files$name)})
+        disable("uploadFiles")
+      }
+    }
     else
-      disable("uploadFiles")
+    {
+      tables <- tablesFile()
+      output$fileValid <- renderTable({ 
+        validateInput(input)
+        data.frame("Valid" =tables[["valid"]])})
+      output$fileWrong <- renderTable({ 
+        validateInputEmpty(input)
+        data.frame("Wrong" =tables[["wrong"]])})
+      output$fileMissing <- renderTable({ 
+        validateInputEmpty(input)
+        data.frame("Missing" =tables[["missing"]])})
+      output$fileExisting <- renderTable({ 
+        validateInputEmpty(input)
+        data.frame("Existing" =tables[["existing"]])})
+      if(nrow(data.frame("Valid" =tables[["valid"]])) > 0)
+        enable("uploadFiles")
+      else
+        disable("uploadFiles")
+    }
+    
     w$hide()
-  })
+  },ignoreInit = TRUE)
   
   # observeEvent that react to upload button click
   # Save the data table in the database
@@ -222,18 +265,32 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       uploadData(out,isolate(tableName()),isolate(input$type),pool)
       update(!update())
     }
-  })
+  },ignoreInit = TRUE)
   
   # observeEvent that react to uplooadFiles button click
   # save valid files on the server
   observeEvent(input$uploadFiles,{
-    validFilename <- tablesFile()[["valid"]]
-    validFiles <- input$files[input$files$name %in% validFilename,]
-    if(!isUploadOnly)
-      show_validation_popup(tableName(),validFilename,output,session$ns,TRUE)
-    else
-      processFiles(validFilename,validFiles,tableName(),input$domtype,pool)
-  })
+    if(isFileExpedUpload()){
+      validFilename <- input$files$name
+      validFilePath <- input$files$datapath
+      if(!isUploadOnly)
+        show_validation_popup(tableName(),validFilename,output,session$ns,TRUE)
+      else{
+        saveFile(validFilename,validFilePath,"data/",type = input$domtype)
+        expedName <- names(expeditions()[expeditions()==input$expedition])
+        print(expedName)
+        saveField(input$type,input$domtype,input$expedition,expedName,validFilename,pool)
+      }
+    }
+    else{
+      validFilename <- tablesFile()[["valid"]]
+      validFiles <- input$files[input$files$name %in% validFilename,]
+      if(!isUploadOnly)
+        show_validation_popup(tableName(),validFilename,output,session$ns,TRUE)
+      else
+        processDOMFiles(validFilename,validFiles,tableName(),input$domtype,pool)
+    }
+  },ignoreInit = TRUE)
   
   # observeEvent that react to submit button click
   # submit button is located in the validation popup window
@@ -242,9 +299,17 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     shinyjs::reset("entry_form")
     removeModal()
     if(isFileUpload()){
-      validFilename <- tablesFile()[["valid"]]
-      validFiles <- input$files[input$files$name %in% validFilename,]
-      processFiles(validFilename,validFiles,tableName(),input$domtype,pool)
+      if(isFileExpedUpload()){
+        validFilename <- input$files$name
+        validFilePath <- input$files$datapath
+        saveFile(validFilename,validFilePath,"data/",type = input$domtype)
+        saveField(input$type,input$domtype,input$expediiton,validFilename,pool)
+      }
+      else{
+        validFilename <- tablesFile()[["valid"]]
+        validFiles <- input$files[input$files$name %in% validFilename,]
+        processDOMFiles(validFilename,validFiles,tableName(),input$domtype,pool)
+      }
     }
     else
     {
@@ -253,7 +318,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       uploadData(out,isolate(tableName()),isolate(input$type),pool)
       update(!update())
     }
-  })
+  },ignoreInit = TRUE)
   
   # observeEvent that react to each update on the data table
   # Keep tracks of each updated rows
@@ -266,7 +331,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
         updatedRows(values)
       }
     }
-  })
+  },ignoreInit = TRUE)
   
   # Create an observeEvent that react to the help button
   observeEvent(input$help, {
@@ -286,7 +351,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       footer = modalButtonWithClass('Dismiss', class = 'custom-style'),
       easyClose = TRUE
     ))
-  })
+  },ignoreInit = TRUE)
 }
 
 # Change the column names of the dataframe to database friendly names

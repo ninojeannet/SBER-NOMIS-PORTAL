@@ -112,6 +112,22 @@ visualisationSimpleTab <- function(input, output, session,pool){
 
       })
       
+    # library(ggplot2)
+    # library(dplyr)
+    # library(hrbrthemes)
+    # 
+    # setwd("C:/Users/H/Desktop/nomis/chl-a/")
+    # 
+    # chla<-read.csv("CHLA.csv")
+    # 
+    # 
+    # p <- chla %>%
+    #   ggplot( aes(x=CHLA.ug.g.1., fill=LOCATION)) +
+    #   geom_histogram( color="#e9ecef", alpha=0.6, position = 'identity') +
+    #   scale_fill_manual(values=c("#69b3a2", "#404080")) +
+    #   theme_ipsum() +
+    #   labs(fill="")
+    
   })
   
   
