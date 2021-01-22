@@ -215,7 +215,7 @@ saveField <- function(tablename,field,pkValue,uniqueValue,value,pool){
   query <- buildInsertQuery(df,tablename,pool)
   print(query)
   
-  sendQuery(query,pool,FALSE)
+  sendQuery(query,pool,TRUE)
 }
 
 # Save a new expedition row in the database

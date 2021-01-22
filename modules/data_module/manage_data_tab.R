@@ -76,6 +76,7 @@ manageDataTabUI <- function(id,title){
 manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # Reactive value
   sidebarVisible <- reactiveVal(TRUE)
+  existingExpedFile <- reactiveVal()
   updatedRows <- reactiveVal(vector())
   isFileUpload <- reactiveVal(FALSE)
   isFileExpedUpload <- reactiveVal(FALSE)
@@ -218,6 +219,14 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     showElement("uploadFiles")
     showElement("title")
     showElement("tables")
+    output$fileValid <- renderTable({ 
+      data.frame("Valid" =c())})
+    output$fileWrong <- renderTable({ 
+      data.frame("Wrong" =c())})
+    output$fileMissing <- renderTable({ 
+      data.frame("Missing" =c())})
+    output$fileExisting <- renderTable({ 
+      data.frame("Existing" =c())})
     if(isFileExpedUpload()){
       if(!is.na(str_match(input$files$name,"\\.txt")[1])){
         output$fileValid <- renderTable({ 
@@ -228,6 +237,18 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
         output$fileValid <- renderTable({ 
           data.frame("Wrong" =input$files$name)})
         disable("uploadFiles")
+      }
+      exp <-getTable("expedition",pool)
+      existingExpedFile(exp[exp$id_expedition == as.numeric(input$expedition),][["16s"]])
+      if(!is.na(existingExpedFile())){
+        output$fileExisting <- renderTable({ 
+          data.frame("Existing" =existingExpedFile())})
+        if(isUploadOnly)
+          disable("uploadFiles")
+      }
+      else{
+        output$fileExisting <- renderTable({ 
+          data.frame("Existing" =c())})
       }
     }
     else
@@ -278,7 +299,6 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       else{
         saveFile(validFilename,validFilePath,"data/",type = input$domtype)
         expedName <- names(expeditions()[expeditions()==input$expedition])
-        print(expedName)
         saveField(input$type,input$domtype,input$expedition,expedName,validFilename,pool)
       }
     }
@@ -303,7 +323,10 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
         validFilename <- input$files$name
         validFilePath <- input$files$datapath
         saveFile(validFilename,validFilePath,"data/",type = input$domtype)
-        saveField(input$type,input$domtype,input$expediiton,validFilename,pool)
+        expedName <- names(expeditions()[expeditions()==input$expedition])
+        saveField(input$type,input$domtype,input$expedition,expedName,validFilename,pool)
+        if(!is.na(existingExpedFile()))
+          deleteFile(paste0("data/",input$domtype,"/"),existingExpedFile())
       }
       else{
         validFilename <- tablesFile()[["valid"]]
