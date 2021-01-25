@@ -389,7 +389,6 @@ uploadData <- function(df,tablename,listName,pool){
   out <- setDefaultColumnName(df,listName)
   out <- formatDFforUpload(out)
   status <- saveData(out,tablename,TRUE,pool)
-
   if (status)
     saveLog("upload","Nino",paste0("Upload data ",tablename," in the database"))
   else

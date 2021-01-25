@@ -213,7 +213,7 @@ saveField <- function(tablename,field,pkValue,uniqueValue,value,pool){
   df[[unique]] <- uniqueValue
   df[[field]] <- value
   query <- buildInsertQuery(df,tablename,pool)
-  print(query)
+  # print(query)
   
   sendQuery(query,pool,TRUE)
 }
