@@ -74,6 +74,7 @@ generateGlacierIDs <- function(ranges){
 # the function retrieve the basic progress tabée then adapt / transform it to have a user firendly table to display
 buildProgressTable <- function(pool){
   dataframe <- getProgressTable(pool)
+
   if (nrow(dataframe)==0)
     return(dataframe)
 
@@ -81,6 +82,7 @@ buildProgressTable <- function(pool){
   
   dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
   df <- dataframe %>% select(-min) %>% select(-max) %>% select(-id_expedition)
+  print(df)
   rowTypes <- colnames(df)
   df[is.na(df)] <- ""
   df <- aggregate(df["range"], by=list(name=df$name,abbreviation=df$abbreviation,location=df$location,glacier=df$glacier,

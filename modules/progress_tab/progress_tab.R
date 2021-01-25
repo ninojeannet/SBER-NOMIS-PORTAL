@@ -38,7 +38,9 @@ progressTab <- function(input, output, session,pool){
 
   # Reactive variable
   getDF <- function(){
-    return(getProgressTable(pool))
+    df <- getProgressTable(pool)
+    df <- df %>% select(-"16s")
+    return(df)
   }
   
   # Render the data table of the overall project progress
