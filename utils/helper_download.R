@@ -54,7 +54,6 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     fk <- tableOptions[[table]][["FK"]]
     if(table != "glacier")
       colToSummarise <-names(values %>% select(-all_of(fk)))
-
     if(nbReplicates > 1)
       values <- reduce(values,table,fk,colToSummarise)
     else
@@ -84,6 +83,8 @@ generateMergedDownloadDF <- function(fields,ids,pool){
     
     if(table != "glacier")
       values <- removeFK(values,table)
+    else
+      values["id_glacier"] <- NULL
     column <- scale(values,table,nbEntries)
     if(is.null(ncol(column))){
       name <- convertToDLName(field)
