@@ -5,6 +5,8 @@ db_backups/*.sql
 
 processing/tmp/
 
+www/protocols/*.pdf
+
 #log files
 log/
 

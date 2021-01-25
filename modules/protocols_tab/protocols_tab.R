@@ -51,10 +51,11 @@ protocolsTab <- function(input, output, session,pool){
   })
   
   output$container <- renderUI({
-    selectInput(session$ns("param"),label = "Select a parameter",choices = protocols())
+    selectInput(session$ns("param"),label = "Select a parameter",choices = c("-",protocols()))
   })
   
   output$protocoloutput <- renderUI({
-    tags$iframe(style="height:600px; width:100%", src=paste0("protocols/",input$param))
+    if(!is.null(input$param) && input$param!="-" )
+      tags$iframe(style="height:600px; width:100%", src=paste0("protocols/",input$param))
   })
 }

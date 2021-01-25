@@ -108,7 +108,6 @@ generateMergedDownloadDF <- function(fields,ids,pool){
 # Return the reduced data frame
 reduce <- function(values,tablename,fk,colToSummarise){
   values <- formatDFforDownload(values)
-  # complex complex
   values <- values %>% 
     group_by(.dots=fk) %>%                         
     summarise_at(vars(all_of(colToSummarise)),mean,na.rm = TRUE) 
