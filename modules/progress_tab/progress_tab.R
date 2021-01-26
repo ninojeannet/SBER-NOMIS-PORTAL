@@ -9,7 +9,7 @@ progressTabUI <- function(id) {
   div(
     div(
       class= 'main-inputs',
-      h1("Project progression"),
+      h1("Database progression"),
       div(
         class = 'main-actions',
         actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary'),

@@ -123,7 +123,7 @@ ui <- tagList(
             # Create the visualisation tab
             tabPanel(
                 # Create a tab title with an icon
-                tags$span(icon('tasks'),tags$span('Project progress', class = 'navbar-menu-name')),
+                tags$span(icon('tasks'),tags$span('Database progress', class = 'navbar-menu-name')),
                 progressTabUI('progress')
             ),
             # Create the visualisation tab
