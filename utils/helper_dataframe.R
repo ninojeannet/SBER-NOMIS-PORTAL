@@ -133,7 +133,8 @@ generateHandsonTable <- function(df,dimension,readOnlyCells,name,tablename){
   df <- setCompleteColumnName(df,name)
   
   
-  handsonTable <- rhandsontable(df,overflow='visible',stretchH = "all",height = dimension()[2]/100*70)%>%
+  handsonTable <- rhandsontable(df,overflow='visible',stretchH = "all",copyPaste = list(columnsLimit = 4500, rowsLimit = 4500)
+                                ,height = dimension()[2]/100*70)%>%
     hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
     hot_cols(fixedColumnsLeft = length(mandatoryFields[[tablename]]),renderer = 
     "function(instance, td, row, col, prop, value, cellProperties) {
