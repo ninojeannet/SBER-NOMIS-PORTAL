@@ -125,19 +125,23 @@ login <- function(input, output, session, pool) {
           return()
         }
         else{
-          if(input$new1password == input$new2password)
+          if(input$new1password == input$new2password )
           {
-            user$loggedin <- TRUE
-            user$name <- userResult$name
-            user$role <- userResult$role
-
-            updateUser(pool,userResult,user$name,input$new1password,user$role,active=TRUE)
-            # Remove login form
-            removeModal()
-            # Show login success notification
-            showNotification('Password successfully changed!', type = 'message')
-            
-            # Stop here
+            if(input$new1password != ""){
+              user$loggedin <- TRUE
+              user$name <- userResult$name
+              user$role <- userResult$role
+              
+              updateUser(pool,userResult,user$name,input$new1password,user$role,active=TRUE)
+              # Remove login form
+              removeModal()
+              # Show login success notification
+              showNotification('Password successfully changed!', type = 'message')
+              
+              # Stop here
+              return()
+            }
+            user$error <- 'New password cannot be null !'
             return()
           }
           user$error <- 'New password is different in both field !'
