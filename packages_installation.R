@@ -35,7 +35,8 @@ install.packages(
            "future",
            "xlsx",
            "purrr",
-           "waiter"
+           "waiter",
+           "hrbrthemes"
   ),
   repos = 'https://cran.rstudio.com/'
 )

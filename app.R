@@ -38,7 +38,7 @@ library(zip)
 library(future)
 library(purrr)
 library(waiter)
-
+library(hrbrthemes)
 ## Load Shiny extensions functions ################################################
 source('./utils/shiny_extensions.R')
 source('./utils/helper_functions.R')
