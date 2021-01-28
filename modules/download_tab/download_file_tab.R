@@ -21,18 +21,19 @@ downloadFileTabUI <- function(id){
       sidebarPanel(
         id = ns('sidebar'),
         div(
-          selectInput(ns("type"),label = "Select a data type",choices = downloadFileTypes)
+          selectInput(ns("type"),label = "Select a data type",choices = downloadFileTypes),
+          hidden(selectInput(ns("expedition"),label = "Select an expedition",choices = c()))
         ),
-        div(
+        div(id=ns("glacierSelection"),
           radioButtons(ns("selectRange"), "Choose a selection option :",
                        c("Unique glacier" = "simple",
                          "Range of glacier" = "range",
                          "List of glacier" = "list")),
           textInput(ns("glacier"),"Enter glacier ID"),
           hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(MIN,MAX))),
-          hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
-          actionButton(ns("generate"),"Select files")
-        ),
+          hidden(textInput(ns("glacierList"),"Glacier list (comma separated)"))
+          
+        ),actionButton(ns("generate"),"Select files"),
         width=4
       ),
       mainPanel(
@@ -99,6 +100,23 @@ downloadFileTab <- function(input,output,session,pool){
     )
   })
   
+  # observeEvent that react to type input's update
+  # Hide / show html elements
+  observeEvent(input$type,{
+    
+    if(input$type == "16s"){
+      exped <-getTable("expedition",pool)
+      exped <- setNames(as.character(exped$id_expedition), exped$name)
+      updateSelectInput(session,"expedition",label = "Select an expedition",choices = exped)
+      hideElement("glacierSelection")
+      showElement("expedition")
+    }
+    else {
+      showElement("glacierSelection")
+      hideElement("expedition")
+    }
+  },ignoreInit = TRUE)
+  
   # ObserveEvent that reacts to the "generate" input button
   # Generate a file according to the given parameters and glacier ids
   observeEvent(input$generate,{
@@ -106,8 +124,13 @@ downloadFileTab <- function(input,output,session,pool){
     print(tableName())
     print(selectedFields())
     output$preview <- renderPrint({
-      validateInput(input)
-      files(getExistingFilenamesInDB(pool,tableName(),selectedFields(),ids()))
+      if(input$type != "16s"){
+        validateInput(input)
+        files(getExistingFilenamesInDB(pool,tableName(),selectedFields(),ids()))
+      }
+      else{
+        files(getExistingExpedFilenameInDB(pool,input$expedition,input$type))
+      }
       cat("# Download summary",'\n')
       cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
       cat('# Files : ','\n')

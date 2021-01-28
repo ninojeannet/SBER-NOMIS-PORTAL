@@ -63,6 +63,11 @@ getExistingFilenamesInDB <- function(pool,table,field,ids){
   return(filenames)
 }
 
+getExistingExpedFilenameInDB <- function(pool,expedition,fileType){
+  t <- getTable("expedition",pool)
+  # print(t[t$id_expedition == as.numeric(expedition),fileType])
+  return(t[t$id_expedition == as.numeric(expedition),fileType])
+}
 
 # Save file on the server
 # Parameters :

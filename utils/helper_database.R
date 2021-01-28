@@ -98,6 +98,9 @@ getFieldsFromGlacier <- function(pool,tableName,fields,ids){
   return(dataframe)
 }
 
+
+
+
 # Save the given data into the database
 # Parameters : 
 # data : the data as dataframe to save into db

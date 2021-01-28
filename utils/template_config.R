@@ -170,7 +170,7 @@ plotDataTypes <- list(`Glaciological metrics` = c("Snout latitude"="lat_sn","Sno
                                                      "Nutrients 4:Ammonium"="n4_nh4","Nutrients 5:Nitrate"="n5_no3","Nutrients 6:Nitrite"="n6_no2",
                                                      "Hydrogen stable isotope" = "hydro_isotope","Oxygen stable isotope" = "oxy_isotope"))
 
-downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")
+downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10","16s table"="16s")
 
 # The sublist of all the "DOM type" that can be uploaded
 uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")
