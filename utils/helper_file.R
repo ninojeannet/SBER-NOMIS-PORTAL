@@ -60,13 +60,17 @@ generateFileTables <- function(filenames,files,existingFiles,isUploadOnly){
 getExistingFilenamesInDB <- function(pool,table,field,ids){
   filenames <- getFieldsFromGlacier(pool,table,paste0("filename_",field),ids)[[paste0("filename_",field)]]
   filenames <- filenames[!is.na(filenames)]
+  if(length(filenames)==0)
+    return(FALSE)
   return(filenames)
 }
 
 getExistingExpedFilenameInDB <- function(pool,expedition,fileType){
   t <- getTable("expedition",pool)
-  # print(t[t$id_expedition == as.numeric(expedition),fileType])
-  return(t[t$id_expedition == as.numeric(expedition),fileType])
+  t <- t[t$id_expedition == as.numeric(expedition),fileType]
+  if(is.na(t))
+    return(FALSE)
+  return(t)
 }
 
 # Save file on the server

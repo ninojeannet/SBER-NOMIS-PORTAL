@@ -121,8 +121,6 @@ downloadFileTab <- function(input,output,session,pool){
   # Generate a file according to the given parameters and glacier ids
   observeEvent(input$generate,{
     # Render a small summary of the generated file
-    print(tableName())
-    print(selectedFields())
     output$preview <- renderPrint({
       if(input$type != "16s"){
         validateInput(input)
@@ -131,15 +129,22 @@ downloadFileTab <- function(input,output,session,pool){
       else{
         files(getExistingExpedFilenameInDB(pool,input$expedition,input$type))
       }
-      cat("# Download summary",'\n')
-      cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
-      cat('# Files : ','\n')
-      for (file in files()) {
-        cat('\t',file,'\n')
+      if(is.character(files())){
+        cat("# Download summary",'\n')
+        cat("# Download time :",format(Sys.time(), "%d.%m.%Y %H:%M:%S"),'\n')
+        cat('# Files : ','\n')
+        for (file in files()) {
+          cat('\t',file,'\n')
+        }
+        showElement("downloadFile")
       }
+      else{
+        cat("# No file available for these criteria.",'\n')
+        hideElement("downloadFile")
+      }
+
     })
 
-    showElement("downloadFile")
   })
   
   # Handler that allow user to download the previously generated file
