@@ -92,7 +92,7 @@ visualisationSimpleTab <- function(input, output, session,pool){
   
   data <- reactive({
     table <- getTableNameFromValue(input$param)
-    getFieldsFromGlacier(pool,tableName =table,fields =input$param ,ids = ids())
+    formatDFforDownload(getFieldsFromGlacier(pool,tableName =table,fields =input$param ,ids = ids()))
   })
   
   observeEvent(input$generate,{
@@ -111,7 +111,7 @@ visualisationSimpleTab <- function(input, output, session,pool){
         #         axis.text.x=element_text(colour="black", size = 12,angle = 0, hjust = 0.5),
         #         axis.text.y=element_text(colour="black", size = 12))
           # print(data())
-          ggplot(data(), aes(x=ph)) +
+          ggplot(data(), aes(x=!!sym(input$param))) +
           geom_histogram( color="#e9ecef", alpha=0.6, position = 'identity') +
           scale_fill_manual(values=c("#69b3a2", "#404080")) +
           theme_ipsum() +
