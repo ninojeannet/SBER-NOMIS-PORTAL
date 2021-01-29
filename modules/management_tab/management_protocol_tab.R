@@ -67,12 +67,14 @@ managementProtocolTab <- function(input, output, session,pool){
                iv$add_rule("name", sv_required())
                iv$add_rule("name", ~ if (str_to_lower(.) %in% parameters) "Parameter's name already exists")
                iv$add_rule("filename", sv_required())
+               iv$add_rule("filename", ~ if (!str_detect(.$name,"\\.pdf")) "File must have a .pdf extension")
                return(iv)
              },
              validatorUpdateFunction = function(expeditions){
                iv <- InputValidator$new()
                iv$add_rule("name", sv_required())
                iv$add_rule("name", ~ if (str_to_lower(.) %in% expeditions) "Parameter's name already exists")
+               iv$add_rule("filename", ~ if (!is.null(.)){if(!str_detect(.$name,"\\.pdf"))"File must have a .pdf extension"} )
                return(iv)
              })
 }
