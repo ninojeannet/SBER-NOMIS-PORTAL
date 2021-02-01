@@ -7,7 +7,7 @@
 # - ids : the list of dis of the data's glaciers
 # Return the generated data frame of the given table
 generateFilledDF <- function(dataf,tablename,ids){
-  print(dataf)
+  # print(dataf)
   finaldf <- dataf[FALSE,]
   
   for (glacierID in ids) {
@@ -46,7 +46,7 @@ generateGlacierDF <- function(dataf,glacierID){
   id <- glacierID
   nbCol <- ncol(dataf)
   nbRow <- nrow(dataf)
-  print(dataf)
+  # print(dataf)
   # Create a new empty dataframe
   newdataf <- dataf
   if (nrow(dataf) != 0)

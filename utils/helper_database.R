@@ -136,7 +136,7 @@ sendQuery <- function(query,pool,flag){
       showNotification(err$message,type = "error",duration = NULL)
     },
     finally = function(f){
-      print(f) 
+      # print(f) 
     })
   return(FALSE)
 }

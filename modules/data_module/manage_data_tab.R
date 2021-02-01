@@ -83,7 +83,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   update <- reactiveVal(FALSE)
   expeditions <- reactiveVal()
   # Reactive variable
-  tableName <- reactive(getTableNameFromValue({input$type}))
+  tableName <- reactive(getTableNameFromValue(input$type))
   selectedFields <- reactive(getFieldsFromValue(input$type))
   selectType <- reactive({input$selectRange})
   filenames <- reactive({generateFilenames(ids(),input$domtype)})
@@ -91,12 +91,15 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   tablesFile <- reactive({generateFileTables(filenames(),input$files,existingFiles(),isUploadOnly)})
   # Reactive variable which contains the dataframe to display
   dataf <- reactive({
-    update()
-    if(input$type %in% tableList)
-      tmp <- getTableFromGlacier(pool,tableName(),ids())
-    else
-      tmp <- getFieldsFromGlacier(pool,tableName(),selectedFields(),ids())
-    return(generateFilledDF(tmp,tableName(),ids()))
+    if(input$type != "expedition" && input$type != "biogeo_3u"){
+      update()
+      if(input$type %in% tableList)
+        tmp <- getTableFromGlacier(pool,tableName(),ids())
+      else
+        tmp <- getFieldsFromGlacier(pool,tableName(),selectedFields(),ids())
+      return(generateFilledDF(tmp,tableName(),ids()))
+    }
+
   })
   
   # Reactive variable which contains the list of all chosen glacier's id
@@ -145,19 +148,21 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # observeEvent that react to generate input's update
   # Generate and render the data table 
   observeEvent(input$generate,{
-    
     output$table <- renderRHandsontable({
-      validateInput(input)
-      w$show()
-      table <- isolate(input$type)
-      df <- dataf()
-      if(isUploadOnly)
-        readOnlyCells <- getReadOnlyCells(df,tableName())
-      else
-        readOnlyCells <- vector()
-      table <-generateHandsonTable(df,dimension,readOnlyCells,table,isolate(tableName()))
-      w$hide()
-      table
+      if(input$type != "expedition" && input$type != "biogeo_3u"){
+        validateInput(input)
+        w$show()
+        table <- isolate(input$type)
+        df <- dataf()
+        if(isUploadOnly)
+          readOnlyCells <- getReadOnlyCells(df,tableName())
+        else
+          readOnlyCells <- vector()
+        table <-generateHandsonTable(df,dimension,readOnlyCells,table,isolate(tableName()))
+        w$hide()
+        table
+      }
+      
     })
     showElement("upload")
   },ignoreInit = TRUE)
