@@ -3,7 +3,6 @@
 VSPlot <- function(df,valueToGroupBy,valueForColors, x ,y){
   plot <- ggplot(df,aes(x=!!sym(x),y=!!sym(y),color=!!sym(valueForColors)))+
     geom_point()+
-    facet_wrap(sym(valueToGroupBy),ncol = 3)+
     scale_color_manual(values=c('orangered1', 'purple3'), labels=c("UP","DN"))+
     guides(color=guide_legend(""))+
     ylim(-1,3)+
@@ -13,8 +12,11 @@ VSPlot <- function(df,valueToGroupBy,valueForColors, x ,y){
   return(plot)
 }
 
-histPlot <- function(){
-  
+histPlot <- function(df,param,valueForColors){
+  plot <- ggplot(df, aes(x=!!sym(param), fill = !!sym(valueForColors))) +
+    geom_histogram( color="#e9ecef", alpha=0.6, position = 'identity') +
+    scale_fill_manual(values=c("#4db8ff", "#2f4e72"))
+  return(plot)
 }
 
 

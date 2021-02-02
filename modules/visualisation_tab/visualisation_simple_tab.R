@@ -91,49 +91,18 @@ visualisationSimpleTab <- function(input, output, session,pool){
   })
   
   data <- reactive({
-    table <- getTableNameFromValue(input$param)
-    formatDFforDownload(getFieldsFromGlacier(pool,tableName =table,fields =input$param ,ids = ids()))
+    # table <- getTableNameFromValue(input$param)
+    # formatDFforDownload(getFieldsFromGlacier(pool,tableName =table,fields =input$param ,ids = ids()))
+    generateMergedDF(input$param,ids(),pool)
   })
   
   observeEvent(input$generate,{
     print(data())
+    df <- data()
     output$plot <- renderPlot({
-        # ggplot(data(), aes(x = "galcier", y = 1:nrow(data()), fill = "red")) +
-        #   geom_boxplot(alpha=0.3) +
-        #   geom_jitter(aes(colour="red",shape="red"),position=position_jitterdodge(0.5),cex=2)+
-        #   scale_y_continuous(name = "TER") +
-        #   scale_fill_brewer(palette = "Accent") + scale_colour_brewer(palette = "Accent") +
-        #   #ggtitle("") +
-        #   theme_bw() +
-        #   theme(axis.title.x=element_blank(),
-        #         plot.title=element_text(size = 20),
-        #         text=element_text(size = 16),
-        #         axis.text.x=element_text(colour="black", size = 12,angle = 0, hjust = 0.5),
-        #         axis.text.y=element_text(colour="black", size = 12))
-          # print(data())
-          ggplot(data(), aes(x=!!sym(input$param))) +
-          geom_histogram( color="#e9ecef", alpha=0.6, position = 'identity') +
-          scale_fill_manual(values=c("#69b3a2", "#404080")) +
-          theme_ipsum() +
-          labs(fill="")
+      nbCol <- ncol(df)
+      histPlot(df,colnames(df[nbCol]),colnames(df[nbCol-1]))
       })
-      
-    # library(ggplot2)
-    # library(dplyr)
-    # library(hrbrthemes)
-    # 
-    # setwd("C:/Users/H/Desktop/nomis/chl-a/")
-    # 
-    # chla<-read.csv("CHLA.csv")
-    # 
-    # 
-    # p <- chla %>%
-    #   ggplot( aes(x=CHLA.ug.g.1., fill=LOCATION)) +
-    #   geom_histogram( color="#e9ecef", alpha=0.6, position = 'identity') +
-    #   scale_fill_manual(values=c("#69b3a2", "#404080")) +
-    #   theme_ipsum() +
-    #   labs(fill="")
-    
   })
   
   

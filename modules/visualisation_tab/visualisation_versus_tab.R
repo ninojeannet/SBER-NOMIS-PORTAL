@@ -43,7 +43,7 @@ visualisationVersusTabUI <- function(id) {
       mainPanel(
         id = ns('main'),
         div(
-            plotOutput(ns("plot"),width = "100%",height = "100%")       
+            plotOutput(ns("plot"))       
         ),
         width = 9
       )
@@ -104,15 +104,13 @@ visualisationVersusTab <- function(input, output, session,pool){
   observeEvent(input$generate,{
     df <- data()
     print(df)
-    nbrow <- floor(length(unique(df[[2]]))/3)
-    print(nbrow)
     output$plot <- renderPlot({
       
       # output$plot1 <- renderPlot({
       # df <- data.frame(glacier=c("GL1","GL1","GL1","GL2","GL2","GL3","GL3"),location=c("UP","UP","DN","UP","DN","UP","DN"),ba=c(1,2,4,5,6,7,8),chla=c(12,42,5,43,34,34,3))
       nbCol <- ncol(df)
       VSPlot(df,colnames(df[2]),colnames(df[3]),colnames(df[nbCol-1]),colnames(df[nbCol]))
-      },height=nbrow*300)
+      })
   })
   
 
