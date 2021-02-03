@@ -97,6 +97,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
         tmp <- getTableFromGlacier(pool,tableName(),ids())
       else
         tmp <- getFieldsFromGlacier(pool,tableName(),selectedFields(),ids())
+      print(tmp)
       return(generateFilledDF(tmp,tableName(),ids()))
     }
 
@@ -154,6 +155,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
         w$show()
         table <- isolate(input$type)
         df <- dataf()
+        print(df)
         if(isUploadOnly)
           readOnlyCells <- getReadOnlyCells(df,tableName())
         else

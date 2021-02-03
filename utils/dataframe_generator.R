@@ -22,6 +22,7 @@ generateFilledDF <- function(dataf,tablename,ids){
     
     df <- switch (tablename,
                   'glacier' = generateGlacierDF(subsetdataf,glacierID),
+                  'glacier_ud' = generateGlacierUDDF(subsetdataf,glacierID),
                   'location' = generateLocationDF(subsetdataf,glacierID),
                   'patch' = generatePatchDF(subsetdataf,glacierID),
                   'biogeo_3' = generateBiogeoDF(subsetdataf,tablename,glacierID),
@@ -64,6 +65,42 @@ generateGlacierDF <- function(dataf,glacierID){
 
   return(newdataf)
 
+}
+
+# Generate a specific dataframe from glacier ud data
+# parameters :
+# dataf : the dataframe of a glacier
+# galcierId : the ID of the given glacier
+# Return a generated dataframe of glacier
+generateGlacierUDDF <- function(dataf,glacierID){
+  primary <- tableOptions[["glacier_ud"]][["primary"]]
+  fk_column <- tableOptions[["glacier_ud"]][["FK"]]
+  idUP <- paste0(glacierID,"_UP")
+  idDN <- paste0(glacierID,"_DN")
+  ids <- c(idUP,idDN)
+  fk <- glacierID
+  nbCol <- ncol(dataf)
+  nbRow <- nrow(dataf)
+  
+  # Create a new empty dataframe
+  newdataf <- dataf
+  if (nrow(dataf) != 0)
+    newdataf[,]=matrix(ncol=ncol(newdataf), rep(NA, prod(dim(newdataf))))
+  
+  # Add new rows to the df if necessary
+  if(nbRow < length(ids))
+  {
+    newdataf <- addRows(newdataf,nbRow,length(ids))
+  }
+  
+  newdataf[[primary]] <- ids
+  if(nrow(dataf) != 0)
+    newdataf <- copyDFValuesTo(dataf,newdataf,primary)
+  
+  newdataf[[fk_column]] <- fk
+  newdataf[["site"]] <- c("Up","Down")
+  
+  return(newdataf)
 }
 
 # Generate a specific dataframe from location data

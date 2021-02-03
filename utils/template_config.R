@@ -1,14 +1,14 @@
 MIN <- 1
 MAX <- 250
 
-tableList <- c("glacier","location","patch","microbial_1","microbial_2","microbial_3","biogeo_3u","biogeo_1u","biogeo_1")
+tableList <- c("glacier","glacier_ud","location","patch","microbial_1","microbial_2","microbial_3","biogeo_3u","biogeo_1u","biogeo_1")
 
 # List of all field name contained in each table
 templateFieldNames <- list()
 templateFieldNames[["gl_global"]] <- c('id_glacier','gl_name')
-templateFieldNames[["gl_point"]] <- c('id_glacier','lat_sn','lon_sn','ele_sn','lat_up','lon_up','ele_up','lat_dn','lon_dn','ele_dn','max_el','mean_el')
-templateFieldNames[["gl_line"]] <- c('id_glacier','sn_dist','sn_ele_diff','up_dn_dist','up_dn_ele_diff','abl_asp')
-templateFieldNames[["gl_area"]] <- c('id_glacier','sa','cov_up','a_up')
+templateFieldNames[["gl_point"]] <- c('id_glacier_ud','id_glacier','site','lat_sn','lon_sn','ele_sn','lat_sp','lon_sp','ele_sp','max_el','mean_el')
+templateFieldNames[["gl_line"]] <- c('id_glacier_ud','id_glacier','site','sn_sp_dist','sn_sp_ele','abl_asp')
+templateFieldNames[["gl_area"]] <- c('id_glacier_ud','id_glacier','site','gl_sa','gl_cov','gl_a')
 templateFieldNames[["gl_invent"]] <- c('id_glacier','rgi_v6','glims_id','wgms_id','m_balance','mb_obs','fv_variation','fv_obs','sp_event')
 templateFieldNames[["gl_source"]] <- c('id_glacier','data_s','data_ts','sn_data','sn_data_ts','dem_data','dem_data_ts','mb_data_s','fv_data_s','sp_event_s')
 templateFieldNames[["gl_other"]] <- c('id_glacier','','','','')
@@ -30,7 +30,8 @@ templateFieldNames[["respiration"]] <- c("id_microbial_2","id_patch","replicate"
 templateFieldNames[["doc"]] <- c("id_biogeo_3u","id_location","replicate","doc")
 
 subCategoriesOfTable <- list()
-subCategoriesOfTable[["glacier"]] <- c('gl_global','gl_point','gl_line','gl_area','gl_invent','gl_source')#,'gl_other')
+subCategoriesOfTable[["glacier"]] <- c('gl_global','gl_invent','gl_source')#,'gl_other')
+subCategoriesOfTable[["glacier_ud"]] <- c('gl_point','gl_line','gl_area')
 subCategoriesOfTable[["biogeo_3u"]] <- c("dom","indices","doc", "eem","abs1","abs10")
 subCategoriesOfTable[["biogeo_1"]] <- c("ion","nutrient","isotope")
 subCategoriesOfTable[["biogeo_1u"]] <- c("mineral")
@@ -44,6 +45,7 @@ specificFields[["dom"]] <- c("filename_eem","filename_abs1","filename_abs10")
 # List of mandatory field for each table
 mandatoryFields <- list()
 mandatoryFields[["glacier"]] <- c('id_glacier')
+mandatoryFields[["glacier_ud"]] <- c('id_glacier_ud','id_glacier','site')
 mandatoryFields[["location"]] <- c('id_location','id_glacier','type')
 mandatoryFields[["patch"]] <- c('id_patch','id_location','name')
 mandatoryFields[["biogeo_3u"]] <- c('id_biogeo_3u','id_location','replicate')
@@ -55,6 +57,7 @@ mandatoryFields[["microbial_3"]] <- c('id_microbial_3','id_patch','replicate')
 
 mandatoryColumns <- list()
 mandatoryColumns[["glacier"]] <- c(1)
+mandatoryColumns[["glacier_ud"]] <- c(1,2,3)
 mandatoryColumns[["location"]] <- c(1,2,3)
 mandatoryColumns[["patch"]] <- c(1,2,3)
 mandatoryColumns[["biogeo_3u"]] <- c(1,2,3)
@@ -66,10 +69,10 @@ mandatoryColumns[["microbial_3"]] <- c(1,2,3)
 
 fullnameFields <- list()
 fullnameFields[["gl_global"]] <- c('ID','Glacier name')
-fullnameFields[["gl_point"]] <- c('ID','Snout latitude\n[DD]','Snout longitude\n[DD]','Snout elevation\n[m]','Up latitude\n[DD]','Up longitude\n[DD]','Up elevation\n[m]'
-                                  ,'Down latitude\n[DD]','Down longitude\n[DD]','Down elevation\n[m]','Max elevation\n[m]','Mean elevation\n[m]')
-fullnameFields[["gl_line"]] <- c('ID','Up to snout\ndist\n[m]','Up to snout\nelevation diff\n[m]','Up to down\ndist\n[m]','Up to down\nelevation diff\n[m]','Aspect of ablation zone\n[\u00B0]')
-fullnameFields[["gl_area"]] <- c('ID','Glacier surface area\n[km2]','Glacier coverage Up\n[%]','Catchment area Up\n[km2]')
+fullnameFields[["gl_point"]] <- c('ID','Glacier','Site','Snout latitude\n[DD]','Snout longitude\n[DD]','Snout elevation\n[m]','Sampling point\nlatitude\n[DD]','Sampling point\nlongitude\n[DD]','Sampling point\nelevation\n[m]'
+                                  ,'Max elevation\n[m]','Mean elevation\n[m]')
+fullnameFields[["gl_line"]] <- c('ID','Glacier','Site','Snout to\nsampling point\ndist\n[m]','Snout to\nsampling point\nelevation diff\n[m]','Aspect of ablation zone\n[\u00B0]')
+fullnameFields[["gl_area"]] <- c('ID','Glacier','Site','Glacier surface area\n[km2]','Glacier coverage\n[%]','Catchment area\n[km2]')
 fullnameFields[["gl_invent"]] <- c('ID','RGI v.6','GLIMS ID','WGMS ID','Mass balance\ndata availability','Mass balance\nobservations','Frontal variation\ndata availability','Frontal variation\nobservations','Special event')
 fullnameFields[["gl_source"]] <- c('ID','Glacier outline\ndata source','Glacier outline\ntimestamp','Snout position\ndata source','Snout position\ntime stamp','DEM data\nsource','DEM data\ntime stamp','Mass balance\ndata source','Frontal variation\ndata source','Special event\ndata source')
 fullnameFields[["gl_other"]] <- c('ID','','','','')
@@ -106,6 +109,7 @@ tableOptions[["enzyme"]] <- c("primary"="id_enzyme", "FK"="id_patch", "name"="re
 tableOptions[["patch"]] <- c("primary"="id_patch", "FK"="id_location", "name"="name", "replicates"= list(c()))
 tableOptions[["location"]] <- c("primary"="id_location", "FK"="id_glacier", "name"="type", "replicates"= list(c()))
 tableOptions[["glacier"]] <- c("primary"="id_glacier", "FK"="id_glacier", "name"="name", "replicates"= list(c()))
+tableOptions[["glacier_ud"]] <- c("primary"="id_glacier_ud", "FK"="id_glacier", "name"="site", "replicates"= list(c()))
 tableOptions[["biogeo_3u"]] <- c("primary"="id_biogeo_3u", "FK"="id_location", "name"="replicate", "replicates"= list(c('A','B','C')))
 tableOptions[["biogeo_1"]] <- c("primary"="id_biogeo_1", "FK"="id_location", "name"="replicate", "replicates"= list(c('A')))
 tableOptions[["biogeo_1u"]] <- c("primary"="id_biogeo_1u", "FK"="id_location", "name"="replicate", "replicates"= list(c('A')))
@@ -120,12 +124,12 @@ isOnlyUP[["biogeo_3u"]] <- TRUE
 isOnlyUP[["biogeo_1"]] <- FALSE
 isOnlyUP[["biogeo_1u"]] <- TRUE
 
-nbOfEntryByGlacier <- c("location"=2,"glacier"=1, "enzyme"=18,"chla"=18,"respiration"=12,"bp"=12,"ba"=6,"eps"=6,"nutrient"=2,"isotope"=2,"ion"=2,"doc"=3,"dom"=3,"mineral"=1)
-nbOfEntryByTable <- c("glacier"=1,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=12,"microbial_3"=18,"biogeo_3u"=6,"biogeo_1"=2,"biogeo_1u"=2)
-levels <- c("glacier"=1,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=6,"microbial_3"=6,"biogeo_3u"=2,"biogeo_1"=2,"biogeo_1u"=2)
+nbOfEntryByGlacier <- c("location"=2,"glacier"=1,"glacier_ud"=2, "enzyme"=18,"chla"=18,"respiration"=12,"bp"=12,"ba"=6,"eps"=6,"nutrient"=2,"isotope"=2,"ion"=2,"doc"=3,"dom"=3,"mineral"=1)
+nbOfEntryByTable <- c("glacier"=1,"glacier_ud"=2,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=12,"microbial_3"=18,"biogeo_3u"=6,"biogeo_1"=2,"biogeo_1u"=2)
+levels <- c("glacier"=1,"glacier_ud"=2,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=6,"microbial_3"=6,"biogeo_3u"=2,"biogeo_1"=2,"biogeo_1u"=2)
 # The list of all the data types that can be uploaded from the upload section
 uploadDataTypes <- list("Field metrics"="location","Patch"="patch",
-                        `Glaciological metrics` = c("Identification metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source","Other metrics"="gl_other"),
+                        `Glaciological metrics` = c("Identification metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source" ),#,"Other metrics"="gl_other"),
                         `Microbial metrics` = c("Chlorophyll-A"="chla","Extracelullar polymeric substances"="eps","Enzyme"="enzyme","Bacterial production"="bp","Bacterial abundance"="ba","Respiration"="respiration"),
                         `Biogeochemical metrics` = c("Dissolved organic matter"="biogeo_3u",
                                                      "Dissolved organic matter indices"="indices",
@@ -137,12 +141,10 @@ uploadDataTypes <- list("Field metrics"="location","Patch"="patch",
                                                      "Isotopes" = "isotope"))
 
 plotDataTypes <- list(`Glaciological metrics` = c("Snout latitude"="lat_sn","Snout longitude"="lon_sn","Snout elevation"="ele_sn",
-                                                    "Up latitude"="lat_up","Up longitude"="lon_up","Up elevation"="ele_up",
-                                                    "Down latitude"="lat_dn","Down longitude"="lon_dn","Down elevation"="ele_dn",
-                                                    "Glacier surface area"="sa", "Aspect of ablation zone"="abl_asp","Glacier maximal elevation"="max_el",
-                                                    "Glacier mean elevation"="mean_el","Catchment area UP "="a_up","Upper sampling point horizontal distance to snout"="sn_dist",
-                                                    "Upper sampling point elevation difference to snout"="sn_ele_diff","Upper to lower sampling point distance"="up_dn_dist",
-                                                    "Upper to lower sampling point elevation difference "="up_dn_ele_diff","Glacier coverage of catchment UP"="cov_up"),
+                                                    "Sampling point latitude"="lat_sp","Sampling point longitude"="lon_sp","Sampling point elevation"="ele_sp",
+                                                    "Glacier surface area"="gl_sa", "Aspect of ablation zone"="abl_asp","Glacier maximal elevation"="max_el",
+                                                    "Glacier mean elevation"="mean_el","Catchment area "="gl_a","Snout to sampling point distance"="sn_sp_dist",
+                                                    "Snout to sampling point elevation difference"="sn_sp_ele","Glacier coverage"="gl_cov"),
                         `Field metrics` = c("Water temperature"="water_temp","pH"="ph","Potential"="potential",
                                             "Dissolved oxygen"="do","Dissolved oxygen saturation"="do_sat",
                                             "Water CO2"="w_co2","Conductivity"="conductivity","Turbidity"="turb",
@@ -217,9 +219,9 @@ colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "DD.MM.YYY
               return td;}")
           )
 colConfig[["gl_global"]] <- list()
-colConfig[["gl_point"]] <- list(list(col= 2:11, validator = numValidator))
-colConfig[["gl_line"]] <- list(list(col= 2:6, validator = numValidator))
-colConfig[["gl_area"]] <- list(list(col= 2:4, validator = numValidator))
+colConfig[["gl_point"]] <- list(list(col= 3:11, validator = numValidator))
+colConfig[["gl_line"]] <- list(list(col= 3:5, validator = numValidator))
+colConfig[["gl_area"]] <- list(list(col= 3:5, validator = numValidator))
 colConfig[["gl_invent"]] <- list()
 colConfig[["gl_source"]] <- list()
 colConfig[["indices"]] <- list(list(col=4:15, validator = numValidator))
