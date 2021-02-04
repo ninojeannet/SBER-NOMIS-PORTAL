@@ -57,7 +57,8 @@ manageDataTabUI <- function(id,title){
             ),
             use_waiter(),
             div(id =ns("table-container"),class="table-container",rHandsontableOutput(ns("table"))),
-            hidden(actionButton(ns("upload"),"Upload data",class="upload-button"))       
+            hidden(actionButton(ns("upload"),"Upload data",class="upload-button")),
+            hidden(downloadButton(ns("download"),"Download empty template",class="upload-button")) 
           ),
           width = 9
         )
@@ -82,6 +83,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   isFileExpedUpload <- reactiveVal(FALSE)
   update <- reactiveVal(FALSE)
   expeditions <- reactiveVal()
+  dfToDownload <- reactiveVal()
   # Reactive variable
   tableName <- reactive(getTableNameFromValue(input$type))
   selectedFields <- reactive(getFieldsFromValue(input$type))
@@ -155,7 +157,8 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
         w$show()
         table <- isolate(input$type)
         df <- dataf()
-        print(df)
+        # print(df)
+        dfToDownload(formatTemplateForDownload(df,table))
         if(isUploadOnly)
           readOnlyCells <- getReadOnlyCells(df,tableName())
         else
@@ -167,6 +170,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       
     })
     showElement("upload")
+    showElement("download")
   },ignoreInit = TRUE)
   
   # observeEvent that react to type input's update
@@ -186,6 +190,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       hideElement("generate")
       hideElement("table")
       hideElement("upload")
+      hideElement("download")
     }
     else if(input$type == "expedition"){
       updateSelectInput(session,"domtype",label = "Select a DNA parameter",choices = c("16s table"="16s"))
@@ -204,6 +209,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       hideElement("generate")
       hideElement("table")
       hideElement("upload")
+      hideElement("download")
     }
     else{
       isFileUpload(FALSE)
@@ -294,6 +300,16 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       update(!update())
     }
   },ignoreInit = TRUE)
+  
+  # Handler that allow user to download the previously generated file
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("nomis-",format(Sys.time(), "%Y%m%d-%H%M"),'-template', ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(isolate(dfToDownload()), file, row.names = FALSE,na = "NA")
+    }
+  )
   
   # observeEvent that react to uplooadFiles button click
   # save valid files on the server

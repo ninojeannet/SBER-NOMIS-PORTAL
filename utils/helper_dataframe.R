@@ -181,6 +181,15 @@ formatDFforDownload <- function(df){
   return(df)
 }
 
+formatTemplateForDownload <- function(df,table){
+  df <- formatDFforDownload(df)
+  mandatory <- mandatoryFields[[table]]
+  df[,-which(names(df) %in% mandatory)] <- NA
+  df <- setCompleteColumnName(df,table)
+  colnames(df) <-   str_replace_all(colnames(df),"\n"," ")
+ return(df)
+  }
+
 removeFK <- function(df,table){
   fk <- tableOptions[[table]][["FK"]]
   df <- df %>%
