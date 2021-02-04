@@ -50,12 +50,21 @@ updateExpedition <- function(row,expedRanges,params_list,newdf,pool){
   for (i in 3:length(params_list)){
     param <- params_list[i]
     table <- getTableNameFromValue(param)
-    if(table=="glacier")
+
+    if(table=="glacier"){
       fields <- unique(unlist(templateFieldNames[subCategoriesOfTable[["glacier"]]]))
-    else
+      nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]]
+      nbOfValidGlacier1 <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
+      fields <- unique(unlist(templateFieldNames[subCategoriesOfTable[["glacier_ud"]]]))
+      nbEntryForOneGlacier <- nbOfEntryByGlacier[["glacier_ud"]]
+      nbOfValidGlacier2 <- getNbOfNotNULLEntries("glacier_ud",fields,ids,nbEntryForOneGlacier,pool)
+      nbOfValidGlacier <- min(nbOfValidGlacier1,nbOfValidGlacier2)
+     }
+    else{
       fields <- getFieldsFromValue(param)
-    nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]]
-    nbOfValidGlacier <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
+      nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]]
+      nbOfValidGlacier <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
+    }
     newdf[[rownames(row),i]] <- paste0(nbOfValidGlacier," / ",nbOfGlacier)
   }
   return(newdf)
@@ -82,7 +91,7 @@ buildProgressTable <- function(pool){
   
   dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
   df <- dataframe %>% select(-min) %>% select(-max) %>% select(-id_expedition)
-  print(df)
+  # print(df)
   rowTypes <- colnames(df)
   df[is.na(df)] <- ""
   df <- aggregate(df["range"], by=list(name=df$name,abbreviation=df$abbreviation,location=df$location,glacier=df$glacier,
