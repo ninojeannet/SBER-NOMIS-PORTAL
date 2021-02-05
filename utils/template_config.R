@@ -16,7 +16,7 @@ templateFieldNames[["location"]] <- c('id_location','id_glacier','type','date','
 templateFieldNames[["patch"]] <- c("id_patch","id_location","name")
 templateFieldNames[["indices"]] <- c("id_biogeo_3u","id_location","replicate","abs254","abs300",
                                         "suva","e2e3","e4e6","s275295","s350400","s300700","sr","bix","fi","hix",
-                                     "coble_b","coble_t","coble_a","coble_m","coble_c","coble_r")
+                                     "coble_t","coble_a","coble_m","coble_c")
 templateFieldNames[["ion"]] <- c("id_biogeo_1","id_location","replicate","i1_na","i2_k","i3_mg","i4_ca","i5_cl","i6_so4")
 templateFieldNames[["mineral"]] <- c("id_biogeo_1u","id_location","replicate","tss_1","tss_2","tss_3","tss_4","tss_5","tss_5a","tss_5b","tss_5c","tss_5d")
 templateFieldNames[["nutrient"]] <- c("id_biogeo_1","id_location","replicate","n1_tn","n2_tp","n3_srp","n4_nh4","n5_no3","n6_no2")
@@ -85,7 +85,7 @@ fullnameFields[["indices"]] <- c("ID","Location","Replicate","Absorbance\nat 254
                                     "Slope Absorbance\nrange 275-295nm\n[nm-1]","Slope Absorbance\nrange 350-400nm\n[nm-1]",
                                     "Slope Absorbance\nrange 300-700nm\n[nm-1]","Slope ratio\n(275-295:350-400nm)\n[proportion]",
                                     "Biological index\n[proportion]","Fluorescence index\n[proportion]","Humification index\n[proportion]",
-                                    "Coble peak B\n[RU]","Coble peak T\n[RU]","Coble peak A\n[RU]","Coble peak M\n[RU]","Coble peak C\n[RU]","Coble peak R\n[RU]")
+                                    "Coble peak T\n[RU]","Coble peak A\n[RU]","Coble peak M\n[RU]","Coble peak C\n[RU]")
 fullnameFields[["ion"]] <- c("ID","Location","Replicate","Ion 1\nSodium\n[ug l-1]","Ion 2\nPotassium\n[ug l-1]","Ion 3\nMagnesium\n[ug l-1]",
                              "Ion 4\nCalcium\n[ug l-1]","Ion 5\nChloride\n[ug l-1]","Ion 6\nSulfate\n[ug l-1]")
 fullnameFields[["mineral"]] <- c("ID","Location","Replicate","TSS Mineral\nQuartz\n[%]","TSS Mineral\nFeldspar\n[%]","TSS Mineral\nMicas\n[%]",
@@ -159,8 +159,8 @@ plotDataTypes <- list(`Glaciological metrics` = c("Snout latitude"="lat_sn","Sno
                                                      "E2:E3 (Abs 250:365 nm)"="e2e3","E4:E6 (Abs 465:665 nm)"="e4e6","Slope Absorbance range 275-295 nm"="s275295",
                                                      "Slope Absorbance range 350-400 nm"="s350400","Slope Absorbance range 300-700 nm"="s300700",
                                                      "Slope ratio (275-295:350-400nm)"="sr","Biological index"="bix","Fluorescence index"="fi",
-                                                     "Humification index"="hix","Coble peak b"="coble_b","Coble peak t"="coble_t",
-                                                     "Coble peak a"="coble_a","Coble peak m"="coble_m","Coble peak c"="coble_c","Coble peak r"="coble_r",
+                                                     "Humification index"="hix","Coble peak t"="coble_t",
+                                                     "Coble peak a"="coble_a","Coble peak m"="coble_m","Coble peak c"="coble_c",
                                                      "Dissolved organic carbon"="doc","Total Suspended Solids Mineral Quartz" = "tss_1",
                                                      "Total Suspended Solids Mineral Feldspar" = "tss_2","Total Suspended Solids Mineral Micas" = "tss_3",
                                                      "Total Suspended Solids Mineral Calcite" = "tss_4","Total Suspended Solids Mineral Clay" = "tss_5",
@@ -224,7 +224,7 @@ colConfig[["gl_line"]] <- list(list(col= 3:5, validator = numValidator))
 colConfig[["gl_area"]] <- list(list(col= 3:5, validator = numValidator))
 colConfig[["gl_invent"]] <- list()
 colConfig[["gl_source"]] <- list()
-colConfig[["indices"]] <- list(list(col=4:15, validator = numValidator))
+colConfig[["indices"]] <- list(list(col=4:13, validator = numValidator))
 colConfig[["ion"]] <- list(list(col= 4:9, validator = numValidator))
 colConfig[["mineral"]] <- list(list(col= 4:12, validator = numValidator))
 colConfig[["nutrient"]] <- list(list(col= 4:9, validator = numValidator))
