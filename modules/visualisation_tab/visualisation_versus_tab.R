@@ -8,7 +8,7 @@ source('./utils/helper_visualisation.R')
 
 source('./modules/data_module/data_validation_popup.R')
 
-visualisationVersusTabUI <- function(id) {
+visualisationVersusTabUI <- function(id,pool) {
   # Parameters:
   #  - id: String, the module id
   ns <- NS(id)
@@ -31,10 +31,12 @@ visualisationVersusTabUI <- function(id) {
           radioButtons(ns("selectRange"), "Choose a selection option :",
                        c("Unique glacier" = "simple",
                          "Range of glaciers" = "range",
-                         "List of glaciers" = "list")),
+                         "List of glaciers" = "list",
+                         "Expedition"="expedition")),
           textInput(ns("glacier"),"Enter glacier ID"),
           hidden(numericRangeInput(ns("glacierRange"),label = "Range of glaciers", value = c(MIN,MAX))),
           hidden(textInput(ns("glacierList"),"List of glaciers (comma separated)")),
+          hidden(selectInput(ns("expedSelection"),label = "Select an expedition",choices = formatExpedList(pool))),
           actionButton(ns("generate"),"Generate plot"),
         ),
         width = 3
@@ -72,6 +74,14 @@ visualisationVersusTab <- function(input, output, session,pool){
               ids <- gsub(" ", "", ids, fixed = TRUE)
               ids <- strsplit(ids,',')
               ids <- sapply(ids, function(x){paste0("GL",x)})
+            },
+            "expedition" ={
+              ranges <- getTable("glacier_range",pool) %>% filter(id_expedition == input$expedSelection)
+              ids <- vector()
+              for (i in 1:nrow(ranges)) {
+                ids <- c(ids,paste0("GL",as.character(ranges[[i,"min"]]:ranges[[i,"max"]])))
+              }
+              ids
             })
   })
   
@@ -83,16 +93,25 @@ visualisationVersusTab <- function(input, output, session,pool){
               showElement("glacier")
               hideElement("glacierRange")
               hideElement("glacierList")
+              hideElement("expedSelection")
             },
             "range" = {
               hideElement("glacier")
               showElement("glacierRange")
               hideElement("glacierList")
+              hideElement("expedSelection")
             },
             "list" = {
               hideElement("glacier")
               hideElement("glacierRange")
               showElement("glacierList")
+              hideElement("expedSelection")
+            },
+            "expedition" = {
+              hideElement("glacier")
+              hideElement("glacierRange")
+              hideElement("glacierList")
+              showElement("expedSelection")
             }
     )
   })
@@ -102,12 +121,9 @@ visualisationVersusTab <- function(input, output, session,pool){
   })
   
   observeEvent(input$generate,{
-    df <- data()
-    print(df)
     output$plot <- renderPlot({
-      
-      # output$plot1 <- renderPlot({
-      # df <- data.frame(glacier=c("GL1","GL1","GL1","GL2","GL2","GL3","GL3"),location=c("UP","UP","DN","UP","DN","UP","DN"),ba=c(1,2,4,5,6,7,8),chla=c(12,42,5,43,34,34,3))
+      validateInput(input)
+      df <- data()
       nbCol <- ncol(df)
       VSPlot(df,colnames(df[2]),colnames(df[3]),colnames(df[nbCol-1]),colnames(df[nbCol]))
       })

@@ -3,13 +3,13 @@ source('./modules/data_module/manage_data_tab.R')
 # UI side og the uploadTab module
 # Parameters : 
 # id : id of the module
-uploadTabUI <- function(id){
+uploadTabUI <- function(id,pool){
   ns <- NS(id)
   
   # tabsetPanel(
   #   tabPanel(
   #     'Upload data',
-      manageDataTabUI(ns("data"),"Upload data")
+      manageDataTabUI(ns("data"),"Upload data",pool)
       
   #   )
   # )

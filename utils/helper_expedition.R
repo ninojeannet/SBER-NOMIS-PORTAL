@@ -124,3 +124,9 @@ buildExpeditionTable <- function(pool){
   df <- aggregate(df["range"], by=list(id_expedition=df$id_expedition,name=df$name,abbreviation=df$abbreviation),function(x){ paste(x,sep = ",", collapse = ',')})
   return(df)
 }
+
+
+formatExpedList <- function(pool){
+  exped <-getTable("expedition",pool)
+  return(setNames(as.character(exped$id_expedition), exped$name))
+}

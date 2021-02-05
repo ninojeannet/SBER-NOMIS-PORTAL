@@ -6,18 +6,18 @@ source('./modules/download_tab/download_file_tab.R')
 # This tab is split in two panel : data download and file download
 
 # UI part of download module
-downloadTabUI <- function(id){
+downloadTabUI <- function(id,pool){
   ns <- NS(id)
   
   tabsetPanel(
     tabPanel(
       'Download data',
-      downloadDataTabUI(ns("data"))
+      downloadDataTabUI(ns("data"),pool)
     )
     ,
     tabPanel(
       'Download file',
-      downloadFileTabUI(ns("file"))
+      downloadFileTabUI(ns("file"),pool)
     )
   )
   

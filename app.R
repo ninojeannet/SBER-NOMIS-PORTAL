@@ -53,6 +53,8 @@ source('./modules/editableDT/editableDT.R')
 source('./modules/visualisation_tab/visualisation_tab.R')
 source('./modules/progress_tab/progress_tab.R')
 source('./modules/protocols_tab/protocols_tab.R')
+source('./utils/helper_expedition.R')
+
 
 source('app_config.R')
 
@@ -118,7 +120,7 @@ ui <- tagList(
             tabPanel(
                 # Create a tab title with an icon
                 tags$span(icon('chart-bar'),tags$span('Visualisation', class = 'navbar-menu-name')),
-                visualisationTabUI('visualisation')
+                visualisationTabUI('visualisation',pool)
             ),
             # Create the visualisation tab
             tabPanel(
@@ -162,7 +164,7 @@ server <- function(input, output, session) {
                     # Create a tab title with an icon
                     tags$span(icon('upload'),tags$span('Upload', class = 'navbar-menu-name')),
                     # Load the uploadTab module UI elements
-                    uploadTabUI('upload')
+                    uploadTabUI('upload',pool)
                 )
             )
             
@@ -175,7 +177,7 @@ server <- function(input, output, session) {
                     # Create a tab title with an icon
                     tags$span(icon('database'),tags$span('Data Management', class = 'navbar-menu-name')),
                     # Load the managementTab module UI elements
-                    managementTabUI('management')
+                    managementTabUI('management',pool)
                 )
             )
             # Load data management server logic
@@ -190,7 +192,7 @@ server <- function(input, output, session) {
                     # Create a tab title with an icon
                     tags$span(icon('download'),tags$span('Download', class = 'navbar-menu-name')),
                     # Load the visualisationTab module UI elements
-                    downloadTabUI('download')
+                    downloadTabUI('download',pool)
                     #visualisationTabUI('1', grabSampleDf, hfDf, sites, grabSampleParameters, hfParameters)
                 )
             )

@@ -6,7 +6,7 @@ source('./utils/helper_download.R')
 # UI function of the downloadDataTab module
 # Parameters : 
 # id : id of the module
-downloadFileTabUI <- function(id){
+downloadFileTabUI <- function(id,pool){
   ns <- NS(id)
   
   div(
@@ -28,11 +28,12 @@ downloadFileTabUI <- function(id){
           radioButtons(ns("selectRange"), "Choose a selection option :",
                        c("Unique glacier" = "simple",
                          "Range of glacier" = "range",
-                         "List of glacier" = "list")),
+                         "List of glacier" = "list",
+                         "Expedition"="expedition")),
           textInput(ns("glacier"),"Enter glacier ID"),
           hidden(numericRangeInput(ns("glacierRange"),label = "Glacier range", value = c(MIN,MAX))),
-          hidden(textInput(ns("glacierList"),"Glacier list (comma separated)"))
-          
+          hidden(textInput(ns("glacierList"),"Glacier list (comma separated)")),
+          hidden(selectInput(ns("expedSelection"),label = "Select an expedition",choices = formatExpedList(pool)))
         ),actionButton(ns("generate"),"Select files"),
         width=4
       ),
@@ -75,6 +76,14 @@ downloadFileTab <- function(input,output,session,pool){
               ids <- gsub(" ", "", ids, fixed = TRUE)
               ids <- strsplit(ids,',')
               ids <- sapply(ids, function(x){paste0("GL",x)})
+            },
+            "expedition" ={
+              ranges <- getTable("glacier_range",pool) %>% filter(id_expedition == input$expedSelection)
+              ids <- vector()
+              for (i in 1:nrow(ranges)) {
+                ids <- c(ids,paste0("GL",as.character(ranges[[i,"min"]]:ranges[[i,"max"]])))
+              }
+              ids
             })
   })
   
@@ -86,16 +95,25 @@ downloadFileTab <- function(input,output,session,pool){
               showElement("glacier")
               hideElement("glacierRange")
               hideElement("glacierList")
+              hideElement("expedSelection")
             },
             "range" = {
               hideElement("glacier")
               showElement("glacierRange")
               hideElement("glacierList")
+              hideElement("expedSelection")
             },
             "list" = {
               hideElement("glacier")
               hideElement("glacierRange")
               showElement("glacierList")
+              hideElement("expedSelection")
+            },
+            "expedition" = {
+              hideElement("glacier")
+              hideElement("glacierRange")
+              hideElement("glacierList")
+              showElement("expedSelection")
             }
     )
   })

@@ -6,7 +6,7 @@ source('./utils/helper_file.R')
 source('./utils/helper_log.R')
 source('./modules/data_module/data_validation_popup.R')
 
-visualisationSimpleTabUI <- function(id) {
+visualisationSimpleTabUI <- function(id,pool) {
   # Parameters:
   #  - id: String, the module id
   ns <- NS(id)
@@ -28,10 +28,12 @@ visualisationSimpleTabUI <- function(id) {
           radioButtons(ns("selectRange"), "Choose a selection option :",
                        c("Unique glacier" = "simple",
                          "Range of glaciers" = "range",
-                         "List of glaciers" = "list")),
+                         "List of glaciers" = "list",
+                         "Expedition"="expedition")),
           textInput(ns("glacier"),"Enter glacier ID"),
           hidden(numericRangeInput(ns("glacierRange"),label = "Range of glaciers", value = c(MIN,MAX))),
           hidden(textInput(ns("glacierList"),"List of glaciers (comma separated)")),
+          hidden(selectInput(ns("expedSelection"),label = "Select an expedition",choices = formatExpedList(pool))),
           actionButton(ns("generate"),"Generate plot"),
         ),
         width = 3
@@ -65,6 +67,15 @@ visualisationSimpleTab <- function(input, output, session,pool){
               ids <- gsub(" ", "", ids, fixed = TRUE)
               ids <- strsplit(ids,',')
               ids <- sapply(ids, function(x){paste0("GL",x)})
+            },
+            "expedition" ={
+              ranges <- getTable("glacier_range",pool) %>% filter(id_expedition == input$expedSelection)
+              ids <- vector()
+              for (i in 1:nrow(ranges)) {
+                print(ranges[[i,"min"]])
+                ids <- c(ids,paste0("GL",as.character(ranges[[i,"min"]]:ranges[[i,"max"]])))
+              }
+              ids
             })
   })
   
@@ -76,30 +87,38 @@ visualisationSimpleTab <- function(input, output, session,pool){
               showElement("glacier")
               hideElement("glacierRange")
               hideElement("glacierList")
+              hideElement("expedSelection")
             },
             "range" = {
               hideElement("glacier")
               showElement("glacierRange")
               hideElement("glacierList")
+              hideElement("expedSelection")
             },
             "list" = {
               hideElement("glacier")
               hideElement("glacierRange")
               showElement("glacierList")
+              hideElement("expedSelection")
+            },
+            "expedition" = {
+              hideElement("glacier")
+              hideElement("glacierRange")
+              hideElement("glacierList")
+              showElement("expedSelection")
             }
     )
   })
   
   data <- reactive({
-    # table <- getTableNameFromValue(input$param)
-    # formatDFforDownload(getFieldsFromGlacier(pool,tableName =table,fields =input$param ,ids = ids()))
     generateMergedDF(input$param,ids(),pool)
   })
   
   observeEvent(input$generate,{
-    print(data())
-    df <- data()
+    # print(data())
     output$plot <- renderPlot({
+      validateInput(input)
+      df <- data()
       nbCol <- ncol(df)
       histPlot(df,colnames(df[nbCol]),colnames(df[nbCol-1]))
       })

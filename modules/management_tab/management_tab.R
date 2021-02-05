@@ -5,7 +5,7 @@ source('./modules/management_tab/management_protocol_tab.R')
 source('./modules/data_module/manage_data_tab.R')
 
 
-managementTabUI <- function(id) {
+managementTabUI <- function(id,pool) {
   # Parameters:
   #  - id: String, the module id
   ns <- NS(id)
@@ -13,7 +13,7 @@ managementTabUI <- function(id) {
   tabsetPanel(
     tabPanel(
       'Manage data',
-      manageDataTabUI(ns("data"),"Manage data")
+      manageDataTabUI(ns("data"),"Manage data",pool)
       
     ),
     tabPanel(

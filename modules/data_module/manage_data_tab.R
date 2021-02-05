@@ -11,7 +11,7 @@ source('./modules/data_module/data_validation_popup.R')
 # UI function of the uploadDataTab module
 # Parameters : 
 # id : id of the module
-manageDataTabUI <- function(id,title){
+manageDataTabUI <- function(id,title,pool){
   ns <- NS(id)
   
   div(
@@ -34,10 +34,12 @@ manageDataTabUI <- function(id,title){
                 radioButtons(ns("selectRange"), "Choose a selection option :",
                          c("Unique glacier" = "simple",
                            "Range of glaciers" = "range",
-                           "List of glaciers" = "list")),
+                           "List of glaciers" = "list",
+                           "Expedition"="expedition")),
                 textInput(ns("glacier"),"Enter glacier ID"),
                 hidden(numericRangeInput(ns("glacierRange"),label = "Range of glaciers", value = c(MIN,MAX))),
-                hidden(textInput(ns("glacierList"),"List of glaciers (comma separated)"))),
+                hidden(textInput(ns("glacierList"),"List of glaciers (comma separated)")),
+                hidden(selectInput(ns("expedSelection"),label = "Select an expedition",choices = formatExpedList(pool)))),
             actionButton(ns("generate"),"Generate template"),
             hidden(uiOutput(ns("fileContainer")))
           ),
@@ -120,6 +122,15 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
               ids <- gsub(" ", "", ids, fixed = TRUE)
               ids <- strsplit(ids,',')
               ids <- sapply(ids, function(x){paste0("GL",x)})
+            },
+            "expedition" ={
+              ranges <- getTable("glacier_range",pool) %>% filter(id_expedition == input$expedSelection)
+              ids <- vector()
+              for (i in 1:nrow(ranges)) {
+                print(ranges[[i,"min"]])
+                ids <- c(ids,paste0("GL",as.character(ranges[[i,"min"]]:ranges[[i,"max"]])))
+              }
+              ids
             })
   })
   
@@ -131,16 +142,25 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
               showElement("glacier")
               hideElement("glacierRange")
               hideElement("glacierList")
+              hideElement("expedSelection")
             },
             "range" = {
               hideElement("glacier")
               showElement("glacierRange")
               hideElement("glacierList")
+              hideElement("expedSelection")
             },
             "list" = {
               hideElement("glacier")
               hideElement("glacierRange")
               showElement("glacierList")
+              hideElement("expedSelection")
+            },
+            "expedition" = {
+              hideElement("glacier")
+              hideElement("glacierRange")
+              hideElement("glacierList")
+              showElement("expedSelection")
             }
     )
   },ignoreInit = TRUE)
@@ -194,8 +214,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     }
     else if(input$type == "expedition"){
       updateSelectInput(session,"domtype",label = "Select a DNA parameter",choices = c("16s table"="16s"))
-      exped <-getTable("expedition",pool)
-      expeditions(setNames(as.character(exped$id_expedition), exped$name))
+      expeditions(formatExpedList(pool))
       updateSelectInput(session,"expedition",label = "Select an expedition",choices = expeditions())
       output$fileContainer <- renderUI({fileInput(session$ns("files"),"Select file",accept=".txt",multiple = FALSE)}) 
       w$hide()
@@ -455,3 +474,4 @@ validateInputEmpty <- function(input){
     )
   )
 }
+
