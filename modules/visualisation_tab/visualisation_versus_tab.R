@@ -125,6 +125,7 @@ visualisationVersusTab <- function(input, output, session,pool){
       validateVersus(input)
       validateInput(input)
       df <- data()
+      print(df)
       nbCol <- ncol(df)
       VSPlot(df,colnames(df[2]),colnames(df[3]),colnames(df[nbCol-1]),colnames(df[nbCol]))
       })
