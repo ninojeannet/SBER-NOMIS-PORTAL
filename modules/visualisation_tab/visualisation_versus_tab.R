@@ -122,6 +122,7 @@ visualisationVersusTab <- function(input, output, session,pool){
   
   observeEvent(input$generate,{
     output$plot <- renderPlot({
+      validateVersus(input)
       validateInput(input)
       df <- data()
       nbCol <- ncol(df)
@@ -131,4 +132,8 @@ visualisationVersusTab <- function(input, output, session,pool){
   
 
   
+}
+
+validateVersus <- function(input){
+  shiny::validate(need(input$paramX != input$paramY, 'You need to choose different parameters'))
 }
