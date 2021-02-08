@@ -179,7 +179,7 @@ uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs
 
 
 downloadDataTypes <- list(`Field metrics` = c("Field metrics - All"="location-all","Date"="date",
-                                              "Time"="time","Water temperature"="water_temp","Ph"="ph",
+                                              "Time"="time","Water temperature"="water_temp","pH"="ph",
                                               "Potential"="potential","Dissolved oxygen"="do","Dissolved oxygen saturation"="do_sat","Water CO2"="w_co2",
                                               "Conductivity"="conductivity","Turbidity"="turb","Rock DNA present"="rdna"),
                         `Glaciological metrics` = c("Glaciological metrics - All" ="glacio-all","Identification metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source"
