@@ -95,7 +95,7 @@ buildProgressTable <- function(pool){
   rowTypes <- colnames(df)
   df[is.na(df)] <- ""
   df <- aggregate(df["range"], by=list(name=df$name,abbreviation=df$abbreviation,location=df$location,glacier=df$glacier,
-                                       doc=df$doc,dom=df$dom, mineral=df$mineral,
+                                       doc=df$doc,dom=df$dom,indices=df$indices,mineral=df$mineral,
                                        ion=df$ion,nutrient=df$nutrient,isotope=df$isotope,chla=df$chla,eps=df$eps,enzyme =df$enzyme,
                                        bp=df$bp,ba=df$ba,respiration=df$respiration),
                   function(x){ paste(unlist(x),collapse = ', ')})

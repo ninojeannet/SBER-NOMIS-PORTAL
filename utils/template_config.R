@@ -124,7 +124,7 @@ isOnlyUP[["biogeo_3u"]] <- TRUE
 isOnlyUP[["biogeo_1"]] <- FALSE
 isOnlyUP[["biogeo_1u"]] <- TRUE
 
-nbOfEntryByGlacier <- c("location"=2,"glacier"=1,"glacier_ud"=2, "enzyme"=18,"chla"=18,"respiration"=12,"bp"=12,"ba"=6,"eps"=6,"nutrient"=2,"isotope"=2,"ion"=2,"doc"=3,"dom"=3,"mineral"=1)
+nbOfEntryByGlacier <- c("location"=2,"glacier"=1,"glacier_ud"=2, "enzyme"=18,"chla"=18,"respiration"=12,"bp"=12,"ba"=6,"eps"=6,"nutrient"=2,"isotope"=2,"ion"=2,"doc"=3,"dom"=3,"indices"=3,"mineral"=1)
 nbOfEntryByTable <- c("glacier"=1,"glacier_ud"=2,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=12,"microbial_3"=18,"biogeo_3u"=6,"biogeo_1"=2,"biogeo_1u"=2)
 levels <- c("glacier"=1,"glacier_ud"=2,"location"=2,"patch"=6,"microbial_1"=6,"microbial_2"=6,"microbial_3"=6,"biogeo_3u"=2,"biogeo_1"=2,"biogeo_1u"=2)
 # The list of all the data types that can be uploaded from the upload section
@@ -238,4 +238,4 @@ colConfig[["respiration"]] <- list(list(col= 4, validator = numValidator))
 colConfig[["doc"]] <- list(list(col= 4, validator = numValidator))
 
 # Fields to display in the progess table
-summaryFullNameFields <- c("Abbreviation","Range","Field metrics","Glaciological metrics","DOC","DOM","Minerals","Ions","Nutrients","Isotopes","Chlorophyll-A","EPS","Enzymes","Bp","Ba","Respiration")
+summaryFullNameFields <- c("Abbreviation","Range","Field metrics","Glaciological metrics","DOC","DOM file","DOM indices","Minerals","Ions","Nutrients","Isotopes","Chlorophyll-A","EPS","Enzymes","Bp","Ba","Respiration")
