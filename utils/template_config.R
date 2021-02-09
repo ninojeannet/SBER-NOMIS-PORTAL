@@ -130,15 +130,16 @@ levels <- c("glacier"=1,"glacier_ud"=2,"location"=2,"patch"=6,"microbial_1"=6,"m
 # The list of all the data types that can be uploaded from the upload section
 uploadDataTypes <- list("Field metrics"="location","Patch"="patch",
                         `Glaciological metrics` = c("Identification metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source" ),#,"Other metrics"="gl_other"),
-                        `Microbial metrics` = c("Chlorophyll-A"="chla","Extracelullar polymeric substances"="eps","Enzyme"="enzyme","Bacterial production"="bp","Bacterial abundance"="ba","Respiration"="respiration"),
+                        `Microbial metrics` = c("DNA"="expedition","Chlorophyll-A"="chla","Extracelullar polymeric substances"="eps","Enzyme"="enzyme","Bacterial production"="bp","Bacterial abundance"="ba","Respiration"="respiration"),
                         `Biogeochemical metrics` = c("Dissolved organic matter"="biogeo_3u",
                                                      "Dissolved organic matter indices"="indices",
+                                                     "FT-ICR MS"="ft_icr_ms",
                                                      "Dissolved organic carbon"="doc",
-                                                     "DNA"="expedition",
                                                      "Minerals" = "mineral",
                                                      "Ions" = "ion",
                                                      "Nutrients"="nutrient",
-                                                     "Isotopes" = "isotope"))
+                                                     "Isotopes" = "isotope",
+                                                     "Trace elements"="trace_el"))
 
 plotDataTypes <- list(`Glaciological metrics` = c("Snout latitude"="lat_sn","Snout longitude"="lon_sn","Snout elevation"="ele_sn",
                                                     "Sampling point latitude"="lat_sp","Sampling point longitude"="lon_sp","Sampling point elevation"="ele_sp",
@@ -172,7 +173,7 @@ plotDataTypes <- list(`Glaciological metrics` = c("Snout latitude"="lat_sn","Sno
                                                      "Nutrients 4:Ammonium"="n4_nh4","Nutrients 5:Nitrate"="n5_no3","Nutrients 6:Nitrite"="n6_no2",
                                                      "Hydrogen stable isotope" = "hydro_isotope","Oxygen stable isotope" = "oxy_isotope"))
 
-downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10","16s table"="16s")
+downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10","16s table"="16s","18s table"="18s","Trace elements"="trace_el","FT-ICR MS"="ft_icr_ms")
 
 # The sublist of all the "DOM type" that can be uploaded
 uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")

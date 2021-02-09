@@ -212,8 +212,14 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       hideElement("upload")
       hideElement("download")
     }
-    else if(input$type == "expedition"){
-      updateSelectInput(session,"domtype",label = "Select a DNA parameter",choices = c("16s table"="16s"))
+    else if(input$type == "expedition" || input$type == "trace_el" || input$type == "ft_icr_ms" ){
+      if(input$type == "expedition"){
+        updateSelectInput(session,"domtype",label = "Select a DNA parameter",choices = c("16s table"="16s","18s table"="18s"))
+        showElement("domtype")
+      }
+      else if(input$type == "trace_el" || input$type == "ft_icr_ms"){
+        hideElement("domtype")
+      }
       expeditions(formatExpedList(pool))
       updateSelectInput(session,"expedition",label = "Select an expedition",choices = expeditions())
       output$fileContainer <- renderUI({fileInput(session$ns("files"),"Select file",accept=".txt",multiple = FALSE)}) 
@@ -223,7 +229,6 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       hideElement("glacierSelection")
       showElement("expedition")
       hideElement("spinner")
-      showElement("domtype")
       showElement("fileContainer")
       hideElement("generate")
       hideElement("table")
@@ -270,8 +275,12 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
           data.frame("Wrong" =input$files$name)})
         disable("uploadFiles")
       }
+      if(input$type == "trace_el" || input$type == "ft_icr_ms")
+        fileType <- input$type
+      else
+        fileType <- input$domtype
       exp <-getTable("expedition",pool)
-      existingExpedFile(exp[exp$id_expedition == as.numeric(input$expedition),][["16s"]])
+      existingExpedFile(exp[exp$id_expedition == as.numeric(input$expedition),][[fileType]])
       if(!is.na(existingExpedFile())){
         output$fileExisting <- renderTable({ 
           data.frame("Existing" =existingExpedFile())})
@@ -336,12 +345,19 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     if(isFileExpedUpload()){
       validFilename <- input$files$name
       validFilePath <- input$files$datapath
+      if(input$type == "trace_el" || input$type == "ft_icr_ms"){
+        fileType <- input$type
+        table <- "expedition"
+      }else{
+        fileType <- input$domtype
+        table <- tableName()
+      }
       if(!isUploadOnly)
-        show_validation_popup(tableName(),validFilename,output,session$ns,TRUE)
+        show_validation_popup(table,validFilename,output,session$ns,TRUE)
       else{
-        saveFile(validFilename,validFilePath,"data/",type = input$domtype)
+        saveFile(validFilename,validFilePath,"data/",type = fileType)
         expedName <- names(expeditions()[expeditions()==input$expedition])
-        saveField(input$type,input$domtype,input$expedition,expedName,validFilename,pool)
+        saveField(table,fileType,input$expedition,expedName,validFilename,pool)
       }
     }
     else{
@@ -362,13 +378,20 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     removeModal()
     if(isFileUpload()){
       if(isFileExpedUpload()){
+        if(input$type == "trace_el" || input$type == "ft_icr_ms"){
+          fileType <- input$type
+          table <- "expedition"
+        }else{
+          fileType <- input$domtype
+          table <- tableName()
+        }
         validFilename <- input$files$name
         validFilePath <- input$files$datapath
-        saveFile(validFilename,validFilePath,"data/",type = input$domtype)
+        saveFile(validFilename,validFilePath,"data/",type = fileType)
         expedName <- names(expeditions()[expeditions()==input$expedition])
-        saveField(input$type,input$domtype,input$expedition,expedName,validFilename,pool)
+        saveField(table,fileType,input$expedition,expedName,validFilename,pool)
         if(!is.na(existingExpedFile()))
-          deleteFile(paste0("data/",input$domtype,"/"),existingExpedFile())
+          deleteFile(paste0("data/",fileType,"/"),existingExpedFile())
       }
       else{
         validFilename <- tablesFile()[["valid"]]

@@ -122,7 +122,7 @@ downloadFileTab <- function(input,output,session,pool){
   # Hide / show html elements
   observeEvent(input$type,{
     
-    if(input$type == "16s"){
+    if(input$type == "16s" ||input$type == "18s" ){
       exped <-getTable("expedition",pool)
       exped <- setNames(as.character(exped$id_expedition), exped$name)
       updateSelectInput(session,"expedition",label = "Select an expedition",choices = exped)
@@ -140,7 +140,7 @@ downloadFileTab <- function(input,output,session,pool){
   observeEvent(input$generate,{
     # Render a small summary of the generated file
     output$preview <- renderPrint({
-      if(input$type != "16s"){
+      if(input$type != "16s" && input$type != "18s"){
         validateInput(input)
         files(getExistingFilenamesInDB(pool,tableName(),selectedFields(),ids()))
       }
