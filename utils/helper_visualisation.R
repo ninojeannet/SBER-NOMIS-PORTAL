@@ -1,14 +1,15 @@
 
 
-VSPlot <- function(df,valueToGroupBy,valueForColors, x ,y){
+VSPlot <- function(df,valueToGroupBy,valueForColors, x ,y,logx,logy){
   plot <- ggplot(df,aes(x=!!sym(x),y=!!sym(y),color=!!sym(valueForColors)))+
     geom_point()+
     scale_color_manual(values=c('orangered1', 'purple3'), labels=c("DN","UP"))+
     guides(color=guide_legend(""))+
-    ylim(-1,3)+
-    scale_x_continuous(trans = 'log10')+
-    scale_y_continuous(trans = 'log10')+
     theme(legend.position="bottom", legend.box = "horizontal",axis.title.x = element_text(margin=margin(t=15),size=14),axis.title.y =element_text(margin=margin(t=20),size=14))
+    if(logx)
+      plot <- plot + scale_x_continuous(trans = 'log10')
+    if(logy)
+      plot <- plot + scale_y_continuous(trans = 'log10')
   return(plot)
 }
 

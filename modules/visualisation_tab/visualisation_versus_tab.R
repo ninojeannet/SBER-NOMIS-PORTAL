@@ -27,7 +27,9 @@ visualisationVersusTabUI <- function(id,pool) {
         id = ns('sidebar'),
         div(
           selectInput(ns("paramX"),label = "Select a parameter for X axis",choices = plotDataTypes),
+          prettySwitch(ns("logx"),"Scale X axis with log",value = TRUE,fill = TRUE),
           selectInput(ns("paramY"),label = "Select a parameter for Y axis",choices = plotDataTypes),
+          prettySwitch(ns("logy"),"Scale Y axis with log",value = TRUE,fill = TRUE),
           radioButtons(ns("selectRange"), "Choose a selection option :",
                        c("Unique glacier" = "simple",
                          "Range of glaciers" = "range",
@@ -127,7 +129,7 @@ visualisationVersusTab <- function(input, output, session,pool){
       df <- data()
       print(df)
       nbCol <- ncol(df)
-      VSPlot(df,colnames(df[2]),colnames(df[3]),colnames(df[nbCol-1]),colnames(df[nbCol]))
+      VSPlot(df,colnames(df[2]),colnames(df[3]),colnames(df[nbCol-1]),colnames(df[nbCol]),input$logx,input$logy)
       })
   })
   
