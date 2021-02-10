@@ -239,4 +239,4 @@ colConfig[["respiration"]] <- list(list(col= 4, validator = numValidator))
 colConfig[["doc"]] <- list(list(col= 4, validator = numValidator))
 
 # Fields to display in the progess table
-summaryFullNameFields <- c("Abbreviation","Range","Field metrics","Glaciological metrics","DOC","DOM file","DOM indices","Minerals","Ions","Nutrients","Isotopes","Chlorophyll-A","EPS","Enzymes","Bp","Ba","Respiration")
+summaryFullNameFields <- c("Abbreviation","Range","Field metrics","Glaciological metrics","DOC","DOM file","DOM indices","FT-ICR MS","Minerals","Ions","Nutrients","Isotopes","Trace elements","16s table","18s table","Chlorophyll-A","EPS","Enzymes","Bp","Ba","Respiration")

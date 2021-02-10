@@ -50,22 +50,27 @@ updateExpedition <- function(row,expedRanges,params_list,newdf,pool){
   for (i in 3:length(params_list)){
     param <- params_list[i]
     table <- getTableNameFromValue(param)
-
-    if(table=="glacier"){
-      fields <- unique(unlist(templateFieldNames[subCategoriesOfTable[["glacier"]]]))
-      nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]]
-      nbOfValidGlacier1 <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
-      fields <- unique(unlist(templateFieldNames[subCategoriesOfTable[["glacier_ud"]]]))
-      nbEntryForOneGlacier <- nbOfEntryByGlacier[["glacier_ud"]]
-      nbOfValidGlacier2 <- getNbOfNotNULLEntries("glacier_ud",fields,ids,nbEntryForOneGlacier,pool)
-      nbOfValidGlacier <- min(nbOfValidGlacier1,nbOfValidGlacier2)
-     }
-    else{
-      fields <- getFieldsFromValue(param)
-      nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]]
-      nbOfValidGlacier <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
+    if(param=="16s" || param=="18s" || param=="trace_el" || param=="ft_icr_ms"){
+      newdf[[rownames(row),i]] <- row[[param]]
     }
-    newdf[[rownames(row),i]] <- paste0(nbOfValidGlacier," / ",nbOfGlacier)
+    else{
+      if(table=="glacier"){
+        fields <- unique(unlist(templateFieldNames[subCategoriesOfTable[["glacier"]]]))
+        nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]]
+        nbOfValidGlacier1 <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
+        fields <- unique(unlist(templateFieldNames[subCategoriesOfTable[["glacier_ud"]]]))
+        nbEntryForOneGlacier <- nbOfEntryByGlacier[["glacier_ud"]]
+        nbOfValidGlacier2 <- getNbOfNotNULLEntries("glacier_ud",fields,ids,nbEntryForOneGlacier,pool)
+        nbOfValidGlacier <- min(nbOfValidGlacier1,nbOfValidGlacier2)
+      }
+      else{
+        fields <- getFieldsFromValue(param)
+        nbEntryForOneGlacier <- nbOfEntryByGlacier[[param]]
+        nbOfValidGlacier <- getNbOfNotNULLEntries(table,fields,ids,nbEntryForOneGlacier,pool)
+      }
+      newdf[[rownames(row),i]] <- paste0(nbOfValidGlacier," / ",nbOfGlacier)
+    }
+    
   }
   return(newdf)
 }
@@ -86,7 +91,11 @@ buildProgressTable <- function(pool){
 
   if (nrow(dataframe)==0)
     return(dataframe)
-
+  # print(dataframe)
+  # dataframe <- data.frame("16s"=c(1,2,4),"18s"=c(1,2,4),"trace_el"=c(1,NA,4),"ft_icr_ms"=c(1,2,4))
+  files <- c("16s","18s","trace_el","ft_icr_ms")
+  dataframe[files] <- lapply(dataframe[files], function(x) replace(x,!is.na(x), "1 / 1"))
+  dataframe[files] <- lapply(dataframe[files], function(x) replace(x,is.na(x), "0 / 1"))
   dataframe <- dataframe[order(dataframe$abbreviation),]
   
   dataframe$range<-paste(dataframe$min, dataframe$max, sep=" - ")
@@ -95,11 +104,12 @@ buildProgressTable <- function(pool){
   rowTypes <- colnames(df)
   df[is.na(df)] <- ""
   df <- aggregate(df["range"], by=list(name=df$name,abbreviation=df$abbreviation,location=df$location,glacier=df$glacier,
-                                       doc=df$doc,dom=df$dom,indices=df$indices,mineral=df$mineral,
-                                       ion=df$ion,nutrient=df$nutrient,isotope=df$isotope,chla=df$chla,eps=df$eps,enzyme =df$enzyme,
+                                       doc=df$doc,dom=df$dom,indices=df$indices,ft_icr_ms=df$ft_icr_ms,mineral=df$mineral,
+                                       ion=df$ion,nutrient=df$nutrient,isotope=df$isotope,trace_el=df$trace_el,"16s"=df[["16s"]],
+                                       "18s"=df[["18s"]],chla=df$chla,eps=df$eps,enzyme =df$enzyme,
                                        bp=df$bp,ba=df$ba,respiration=df$respiration),
                   function(x){ paste(unlist(x),collapse = ', ')})
-
+  
   df <- df[order(as.numeric(gsub(" -.+","", df$range)),df$range),]
   headers <- df[["name"]]
   df <- df %>% select(-name)
