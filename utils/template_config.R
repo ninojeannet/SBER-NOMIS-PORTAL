@@ -12,7 +12,7 @@ templateFieldNames[["gl_area"]] <- c('id_glacier_ud','id_glacier','site','gl_sa'
 templateFieldNames[["gl_invent"]] <- c('id_glacier','rgi_v6','glims_id','wgms_id','m_balance','mb_obs','fv_variation','fv_obs','sp_event')
 templateFieldNames[["gl_source"]] <- c('id_glacier','data_s','data_ts','sn_data','sn_data_ts','dem_data','dem_data_ts','mb_data_s','fv_data_s','sp_event_s')
 templateFieldNames[["gl_other"]] <- c('id_glacier','','','','')
-templateFieldNames[["location"]] <- c('id_location','id_glacier','type','date','time','water_temp','ph','potential','do','do_sat','w_co2','conductivity','turb','rdna')
+templateFieldNames[["location"]] <- c('id_location','id_glacier','type','date','time','water_temp','ph','do','do_sat','w_co2','conductivity','turb','rdna')
 templateFieldNames[["patch"]] <- c("id_patch","id_location","name")
 templateFieldNames[["indices"]] <- c("id_biogeo_3u","id_location","replicate","abs254","abs300",
                                         "suva","e2e3","e4e6","s275295","s350400","s300700","sr","bix","fi","hix",
@@ -77,7 +77,7 @@ fullnameFields[["gl_invent"]] <- c('ID','RGI v.6','GLIMS ID','WGMS ID','Mass bal
 fullnameFields[["gl_source"]] <- c('ID','Glacier outline\ndata source','Glacier outline\ntimestamp','Snout position\ndata source','Snout position\ntime stamp','DEM data\nsource','DEM data\ntime stamp','Mass balance\ndata source','Frontal variation\ndata source','Special event\ndata source')
 fullnameFields[["gl_other"]] <- c('ID','','','','')
 fullnameFields[["location"]] <- c('ID','Glacier','Type','Date\n[DD.MM.YYYY]','Time\n[HH:MM]',
-                                  'Water Temp\n[\u00B0C]','pH\n[pH]','Potential\n[mV]','Dissolved Oxygen\n[mg l-1]','Dissolved Oxygen\n[saturation]','Water Co2\n[mATM]',
+                                  'Water Temp\n[\u00B0C]','pH\n[pH]','Dissolved Oxygen\n[mg l-1]','Dissolved Oxygen\n[saturation]','Water Co2\n[mATM]',
                                   'Conductivity\n[uS cm -1]','Turbidity\n[NTU]','Rock DNA\npresent\n[boolean]')
 fullnameFields[["patch"]] <- c("ID","Location",'name')
 fullnameFields[["indices"]] <- c("ID","Location","Replicate","Absorbance\nat 254nm\n[m-1]","Absorbance\nat 300nm\n[m-1]",
@@ -146,7 +146,7 @@ plotDataTypes <- list(`Glaciological metrics` = c("Snout latitude"="lat_sn","Sno
                                                     "Glacier surface area"="gl_sa", "Aspect of ablation zone"="abl_asp","Glacier maximal elevation"="max_el",
                                                     "Glacier mean elevation"="mean_el","Catchment area "="gl_a","Snout to sampling point distance"="sn_sp_dist",
                                                     "Snout to sampling point elevation difference"="sn_sp_ele","Glacier coverage"="gl_cov"),
-                        `Field metrics` = c("Water temperature"="water_temp","pH"="ph","Potential"="potential",
+                        `Field metrics` = c("Water temperature"="water_temp","pH"="ph",
                                             "Dissolved oxygen"="do","Dissolved oxygen saturation"="do_sat",
                                             "Water CO2"="w_co2","Conductivity"="conductivity","Turbidity"="turb",
                                             "Rock DNA present"="rdna"),
@@ -180,8 +180,8 @@ uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs
 
 
 downloadDataTypes <- list(`Field metrics` = c("Field metrics - All"="location-all","Date"="date",
-                                              "Time"="time","Water temperature"="water_temp","pH"="ph",
-                                              "Potential"="potential","Dissolved oxygen"="do","Dissolved oxygen saturation"="do_sat","Water CO2"="w_co2",
+                                              "Time"="time","Water temperature"="water_temp","pH"="ph"
+                                              ,"Dissolved oxygen"="do","Dissolved oxygen saturation"="do_sat","Water CO2"="w_co2",
                                               "Conductivity"="conductivity","Turbidity"="turb","Rock DNA present"="rdna"),
                         `Glaciological metrics` = c("Glaciological metrics - All" ="glacio-all","Identification metrics"="gl_global","Point metrics"="gl_point","Line metrics"="gl_line","Area metrics"="gl_area","Inventory data"="gl_invent","Data sources"="gl_source"
                                                     # ,"Other metrics"="gl_other"
@@ -213,8 +213,8 @@ colConfig <- list()
 colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "DD.MM.YYYY",validator = "function (value, callback) {if (/^(?:(?:31(\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\.)(?:0?[13-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\.)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?![\\s\\S])|[\\s]+|^NA$|^na$/.test(value)) {callback(true)} else {callback(false)}}"),
                                 list(col= 5, validator = "function (value, callback) {
               if (/(^\\d{1,2}:\\d{2}($|:\\d{2}$))|^(?![\\s\\S])|[\\s]+|^NA$|^na$/.test(value)) {callback(true)} else {callback(false)}}"),
-                                list(col= c(6,7,8,9,10,11,12,13), validator = numValidator),
-                                list(col= 14, type = "checkbox",default = FALSE, renderer = "function(instance, td, row, col, prop, value, cellProperties) {
+                                list(col= c(6,7,8,9,10,11,12), validator = numValidator),
+                                list(col= 13, type = "checkbox",default = FALSE, renderer = "function(instance, td, row, col, prop, value, cellProperties) {
               td.style.textAlign = 'center';
               Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
               return td;}")
