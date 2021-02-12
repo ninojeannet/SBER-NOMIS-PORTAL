@@ -176,7 +176,7 @@ formatDFforUpload <- function(df){
 }
 
 formatDFforDownload <- function(df){
-  dformatDFforDownloadf[is.na(df)] <- NA
+  df[is.na(df)] <- NA
   df[df == -9999 | df =="-9999"] <- NA
   return(df)
 }
