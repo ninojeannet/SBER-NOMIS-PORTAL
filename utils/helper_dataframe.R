@@ -176,15 +176,14 @@ formatDFforUpload <- function(df){
 }
 
 formatDFforDownload <- function(df){
-  df[is.na(df)] <- NA
+  dformatDFforDownloadf[is.na(df)] <- NA
   df[df == -9999 | df =="-9999"] <- NA
   return(df)
 }
 
 formatTemplateForDownload <- function(df,table){
-  df <- formatDFforDownload(df)
-  mandatory <- mandatoryFields[[table]]
-  df[,-which(names(df) %in% mandatory)] <- NA
+  df[is.na(df)] <- ""
+  df[df == -9999 | df =="-9999"] <- NA
   df <- setCompleteColumnName(df,table)
   colnames(df) <-   str_replace_all(colnames(df),"\n"," ")
  return(df)
