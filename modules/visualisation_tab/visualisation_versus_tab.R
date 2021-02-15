@@ -27,9 +27,9 @@ visualisationVersusTabUI <- function(id,pool) {
         id = ns('sidebar'),
         div(
           selectInput(ns("paramX"),label = "Select a parameter for X axis",choices = plotDataTypes),
-          prettySwitch(ns("logx"),"Scale X axis with log",value = TRUE,fill = TRUE),
+          prettySwitch(ns("logx"),"Log X axis",value = TRUE,fill = TRUE),
           selectInput(ns("paramY"),label = "Select a parameter for Y axis",choices = plotDataTypes),
-          prettySwitch(ns("logy"),"Scale Y axis with log",value = TRUE,fill = TRUE),
+          prettySwitch(ns("logy"),"Log Y axis",value = TRUE,fill = TRUE),
           radioButtons(ns("selectRange"), "Choose a selection option :",
                        c("Unique glacier" = "simple",
                          "Range of glaciers" = "range",
