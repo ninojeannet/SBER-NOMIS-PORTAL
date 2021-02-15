@@ -173,7 +173,7 @@ plotDataTypes <- list(`Glaciological metrics` = c("Snout latitude"="lat_sn","Sno
                                                      "Nutrients 4:Ammonium"="n4_nh4","Nutrients 5:Nitrate"="n5_no3","Nutrients 6:Nitrite"="n6_no2",
                                                      "Hydrogen stable isotope" = "hydro_isotope","Oxygen stable isotope" = "oxy_isotope"))
 
-downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10","16s table"="16s","18s table"="18s","Trace elements"="trace_el","FT-ICR MS"="ft_icr_ms")
+downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10","16S table"="16s","18S table"="18s","Trace elements"="trace_el","FT-ICR MS"="ft_icr_ms")
 
 # The sublist of all the "DOM type" that can be uploaded
 uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")
@@ -239,4 +239,4 @@ colConfig[["respiration"]] <- list(list(col= 4, validator = numValidator))
 colConfig[["doc"]] <- list(list(col= 4, validator = numValidator))
 
 # Fields to display in the progess table
-summaryFullNameFields <- c("Abbreviation","Range","Field metrics","Glaciological metrics","DOC","DOM file","DOM indices","FT-ICR MS","Minerals","Ions","Nutrients","Isotopes","Trace elements","16s table","18s table","Chlorophyll-A","EPS","Enzymes","Bp","Ba","Respiration")
+summaryFullNameFields <- c("Abbreviation","Range","Field metrics","Glaciological metrics","DOC","DOM file","DOM indices","FT-ICR MS","Minerals","Ions","Nutrients","Isotopes","Trace elements","16S table","18S table","Chlorophyll-A","EPS","Enzymes","Bp","Ba","Respiration")
