@@ -1,5 +1,6 @@
 [
 "get_screen_size.js",
 "download_button_state.js",
+"point_hover_widget.js",
 "shiny_custom_message_handler.js"
 ]

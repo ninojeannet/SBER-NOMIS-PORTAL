@@ -1,3 +1,7 @@
+
+Shiny.addCustomMessageHandler('addHoverWidget', PointHoverWidget.addWidgetCallback.bind(PointHoverWidget));
+Shiny.addCustomMessageHandler('removeHoverWidget', PointHoverWidget.removeWidgetCallback.bind(PointHoverWidget));
+
 // This recieves messages of type "testmessage" from the server.
 Shiny.addCustomMessageHandler('toggledlbutton', DownloadButtonState.toggleCallback.bind(DownloadButtonState));
 

@@ -47,7 +47,7 @@ visualisationVersusTabUI <- function(id,pool) {
       mainPanel(
         id = ns('main'),
         div(
-            plotOutput(ns("plot"))       
+            plotOutput(ns("plot"),hover = hoverOpts(ns('vs_hover')))       
         ),
         width = 9
       )
@@ -121,6 +121,8 @@ visualisationVersusTab <- function(input, output, session,pool){
   data <- reactive({
     generateMergedDF(fields(),ids(),pool)
   })
+  
+  pointHoverWidgetServer(session, 'plot', data, reactive(input$vs_hover),colnames(data[1]))
   
   observeEvent(input$generate,{
     output$plot <- renderPlot({

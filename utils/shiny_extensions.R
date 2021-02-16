@@ -144,7 +144,7 @@ renderStatsTablePerSite <- function(session, output, id, data, sites, selectedSi
 
 
 
-pointHoverWidgetServer <- function(session, plotId, df, input,
+pointHoverWidgetServer <- function(session, plotId, df, input,id_col,
                                    x_label = NULL, y_label = NULL,
                                    override.mapping = NULL, threshold = 5,
                                    secondDf = NULL, secondX = NULL, secondY = NULL) {
@@ -206,7 +206,7 @@ pointHoverWidgetServer <- function(session, plotId, df, input,
         }
         
         # Extract relevant point information
-        pointInfo <- point %>% select(Site_ID, mapping$x, mapping$y)
+        pointInfo <- point %>% select(location, mapping$x, mapping$y)
         
         # Predefine the x and y labels with the mapping info
         x_y_labels = list(
@@ -244,11 +244,13 @@ pointHoverWidgetServer <- function(session, plotId, df, input,
         messageJSON <- toJSON(list(
           'pointInfo' = unbox(pointInfo),
           'mapping' = mapping,
+          'coords_css' = input()$coords_css,
           'coords_img' = input()$coords_img,
+          'range' = input()$range,
           'x_y_labels' = x_y_labels,
           'plotId' = plotId
         ), auto_unbox = TRUE)
-        
+        print(messageJSON)
         # Send the shiny custom message to create a widget
         # Linked to some JavaScript defined in './assets/js/point_hover_widget.js'
         session$sendCustomMessage('addHoverWidget', messageJSON)
@@ -271,7 +273,6 @@ pointHoverWidgetServer <- function(session, plotId, df, input,
     # Send the shiny custom message to remove widgets
     # Linked to some JavaScript defined in './assets/js/point_hover_widget.js'
     session$sendCustomMessage('removeHoverWidget', messageJSON)
-    
   }, ignoreNULL = FALSE)
 }
 
