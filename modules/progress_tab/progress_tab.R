@@ -39,7 +39,7 @@ progressTab <- function(input, output, session,pool){
   # Reactive variable
   getDF <- function(){
     df <- getProgressTable(pool)
-    # df <- df %>% select(-"16s") %>% select(-"18s") %>% select(-"trace_el") %>% select(-"ft_icr_ms")
+    df <- df %>% select(-"16s_tax") %>% select(-"18s_tax")
     return(df)
   }
   

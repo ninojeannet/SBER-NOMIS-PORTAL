@@ -214,7 +214,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     }
     else if(input$type == "expedition" || input$type == "trace_el" || input$type == "ft_icr_ms" ){
       if(input$type == "expedition"){
-        updateSelectInput(session,"domtype",label = "Select a DNA parameter",choices = c("16S table"="16s","18S table"="18s"))
+        updateSelectInput(session,"domtype",label = "Select a DNA parameter",choices = uploadDNAFilesType)
         showElement("domtype")
       }
       else if(input$type == "trace_el" || input$type == "ft_icr_ms"){

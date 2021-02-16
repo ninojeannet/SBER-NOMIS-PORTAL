@@ -173,11 +173,11 @@ plotDataTypes <- list(`Glaciological metrics` = c("Snout latitude"="lat_sn","Sno
                                                      "Nutrients 4:Ammonium"="n4_nh4","Nutrients 5:Nitrate"="n5_no3","Nutrients 6:Nitrite"="n6_no2",
                                                      "Hydrogen stable isotope" = "hydro_isotope","Oxygen stable isotope" = "oxy_isotope"))
 
-downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10","16S table"="16s","18S table"="18s","Trace elements"="trace_el","FT-ICR MS"="ft_icr_ms")
+downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10","16S table"="16s","16S taxonomy"="16s_tax","18S table"="18s","18S taxonomy"="18s_tax","Trace elements"="trace_el","FT-ICR MS"="ft_icr_ms")
 
 # The sublist of all the "DOM type" that can be uploaded
 uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")
-
+uploadDNAFilesType <- c("16S table"="16s","16S taxonomy"="16s_tax","18S table"="18s","18S taxonomy"="18s_tax")
 
 downloadDataTypes <- list(`Field metrics` = c("Field metrics - All"="location-all","Date"="date",
                                               "Time"="time","Water temperature"="water_temp","pH"="ph"
