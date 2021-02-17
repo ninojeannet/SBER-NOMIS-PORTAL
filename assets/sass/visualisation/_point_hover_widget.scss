@@ -48,11 +48,22 @@
         width: 0;
         height: 0;
         top: 100%;
-        left: 15px; 
         border: 10px solid transparent;
         border-bottom: none;
         border-top-color: $white;
         filter: drop-shadow(0 2.88px 0.72px lighten($grey5, 20));
+    }
+
+    &.left {
+        &::after {
+            left: 15px;
+        }
+    }
+
+    &.right {
+        &::after {
+            right: 15px;
+        }
     }
 }
 

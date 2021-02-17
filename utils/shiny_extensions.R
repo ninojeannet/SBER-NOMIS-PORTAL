@@ -250,6 +250,7 @@ pointHoverWidgetServer <- function(session, plotId, df, input,
           'x_y_labels' = x_y_labels,
           'plotId' = plotId
         ), auto_unbox = TRUE)
+        print(messageJSON)
         # Send the shiny custom message to create a widget
         # Linked to some JavaScript defined in './assets/js/point_hover_widget.js'
         session$sendCustomMessage('addHoverWidget', messageJSON)
