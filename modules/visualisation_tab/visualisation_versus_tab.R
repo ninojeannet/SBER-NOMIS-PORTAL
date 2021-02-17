@@ -122,7 +122,7 @@ visualisationVersusTab <- function(input, output, session,pool){
     generateMergedDF(fields(),ids(),pool)
   })
   
-  pointHoverWidgetServer(session, 'plot', data, reactive(input$vs_hover),colnames(data[1]))
+  pointHoverWidgetServer(session, 'plot', data, reactive(input$vs_hover))
   
   observeEvent(input$generate,{
     output$plot <- renderPlot({

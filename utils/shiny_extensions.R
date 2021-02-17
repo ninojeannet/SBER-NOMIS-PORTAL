@@ -144,7 +144,7 @@ renderStatsTablePerSite <- function(session, output, id, data, sites, selectedSi
 
 
 
-pointHoverWidgetServer <- function(session, plotId, df, input,id_col,
+pointHoverWidgetServer <- function(session, plotId, df, input,
                                    x_label = NULL, y_label = NULL,
                                    override.mapping = NULL, threshold = 5,
                                    secondDf = NULL, secondX = NULL, secondY = NULL) {
@@ -204,9 +204,9 @@ pointHoverWidgetServer <- function(session, plotId, df, input,id_col,
           mapping$x <- secondX
           mapping$y <- secondY
         }
-        
+        id_col <- colnames(df()[1])
         # Extract relevant point information
-        pointInfo <- point %>% select(location, mapping$x, mapping$y)
+        pointInfo <- point %>% select(all_of(!!quo(id_col)), mapping$x, mapping$y)
         
         # Predefine the x and y labels with the mapping info
         x_y_labels = list(
@@ -250,7 +250,6 @@ pointHoverWidgetServer <- function(session, plotId, df, input,id_col,
           'x_y_labels' = x_y_labels,
           'plotId' = plotId
         ), auto_unbox = TRUE)
-        print(messageJSON)
         # Send the shiny custom message to create a widget
         # Linked to some JavaScript defined in './assets/js/point_hover_widget.js'
         session$sendCustomMessage('addHoverWidget', messageJSON)

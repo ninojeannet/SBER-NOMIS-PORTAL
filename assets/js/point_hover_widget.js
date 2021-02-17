@@ -26,7 +26,6 @@ PointHoverWidget.buildValueInfo = function(axis, name, value) {
     info.className = `${axis} point-info`;
     info.appendChild(nameElement);
     info.appendChild(valueElement);
-    console.log(info);
     return info;
 };
 
@@ -35,10 +34,13 @@ PointHoverWidget.addWidget = function(plotId, pointInfo, mapping, coords_css, co
     // Build bubble with infos
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
+    const idName = Object.keys(pointInfo)[0];
+    const idDisplay = idName.charAt(0).toUpperCase() + idName.slice(1);
+    const value = pointInfo[idName]
+    bubble.appendChild(this.buildValueInfo(idName, idDisplay, value));
     bubble.appendChild(this.buildValueInfo('x', x_y_labels.x, pointInfo[mapping.x]));
     bubble.appendChild(this.buildValueInfo('y', x_y_labels.y, pointInfo[mapping.y]));
-    bubble.appendChild(this.buildValueInfo('site', 'Station', pointInfo.Site_ID));
-    
+
     // Get plot
     const plot = this.getPlot(plotId);
 
