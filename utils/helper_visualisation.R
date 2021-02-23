@@ -1,7 +1,7 @@
 
 
 VSPlot <- function(df,valueToGroupBy,valueForColors, x ,y,logx,logy){
-  plot <- ggplot(df,aes(x=!!sym(x),y=!!sym(y),color=!!sym(valueForColors)))+
+  plot <- ggplot(df,aes(x=!!sym(x),y=!!sym(y),color=!!sym(valueForColors), cex = 1.2))+
     geom_point()+
     scale_color_manual(values=c('orangered1', 'purple3'), labels=c("DN","UP"))+
     guides(color=guide_legend(""))+
