@@ -16,7 +16,7 @@ visualisationVersusTabUI <- function(id,pool) {
   div(
     div(
       class= 'main-inputs',
-      h1("Visualisation"),
+      h1("Visualisation scatter plot"),
       div(
         class = 'main-actions',
         actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary')

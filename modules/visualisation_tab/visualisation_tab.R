@@ -8,11 +8,11 @@ visualisationTabUI <- function(id,pool) {
   
   tabsetPanel(
     tabPanel(
-      'Visualisation versus',
+      'Scatter plot',
       visualisationVersusTabUI(ns("versus"),pool)
     ),
   tabPanel(
-      'Visualisation simple',
+      'Histogram',
       visualisationSimpleTabUI(ns("simple"),pool)
     ),
   # And the weather tab
