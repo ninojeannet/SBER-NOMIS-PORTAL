@@ -7,26 +7,23 @@ visualisationTabUI <- function(id,pool) {
   ns <- NS(id)
   
   tabsetPanel(
+    # And the map tab
     tabPanel(
-      'Scatter plot',
-      visualisationVersusTabUI(ns("versus"),pool)
+      # Tab title
+      'Map',
+      # Tab content
+      htmlTemplate('./html_components/map.html'),
+      value = ns('mapTab')
     ),
-  tabPanel(
+    tabPanel(
       'Histogram',
       visualisationSimpleTabUI(ns("simple"),pool)
     ),
-  # And the weather tab
-  tabPanel(
-    # Tab title
-    'Map',
-    # Tab content
-    htmlTemplate('./html_components/map.html'),
-    value = ns('mapTab')
+    tabPanel(
+      'Scatter plot',
+      visualisationVersusTabUI(ns("versus"),pool)
+    )
   )
-  )
-  # div(
-  #   "functionality not available yet..."
-  # )
 }
 
 visualisationTab <- function(input, output, session,pool){
