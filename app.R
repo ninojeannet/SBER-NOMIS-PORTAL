@@ -39,6 +39,7 @@ library(future)
 library(purrr)
 library(waiter)
 library(hrbrthemes)
+library(tools)
 ## Load Shiny extensions functions ################################################
 source('./utils/shiny_extensions.R')
 source('./utils/helper_functions.R')

@@ -222,7 +222,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       }
       expeditions(formatExpedList(pool))
       updateSelectInput(session,"expedition",label = "Select an expedition",choices = expeditions())
-      output$fileContainer <- renderUI({fileInput(session$ns("files"),"Select file",accept=".txt",multiple = FALSE)}) 
+      output$fileContainer <- renderUI({fileInput(session$ns("files"),"Select file",accept=".txt,.tre,.nwk,.tree,.treefile",multiple = FALSE)}) 
       w$hide()
       isFileUpload(TRUE)
       isFileExpedUpload(TRUE)
@@ -265,7 +265,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     output$fileExisting <- renderTable({ 
       data.frame("Existing" =c())})
     if(isFileExpedUpload()){
-      if(!is.na(str_match(input$files$name,"\\.txt")[1])){
+      if(isExtensionValid(input$files$name,input$domtype)) {
         output$fileValid <- renderTable({ 
           data.frame("Valid" =input$files$name)})
         enable("uploadFiles")

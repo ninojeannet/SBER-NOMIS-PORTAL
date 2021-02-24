@@ -147,3 +147,13 @@ processDOMFiles <- function(validFilename,validFiles,tablename,type,pool){
     print(f) 
   })
 }
+
+
+isExtensionValid <- function(file,fileType){
+  exts <- fileExtension[[fileType]]
+  ext <- file_ext(file)
+  if(ext %in% exts)
+    return(TRUE)
+  else
+    return(FALSE)
+}

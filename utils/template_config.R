@@ -173,12 +173,19 @@ plotDataTypes <- list(`Glaciological metrics` = c("Snout latitude"="lat_sn","Sno
                                                      "Nutrients 4:Ammonium"="n4_nh4","Nutrients 5:Nitrate"="n5_no3","Nutrients 6:Nitrite"="n6_no2",
                                                      "Hydrogen stable isotope" = "hydro_isotope","Oxygen stable isotope" = "oxy_isotope"))
 
-downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10","16S table"="16s","16S taxonomy"="16s_tax","18S table"="18s","18S taxonomy"="18s_tax","Trace elements"="trace_el","FT-ICR MS"="ft_icr_ms")
+downloadFileTypes <- c("EEM"="eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10","16S table"="16s","16S taxonomy"="16s_tax","16S phylogenetic trees"="16s_phyl","18S table"="18s","18S taxonomy"="18s_tax","18s phylogenetic trees"="18s_phyl","Trace elements"="trace_el","FT-ICR MS"="ft_icr_ms")
 
 # The sublist of all the "DOM type" that can be uploaded
 uploadDOMTypes <- c("EEM" = "eem","Absorbance 1cm"="abs1","Absorbance 10cm"="abs10")
-uploadDNAFilesType <- c("16S table"="16s","16S taxonomy"="16s_tax","18S table"="18s","18S taxonomy"="18s_tax")
+uploadDNAFilesType <- c("16S table"="16s","16S taxonomy"="16s_tax","16S phylogenetic tree"="16s_phyl","18S table"="18s","18S taxonomy"="18s_tax","18S phylogenetic tree"="18s_phyl")
 
+fileExtension <- list()
+fileExtension[["16s"]] <- c("txt")
+fileExtension[["18s"]] <- c("txt")
+fileExtension[["16s_tax"]] <- c("txt")
+fileExtension[["18s_tax"]] <- c("txt")
+fileExtension[["16s_phyl"]] <- c("nwk","tre","tree","treefile")
+fileExtension[["18s_phyl"]] <- c("nwk","tre","tree","treefile")
 downloadDataTypes <- list(`Field metrics` = c("Field metrics - All"="location-all","Date"="date",
                                               "Time"="time","Water temperature"="water_temp","pH"="ph"
                                               ,"Dissolved oxygen"="do","Dissolved oxygen saturation"="do_sat","Water CO2"="w_co2",
