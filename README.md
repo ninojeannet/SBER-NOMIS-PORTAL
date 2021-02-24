@@ -122,3 +122,5 @@ The `db_backups` directory **should be present** and will contains all the _SQL_
 
 ## App deployment
 Detail information on how to deploy this app on an _Ubuntu_ server can be found here: https://github.com/ninojeannet/SBER-NOMIS-PORTAL/wiki/Deployment
+
+Please check out the official wiki for more informations about the application (https://github.com/ninojeannet/SBER-NOMIS-PORTAL/wiki/)
