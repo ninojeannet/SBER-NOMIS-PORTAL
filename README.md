@@ -100,7 +100,7 @@ The `js` directory contains all the _JavaScript_ code organized in different fil
 
 ### Other _R_ script files
 
-#### secrets.R
+#### app_config.R
 A `app_config.R` file **is required** and should contains all sensible information, such as DB name or password. These information are saved in environment variables when the file is sourced during the app startup. More info at https://github.com/mclement18/METALP-Portal-server/tree/master/app_deployment#create-or-update-secretr-file
 
 #### packages_installation.R
