@@ -121,4 +121,6 @@ The `data` directory contains all the files saved from the application on the se
 The `db_backups` directory **should be present** and will contains all the _SQL_ database backups made with the DB backup functionnality of the portal actions module. See `modules/portal_management/portal_actions.R` file for more information.
 
 ## App deployment
-Detail information on how to deploy this app on an _Ubuntu_ server can be found here: https://github.com/mclement18/METALP-Portal-server/tree/master/app_deployment
+Detail information on how to deploy this app on an _Ubuntu_ server can be found here: https://github.com/ninojeannet/SBER-NOMIS-PORTAL/wiki/Deployment
+
+Please check out the official wiki for more informations about the application (https://github.com/ninojeannet/SBER-NOMIS-PORTAL/wiki/)
