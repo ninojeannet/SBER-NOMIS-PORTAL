@@ -17,10 +17,7 @@ visualisationVersusTabUI <- function(id,pool) {
     div(
       class= 'main-inputs',
       h1("Visualisation scatter plot"),
-      div(
-        class = 'main-actions',
-        actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary')
-      )),
+     ),
     # Create the sidebarLayout
     sidebarLayout(
       sidebarPanel(

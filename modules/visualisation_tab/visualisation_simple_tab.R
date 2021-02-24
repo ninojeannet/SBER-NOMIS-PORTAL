@@ -15,10 +15,7 @@ visualisationSimpleTabUI <- function(id,pool) {
     div(
       class= 'main-inputs',
       h1("Visualisation histogram"),
-      div(
-        class = 'main-actions',
-        actionButton(ns('help'), 'Help', class = 'help custom-style custom-style--primary')
-      )),
+      ),
     # Create the sidebarLayout
     sidebarLayout(
       sidebarPanel(
