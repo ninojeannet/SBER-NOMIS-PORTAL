@@ -157,3 +157,22 @@ isExtensionValid <- function(file,fileType){
   else
     return(FALSE)
 }
+
+saveMapURL <- function(url){
+  if (!dir.exists("data/url/"))
+    dir.create("data/url/",recursive = TRUE)
+  if(!file.exists("data/url/map.txt"))
+    file.create("data/url/map.txt")
+  fileConn<-file("data/url/map.txt")
+  writeLines(c(url), fileConn)
+  close(fileConn)
+}
+
+getMapURL <- function(){
+  if(!file.exists("data/url/map.txt"))
+    return("")
+  fileConn<-file("data/url/map.txt")
+  value <- readLines(fileConn)
+  close(fileConn)
+  return(value)
+}

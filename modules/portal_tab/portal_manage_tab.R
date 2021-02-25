@@ -41,6 +41,20 @@ portalManageUI <- function(id) {
         ),
         actionButton(ns('delete'), 'Delete', icon = icon('trash-alt'), class = 'custom-style custom-style--primary'),
       )
+    ),
+    div(
+      class = 'action',
+      h2('Manage map URL'),
+      p('Define the URL that should be used to display the map in the visualisation tab.'),
+      textAreaInput(ns("url"),"Map URL",value = "test",width = "500px",height = "150px"),
+      
+      div(
+        class = 'btn-group',
+        # Create and return a downloadButton disabled by default
+      
+        # Add "onclick = 'return false;'" additional attribute to disable the button which is in reality a hyper link
+        actionButton(ns('seturl'),label = "Update URL", class = 'custom-style custom-style--primary')
+      )
     )
   )
 }
@@ -404,4 +418,20 @@ portalManage <- function(input, output, session) {
     },
     contentType = 'application/zip'
   )  
+  
+  updateTextAreaInput(session,"url","Map URL",value = getMapURL())
+  
+  observeEvent(input$seturl,{
+    tryCatch({
+      saveMapURL(input$url)
+      
+      updateTextAreaInput(session,"url","Map URL",value = input$url)
+      showNotification("URL successfully updated",type = "message")    
+      },error = function(err){
+      print(err)
+      showNotification(err$message,type = "error",duration = NULL)
+    }
+    )
+    
+  })
 }

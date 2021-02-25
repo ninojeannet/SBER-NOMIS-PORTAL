@@ -12,7 +12,7 @@ visualisationTabUI <- function(id,pool) {
       # Tab title
       'Map',
       # Tab content
-      htmlTemplate('./html_components/map.html'),
+      htmlTemplate('./html_components/map.html',url = getMapURL()),
       value = ns('mapTab')
     ),
     tabPanel(
