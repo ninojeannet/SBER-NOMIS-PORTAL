@@ -426,7 +426,11 @@ portalManage <- function(input, output, session) {
       saveMapURL(input$url)
       
       updateTextAreaInput(session,"url","Map URL",value = input$url)
-      showNotification("URL successfully updated",type = "message")    
+      # showNotification("URL successfully updated",type = "message")  
+      # Save action to confirm
+      actionToConfirm('restart')
+      # Show confirmation modal
+      confirmationModal('Restart the app to apply the changes ?', noAction = TRUE)
       },error = function(err){
       print(err)
       showNotification(err$message,type = "error",duration = NULL)
