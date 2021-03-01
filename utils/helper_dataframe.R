@@ -176,7 +176,14 @@ formatDFforUpload <- function(df){
 }
 
 rmInvalidCells <- function(df,name){
-  
+  cols <- numValidatorCols[[name]]
+  print(cols)
+  try(
+    df[cols] <- data.frame(lapply(df[cols], function(x){
+      return(suppressWarnings(as.character(as.numeric(x))))
+    })) 
+  )
+
 }
 
 formatDFforDownload <- function(df){
