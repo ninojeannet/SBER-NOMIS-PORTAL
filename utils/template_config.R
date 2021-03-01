@@ -215,6 +215,7 @@ typeList <- function(){
 numValidator <- "function (value, callback) {
   if (/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$|^(?![\\s\\S])|[\\s]+|^NA$|^na$/.test(value)) {return callback(true);} else {return callback(false);}}"
 
+
 # List of column configuration for each groups
 colConfig <- list()
 colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "DD.MM.YYYY",validator = "function (value, callback) {if (/^(?:(?:31(\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\.)(?:0?[13-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\.)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?![\\s\\S])|[\\s]+|^NA$|^na$/.test(value)) {callback(true)} else {callback(false)}}"),
@@ -245,5 +246,9 @@ colConfig[["chla"]] <- list(list(col=4,validator=numValidator))
 colConfig[["respiration"]] <- list(list(col= 4, validator = numValidator))
 colConfig[["doc"]] <- list(list(col= 4, validator = numValidator))
 
+numValidatorCols <- list("gl_global"=c(),"gl_point"=c(3:11),"gl_line"=c(3:5),"gl_area"=c(3:5),"gl_invent"=c(),
+                     "gl_source"=c(),"indices"=c(4:13),"ion"=c(4:9),"mineral"=c(4:12),"nutrient"=c(4:9),
+                     "isotope"=c(4:5),"enzyme"=c(4:8),"eps"=c(4),"bp"=c(4),"ba"=c(4:5),"chla"=c(4),
+                     "respiration"=c(4),"doc"=c(4),"location"=c(6:12))
 # Fields to display in the progess table
 summaryFullNameFields <- c("Abbreviation","Range","Field metrics","Glaciological metrics","DOC","DOM file","DOM indices","FT-ICR MS","Minerals","Ions","Nutrients","Isotopes","Trace elements","16S table","18S table","Chlorophyll-A","EPS","Enzymes","Bp","Ba","Respiration")

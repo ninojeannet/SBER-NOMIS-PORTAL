@@ -175,6 +175,10 @@ formatDFforUpload <- function(df){
   return(df)
 }
 
+rmInvalidCells <- function(df,name){
+  
+}
+
 formatDFforDownload <- function(df){
   df[is.na(df)] <- NA
   df[df == -9999 | df =="-9999"] <- NA

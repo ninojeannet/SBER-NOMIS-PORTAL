@@ -60,7 +60,7 @@ manageDataTabUI <- function(id,title,pool){
             use_waiter(),
             div(id =ns("table-container"),class="table-container",rHandsontableOutput(ns("table"))),
             hidden(actionButton(ns("upload"),"Upload data",class="upload-button")),
-            hidden(downloadButton(ns("download"),"Download empty template",class="upload-button")) 
+            hidden(downloadButton(ns("download"),"Download template",class="upload-button")) 
           ),
           width = 9
         )
@@ -319,14 +319,17 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
   # observeEvent that react to upload button click
   # Save the data table in the database
   observeEvent(input$upload,{
-    out <- hot_to_r(input$table)
-    if(!isUploadOnly)
-      show_validation_popup(tableName(),updatedRows(),output,session$ns,FALSE,out)
-    else{
-      w$show()
-      uploadData(out,isolate(tableName()),isolate(input$type),pool)
-      update(!update())
+    if(!is.null(input$table)){
+      out <- hot_to_r(input$table)
+      if(!isUploadOnly)
+        show_validation_popup(tableName(),updatedRows(),output,session$ns,FALSE,out)
+      else{
+        w$show()
+        uploadData(out,isolate(tableName()),isolate(input$type),pool)
+        update(!update())
+      }
     }
+    
   },ignoreInit = TRUE)
   
   # Handler that allow user to download the previously generated file
@@ -401,10 +404,12 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
     }
     else
     {
-      out <- hot_to_r(input$table)
-      w$show()
-      uploadData(out,isolate(tableName()),isolate(input$type),pool)
-      update(!update())
+      if(!is.null(input$table)){
+        out <- hot_to_r(input$table)
+        w$show()
+        uploadData(out,isolate(tableName()),isolate(input$type),pool)
+        update(!update())
+      }
     }
   },ignoreInit = TRUE)
   
@@ -450,9 +455,10 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
 # - listName : the name of the list to display in the table
 # - pool : the database connection pool
 uploadData <- function(df,tablename,listName,pool){
-
+  # print(df)
   out <- setDefaultColumnName(df,listName)
   out <- formatDFforUpload(out)
+  out <- rmInvalidCells(out,listName)
   status <- saveData(out,tablename,TRUE,pool)
   if (status)
     saveLog("upload","Nino",paste0("Upload data ",tablename," in the database"))
