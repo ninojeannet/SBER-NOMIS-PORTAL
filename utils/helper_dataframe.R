@@ -175,15 +175,27 @@ formatDFforUpload <- function(df){
   return(df)
 }
 
-rmInvalidCells <- function(df,name){
+findInvalidCells <- function(df,name){
   cols <- numValidatorCols[[name]]
-  print(cols)
-  try(
+  tryCatch({
     df[cols] <- data.frame(lapply(df[cols], function(x){
-      return(suppressWarnings(as.character(as.numeric(x))))
+      return(as.character(as.numeric(x)))
     })) 
-  )
-
+    valid <- TRUE
+  },
+  warning = function(war){
+    print(war)
+    showNotification("Some cells have invalid format. Please upload valid data.", type = "error")
+    valid <- FALSE
+    },
+  error = function(err){
+    print(err)
+    showNotification("Some cells have invalid format. Please upload valid data.",type = "error",duration = NULL)
+    valid <- FALSE
+  },
+  finally = function(f){
+    return(valid)
+  })
 }
 
 formatDFforDownload <- function(df){

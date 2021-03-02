@@ -325,8 +325,11 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
         show_validation_popup(tableName(),updatedRows(),output,session$ns,FALSE,out)
       else{
         w$show()
-        uploadData(out,isolate(tableName()),isolate(input$type),pool)
-        update(!update())
+        result <- uploadData(out,isolate(tableName()),isolate(input$type),pool)
+        if(result)
+          update(!update())
+        else
+          w$hide()
       }
     }
     
@@ -407,8 +410,11 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
       if(!is.null(input$table)){
         out <- hot_to_r(input$table)
         w$show()
-        uploadData(out,isolate(tableName()),isolate(input$type),pool)
-        update(!update())
+        result <- uploadData(out,isolate(tableName()),isolate(input$type),pool)
+        if(result)
+          update(!update())
+        else
+          w$hide()
       }
     }
   },ignoreInit = TRUE)
@@ -454,17 +460,24 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
 # - tablename : the name of the table
 # - listName : the name of the list to display in the table
 # - pool : the database connection pool
+# Return true if success
 uploadData <- function(df,tablename,listName,pool){
   # print(df)
   out <- setDefaultColumnName(df,listName)
   out <- formatDFforUpload(out)
-  out <- rmInvalidCells(out,listName)
-  status <- saveData(out,tablename,TRUE,pool)
-  if (status)
-    saveLog("upload","Nino",paste0("Upload data ",tablename," in the database"))
+  isValid <- findInvalidCells(out,listName)
+  if(isValid){
+    status <- saveData(out,tablename,TRUE,pool)
+    if (status)
+      saveLog("upload","Nino",paste0("Upload data ",tablename," in the database"))
+    else
+      saveLog("upload","Nino",paste0("FAILED Upload data ",tablename," in the database"))
+    
+    return(TRUE)
+  }
   else
-    saveLog("upload","Nino",paste0("FAILED Upload data ",tablename," in the database"))
-}
+    return(FALSE)
+  }
 
 
 
