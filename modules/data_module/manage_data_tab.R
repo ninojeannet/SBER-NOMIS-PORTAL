@@ -101,7 +101,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
         tmp <- getTableFromGlacier(pool,tableName(),ids())
       else
         tmp <- getFieldsFromGlacier(pool,tableName(),selectedFields(),ids())
-      print(tmp)
+      # print(tmp)
       return(generateFilledDF(tmp,tableName(),ids()))
     }
 
@@ -127,7 +127,7 @@ manageDataTab <- function(input,output,session,pool,dimension,isUploadOnly){
               ranges <- getTable("glacier_range",pool) %>% filter(id_expedition == input$expedSelection)
               ids <- vector()
               for (i in 1:nrow(ranges)) {
-                print(ranges[[i,"min"]])
+                # print(ranges[[i,"min"]])
                 ids <- c(ids,paste0("GL",as.character(ranges[[i,"min"]]:ranges[[i,"max"]])))
               }
               ids
