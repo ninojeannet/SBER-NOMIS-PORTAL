@@ -115,24 +115,6 @@ ui <- tagList(
                     extLinkIcon = icon('external-link-alt', class = 'ext-link')
                 ),
                 value = 'aboutTab'
-            ),
-            # Create the visualisation tab
-            tabPanel(
-                # Create a tab title with an icon
-                tags$span(icon('chart-bar'),tags$span('Visualisation', class = 'navbar-menu-name')),
-                visualisationTabUI('visualisation',pool)
-            ),
-            # Create the visualisation tab
-            tabPanel(
-                # Create a tab title with an icon
-                tags$span(icon('tasks'),tags$span('Database progress', class = 'navbar-menu-name')),
-                progressTabUI('progress')
-            ),
-            # Create the visualisation tab
-            tabPanel(
-                # Create a tab title with an icon
-                tags$span(icon('dna'),tags$span('Protocols', class = 'navbar-menu-name')),
-                protocolsTabUI('protocols')
             )
         ),
         # Add the login module UI
@@ -150,11 +132,45 @@ server <- function(input, output, session) {
 
      user <- callModule(login, 'login', pool)
     dimension <- reactive({input$dimension})
-    callModule(visualisationTab,"visualisation",pool)
-    callModule(progressTab,"progress",pool)
-    callModule(protocolsTab,"protocols",pool)
+
     
     observeEvent(user$role, {
+        
+        
+        if(user$role %in% c('sber', 'admin','intern')){
+            appendTab(
+                'main-nav',
+                # Create the visualisation tab
+                tabPanel(
+                    # Create a tab title with an icon
+                    tags$span(icon('chart-bar'),tags$span('Visualisation', class = 'navbar-menu-name')),
+                    visualisationTabUI('visualisation',pool)
+                )
+            )
+            callModule(visualisationTab,"visualisation",pool)
+            
+            appendTab(
+                'main-nav',
+                tabPanel(
+                    # Create a tab title with an icon
+                    tags$span(icon('tasks'),tags$span('Database progress', class = 'navbar-menu-name')),
+                    progressTabUI('progress')
+                )
+            )
+            
+            callModule(progressTab,"progress",pool)
+            
+            appendTab(
+                'main-nav',
+                # Create the visualisation tab
+                tabPanel(
+                    # Create a tab title with an icon
+                    tags$span(icon('dna'),tags$span('Protocols', class = 'navbar-menu-name')),
+                    protocolsTabUI('protocols')
+                )
+            )
+            callModule(protocolsTab,"protocols",pool)
+        }
         
         if (user$role %in% c('sber', 'admin')) {
             appendTab(
@@ -185,7 +201,8 @@ server <- function(input, output, session) {
             
         }
         if (user$role %in% c('sber', 'admin','intern')) {
-            appendTab(
+
+             appendTab(
                 'main-nav',
                 # Create the download tab
                 tabPanel(
