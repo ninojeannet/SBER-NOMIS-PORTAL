@@ -228,9 +228,9 @@ colConfig[["location"]] <- list(list(col=4,type = "date",dateFormat = "DD.MM.YYY
               return td;}")
           )
 colConfig[["gl_global"]] <- list()
-colConfig[["gl_point"]] <- list(list(col= 3:11, validator = numValidator))
-colConfig[["gl_line"]] <- list(list(col= 3:5, validator = numValidator))
-colConfig[["gl_area"]] <- list(list(col= 3:5, validator = numValidator))
+colConfig[["gl_point"]] <- list(list(col= 4:11, validator = numValidator))
+colConfig[["gl_line"]] <- list(list(col= 4:6, validator = numValidator))
+colConfig[["gl_area"]] <- list(list(col= 4:6, validator = numValidator))
 colConfig[["gl_invent"]] <- list()
 colConfig[["gl_source"]] <- list()
 colConfig[["indices"]] <- list(list(col=4:13, validator = numValidator))
@@ -246,7 +246,7 @@ colConfig[["chla"]] <- list(list(col=4,validator=numValidator))
 colConfig[["respiration"]] <- list(list(col= 4, validator = numValidator))
 colConfig[["doc"]] <- list(list(col= 4, validator = numValidator))
 
-numValidatorCols <- list("gl_global"=c(),"gl_point"=c(3:11),"gl_line"=c(3:5),"gl_area"=c(3:5),"gl_invent"=c(),
+numValidatorCols <- list("gl_global"=c(),"gl_point"=c(4:11),"gl_line"=c(4:6),"gl_area"=c(4:6),"gl_invent"=c(),
                      "gl_source"=c(),"indices"=c(4:13),"ion"=c(4:9),"mineral"=c(4:12),"nutrient"=c(4:9),
                      "isotope"=c(4:5),"enzyme"=c(4:8),"eps"=c(4),"bp"=c(4),"ba"=c(4:5),"chla"=c(4),
                      "respiration"=c(4),"doc"=c(4),"location"=c(6:12))
